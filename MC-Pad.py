@@ -227,7 +227,7 @@ def Select_COM(event):
     Com_No = str(Com_No)
     ser.open()  # シリアルポートOPEN
     # ser.flush()#コマンド送信完了するまで待機
-    time.sleep(wait_uart)
+    time.sleep(wait_uart)       # wait_UART 5msec sleep
     manual_pulse_set()
     pulse_train_set()  # パルス列設定送信
     pulse_width_set()  # パルス幅設定送信
