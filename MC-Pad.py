@@ -33,8 +33,9 @@ import win32gui  # スクリーンショット関係
 
 # import xlrd     #excel読み込み
 # import pprint   #配列print時に改行で見やすく
-# ---------------------------------------------------------
-tk = tkinter.Tk()       # Tk()メソッドでルートウインドウtkを作る tk.mainloop()を最後に実行してウインドウを表示する
+# ------------------- ~モジュールインポート -------------------------
+# ------------------- データ変数　GUI変数定義 -----------------------
+tk = tkinter.Tk()  # Tkクラスのインスタンス生成 tk.mainloop()を最後に実行してウインドウを表示する
 
 rev_name = 'rev1.8'  # Nucleoで表示するRevと合わせる必要あり
 Software_name = 'MC-Pad ' + rev_name + ' ~Pulse Analysis & Development~'
@@ -43,12 +44,12 @@ wait_uart = 0.005  # UART送信後の待ち時間 通信エラーおこる場合
 # NUCLEO COMポート検索-----------------------------------------------
 global ser
 global Com_No
-ports = list_ports.comports()       # 接続されているcomポートのリストを取得、2つのcomポートを使っていればリスト2つ。
+ports = list_ports.comports()  # 接続されているcomポートのリストを取得、2つのcomポートを使っていればリスト2つ。
 # 取得できたportsリストの中から、デバイス名に"STLink"があるデバイスのみを取り出す
 device = [info for info in ports if "STLink" in info.description]  # .descriptionでデバイスの名前を取得出来る
-if not len(device) == 0:    # 上記条件に合う場合、device !=0なので以下の式に入る
-    ser = serial.Serial(device[0].device)       # 名前に"STlink"があるcomポートの設定値を読み込む
-    Com_No = str(device[0])     # リストdeviceの[0]はListPortInfo
+if not len(device) == 0:  # 上記条件に合う場合、device !=0なので以下の式に入る
+    ser = serial.Serial(device[0].device)  # 名前に"STlink"があるcomポートの設定値を読み込む
+    Com_No = str(device[0])  # リストdeviceの[0]はListPortInfo
     print(Com_No + ' open')
     ser.baudrate = 921600  # 通信速度の設定変更
     ser.timeout = None  # timeoutなし
@@ -57,14 +58,13 @@ if not len(device) == 0:    # 上記条件に合う場合、device !=0なので�
 else:
     Com_No = 'Nucleo未接続'
     print('Nucleoが接続されていません')
-# ～2022.8.22
 # ---------------------------------------------------------------------
 
 # Tkinter関係変数------------------------------------------------------
 pulse_disp_num = 6  # UIに表示するパルスの数
 labewid_1 = 16  # ラベルの幅
 boxwid_1 = 10
-pulsemode_0 = tkinter.BooleanVar()  # チェックボックス変数
+pulsemode_0 = tkinter.BooleanVar()  # チェックボックス変数　pulsemode_0.set(True)でON .set(False)でOFF
 pulsemode_1 = tkinter.BooleanVar()  # チェックボックス変数
 pulsemode_2 = tkinter.BooleanVar()  # チェックボックス変数
 pulsemode_3 = tkinter.BooleanVar()  # チェックボックス変数
@@ -73,7 +73,7 @@ pulsemode_5 = tkinter.BooleanVar()  # チェックボックス変数
 stepvm_en = tkinter.BooleanVar()  # チェックボックス変数
 
 # Pulse設定配列
-pulse_set_array = [['' for i in range(20)] for j in range(1)]  # 2次元配列定義
+pulse_set_array = [['' for i in range(20)] for j in range(1)]  # 2次元配列定義 jのrange(1)なので["","","",....,""]
 pulse_set_n = 0  # パルス種設定
 wait_set_n = 1  # Wait時間
 anystep_n = 2  # 任意パルスステップ数
@@ -120,13 +120,20 @@ pulse_width_array = [  # パルス幅設定配列
     [630, 630, 1260, 0, 0, 0],
     [0, 0, 244, 0, 0, 0]]
 
-pulse_train_array = [['' for i in range(12)] for j in range(7)]  # 2次元配列定義
+pulse_train_array = [['' for i in range(12)] for j in range(7)]  # 2次元配列定義　空のリスト作成
 pulse_train_array_str = [['' for i in range(12)] for j in range(7)]  # 2次元配列定義
 
 pulse_train_array_name = [['' for i in range(12)] for j in range(7)]  # 2次元配列定義
-for i, row in enumerate(pulse_train_array_name, 0):  # i=行番号、row=行内容
-    for n, col in enumerate(row):  # n=列番号、col=列内容
-        col = 'pat' + str(i) + str(n)  #
+"""
+pulse_train_array_name = [["","","","","","","","","","","",""], 行番号0
+                          ["","","","","","","","","","","",""], 行番号1
+                          .-------- row 行内容 ----------------
+                          .
+                          ["","","","","","","","","","","",""]] 行番号7
+"""
+for i, row in enumerate(pulse_train_array_name, 0):  # i=行番号、row=行内容 上記リストのインデックスがi、値がrow
+    for n, col in enumerate(row):  # n=列番号、col=列内容 上記rowのインデックスがn、値がcol
+        col = 'pat' + str(i) + str(n)  # 最終的にcol='pat611'だが、下の代入により書き換わる
 
 pulse_num_array = [  # パルス本数設定配列
     [1, 1, 1, 1, 1, 1],
@@ -137,34 +144,48 @@ pulse_num_array = [  # パルス本数設定配列
     [1, 1, 1, 1, 1, 1],
     [1, 1, 10, 1, 1, 1]]
 
-pulse_train_name = [0] * 7
-pulse_train_labename = [0] * 7
-for i, row in enumerate(pulse_train_labename, 0):  # i=行番号、row=行内容
-    col = 'trname' + str(i)  #
+pulse_train_name = [0] * 7  # [0,0,0,0,0,0,0]
+pulse_train_labename = [0] * 7  # [0,0,0,0,0,0,0]
+for i, row in enumerate(pulse_train_labename, 0):  # 上記のインデックスがi、値がrow
+    col = 'trname' + str(i)  # col = 'trname6'
 
 # シーケンスEntry配置名　行(row)数=シーケンス数、列(col)数=パラメータ数
+"""
+sequence_name　= [["","","","","","","","","",""], 行番号0
+                  ["","","","","","","","","",""], 行番号1 
+                   .-------- row 行内容 -------
+                   .
+                  ["","","","","","","","","",""]] 行番号9                  
+"""
 sequence_name = [['' for col in range(10)] for row in range(10)]
-for i, row in enumerate(sequence_name, 0):  # i=行番号、row=行内容
-    for n, col in enumerate(row):  # n=列番号、col=列内容
-        col = 'se' + str(i) + str(n)  # seq00,seq01....seq(i)(n)
+for i, row in enumerate(sequence_name, 0):  # i=行番号、row=行内容 上記リストのインデックスがi、値がrow
+    for n, col in enumerate(row):  # n=列番号、col=列内容 上記rowのインデックスがn、値がcol
+        col = 'se' + str(i) + str(n)  # seq00,seq01....seq(i)(n),最終的にseq99
 
 seq_runopt = 0
 sequence_array = [[0] * 10 for row in range(10)]  # 2次元配列を0で初期化
-for i, row in enumerate(sequence_array, 0):
+"""
+sequence_array = [[0,0,0,0,0,0,0,0,0,0], 行番号0
+                  [0,0,0,0,0,0,0,0,0,0], 行番号1
+                  .----- row 行内容 ----
+                  .
+                  [0,0,0,0,0,0,0,0,0,0]]　行番号9
+"""
+for i, row in enumerate(sequence_array, 0):  # i=行番号、row=行内容 上記リストのインデックスがi、値がrow
     if i == 0:
         sequence_array[i] = [1, 40, 200, 1, 0, 0, 0, 0, 0, 3.0]  # シーケンス設定配列 初期値
-    else:
+    else:  # i=1~9
         sequence_array[i] = [0, 0, 200, 0, 0, 0, 0, 0, 0, 3.0]  # シーケンス設定配列 初期値
 
 seq_jdge_array = [0] * 7  # 判定方法選択　0 フォト判定/1 Vrs判定/2フォトNG停止3/周波数設定/4保存/5詳細保存/6評価パルス設定
-for i, row in enumerate(seq_jdge_array, 0):
-    seq_jdge_array[i] = tkinter.BooleanVar()
+for i, row in enumerate(seq_jdge_array, 0):  # seq_jdge_array = [0,0,0,0,0,0,0] インデックスがi、値がrow
+    seq_jdge_array[i] = tkinter.BooleanVar()  # チェックボックス変数　7個のチェックボックスを用意しているが、5個しかGUI上に無い
 
 # カメラ関係変数
 # cam_list = []
 cam_no = 0
 cam_delaylist = [100, 300, 500, 700, 1000]
-cam_delay = cam_delaylist[1]
+cam_delay = cam_delaylist[1]  # cam_delayListからdelay値を選択
 
 # フォト位置検出変数
 # global entrypi2_3
@@ -172,23 +193,23 @@ cam_delay = cam_delaylist[1]
 # piseq_save_det = tkinter.BooleanVar() #チェックボックス変数
 # piseq_stop = tkinter.BooleanVar()
 # piseq_freq = tkinter.BooleanVar()
-piseq_section = [0] * 6
+piseq_section = [0] * 6  # [0,0,0,0,0,0]
 for i in range(6):
-    piseq_section[i] = tkinter.BooleanVar()
+    piseq_section[i] = tkinter.BooleanVar()  # 6個のチェックボックスを用意
 
-piset_name = [0] * 6
-piset_array = [0, 360, 200, 3.0, 0, 0]  # Photo検出時のパルス設定
+piset_name = [0] * 6  # [0,0,0,0,0,0]
+piset_array = [0, 360, 200, 3.0, 0, 0]  # Photo検出時のパルス条件設定　使用パルス/1周step数/周波数/電圧/検出mode/offset
 piresult = ['pires0', 'pires1', 'pires2']
 
-piset_value_name = [[0] * 3 for row in range(4)]
-piset_value_array = [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
+piset_value_name = [[0] * 3 for row in range(4)]  # [[0,0,0],[0,0,0],[0,0,0],[0,0,0]]
+piset_value_array = [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]  # シーケンス設定GUI部
 # result_data =[['' for col in range(30)] for row in range(100)]
 
 # vrsウィンドウ変数
 vrswindow_flag = 0
-vrsdt_name = [0] * 4
-vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間
-vrsjdg_name = [0] * 16
+vrsdt_name = [0] * 4  # [0,0,0,0]
+vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間 GUI上は1400/3000/4000/5000
+vrsjdg_name = [0] * 16  # [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 vrsjdg_array = [1, 1, 0, 1,
                 0, 1, 0, 1,
                 1, 1, 0, 1,
@@ -196,6 +217,9 @@ vrsjdg_array = [1, 1, 0, 1,
 df_vrs_res = pd.DataFrame()
 
 
+# ----------------- ~データ変数　GUI変数定義 ------------------------
+# 2022.8.23
+# ----------------- 関数定義 ----------------------------------
 # //シリアルポート制御サブルーチン-----------------------------
 def Select_COM(event):
     Com_No = Box1_1.get()  # get()でエントリーボックス値取得
@@ -2197,6 +2221,8 @@ def vrs_window():
     entryvrs_2.insert(tkinter.END, '-2')
     entryvrs_2.grid(row=6, column=7, columnspan=1, sticky=tkinter.W)
 
+
+# ---------------- ~関数定義 ----------------------------------
 
 # COMポート設定---------------------------------------
 frame1 = tkinter.Frame(tk, pady=10, padx=10)
