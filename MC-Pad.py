@@ -2,7 +2,7 @@
 このファイルは、理解のためにver1.8にコメントを追記したファイルです。
 プログラムは、そのままで、軽微な整形（#XXX⇒#　XXX）等も合わせて実施しています。
 """
-# ------------ モジュールインポート ---------------------------------
+# ------------ 1. モジュールインポート ---------------------------------
 import time
 import copy
 # import numpy as np
@@ -33,23 +33,23 @@ import win32gui  # スクリーンショット関係
 
 # import xlrd     #excel読み込み
 # import pprint   #配列print時に改行で見やすく
-# ------------------- ~モジュールインポート -------------------------
-# ------------------- データ変数　GUI変数定義 -----------------------
+# ------------------- ~1. モジュールインポート -------------------------
+# ------------------- 2. データ変数　GUI変数定義 -----------------------
 tk = tkinter.Tk()  # Tkクラスのインスタンス生成 tk.mainloop()を最後に実行してウインドウを表示する
 
 rev_name = 'rev1.8'  # Nucleoで表示するRevと合わせる必要あり
 Software_name = 'MC-Pad ' + rev_name + ' ~Pulse Analysis & Development~'
 wait_uart = 0.005  # UART送信後の待ち時間 通信エラーおこる場合は大きくする
-
-# NUCLEO COMポート検索-----------------------------------------------
+# ------------------- ~ 2. データ変数　GUI変数定義 ----------------------
+# ------------------- 3. NUCLEO COMポート検索 -------------------------
 global ser
 global Com_No
 ports = list_ports.comports()  # 接続されているcomポートのリストを取得、2つのcomポートを使っていればリスト2つ。
 # 取得できたportsリストの中から、デバイス名に"STLink"があるデバイスのみを取り出す
 device = [info for info in ports if "STLink" in info.description]  # .descriptionでデバイスの名前を取得出来る
 if not len(device) == 0:  # 上記条件に合う場合、device !=0なので以下の式に入る
-    ser = serial.Serial(device[0].device)  # 名前に"STlink"があるcomポートの設定値を読み込む
-    Com_No = str(device[0])  # リストdeviceの[0]はListPortInfo
+    ser = serial.Serial(device[0].device)  # 名前に"STlink"があるcomポートの設定値を読み込む device[0].deviceはSTlinkがるcomポート番号
+    Com_No = str(device[0])  # リストdeviceの[0]はListPortInfo: COM*-STMicroelectronicsSTLink Virtual COM Port(COM*)
     print(Com_No + ' open')
     ser.baudrate = 921600  # 通信速度の設定変更
     ser.timeout = None  # timeoutなし
@@ -58,9 +58,9 @@ if not len(device) == 0:  # 上記条件に合う場合、device !=0なので以
 else:
     Com_No = 'Nucleo未接続'
     print('Nucleoが接続されていません')
-# ---------------------------------------------------------------------
+# -------------------- ~ 3. NUCLEO COMポート検索 ----------------------
 
-# Tkinter関係変数------------------------------------------------------
+# -------------------- 4. Tkinter関係変数 -----------------------------
 pulse_disp_num = 6  # UIに表示するパルスの数
 labewid_1 = 16  # ラベルの幅
 boxwid_1 = 10
@@ -71,8 +71,8 @@ pulsemode_3 = tkinter.BooleanVar()  # チェックボックス変数
 pulsemode_4 = tkinter.BooleanVar()  # チェックボックス変数
 pulsemode_5 = tkinter.BooleanVar()  # チェックボックス変数
 stepvm_en = tkinter.BooleanVar()  # チェックボックス変数
-
-# Pulse設定配列
+# -------------------- ~ 4. Tkinter関係変数 ---------------------------
+# -------------------- 5. Pulse設定配列、GUI表示データ定義 ---------------
 pulse_set_array = [['' for i in range(20)] for j in range(1)]  # 2次元配列定義 jのrange(1)なので["","","",....,""]
 pulse_set_n = 0  # パルス種設定
 wait_set_n = 1  # Wait時間
@@ -206,19 +206,20 @@ piset_value_array = [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]  #
 # result_data =[['' for col in range(30)] for row in range(100)]
 
 # vrsウィンドウ変数
-vrswindow_flag = 0
+vrswindow_flag = 0      # 使用していない
 vrsdt_name = [0] * 4  # [0,0,0,0]
-vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間 GUI上は1400/3000/4000/5000
+vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間 GUI上は1400/3000/4000/5000 これはinitial_trainで読み込まれ書き換えられる
 vrsjdg_name = [0] * 16  # [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 vrsjdg_array = [1, 1, 0, 1,
                 0, 1, 0, 1,
                 1, 1, 0, 1,
-                0, 1, 0, 1]
+                0, 1, 0, 1]          # initial.trainで書き換えられる　patA、patB
 df_vrs_res = pd.DataFrame()
 
 
-# ----------------- ~データ変数　GUI変数定義 ------------------------
-# 2022.8.23
+# -------------------- 5. Pulse設定配列、GUI表示変数定義 ---------------
+# 6. initial設定読み込み に処理が移る
+#
 # ----------------- 関数定義 ----------------------------------
 # //シリアルポート制御サブルーチン-----------------------------
 def Select_COM(event):
@@ -1695,8 +1696,8 @@ def read_alert(str_al):
     alert_lab.pack(anchor='center', expand=1)
     alertwindow.after(2000, lambda: alertwindow.destroy())
 
-
-# initial設定読み込み----------------------------
+# 2022.8.24
+# --------------- 6. initial設定読み込み ----------------------------
 dirpath = os.getcwd()  # カレントディレクトリ取得
 filepath = dirpath + "/" + "initial_train.xlsx"
 print(filepath)
@@ -1709,8 +1710,8 @@ tk.title(Software_name)
 tk.geometry("500x" + str(win_tate) + "+20+20")  # windowサイズ+x座標+y座標
 
 
-# ----------------------------------------------
-
+# ------------ ~ 6. initial設定読み込み -------------------------------
+# 7. COMポート設定に処理が移る
 ###############
 ####GUI設定#####
 # シーケンス機能window作成
@@ -2224,7 +2225,7 @@ def vrs_window():
 
 # ---------------- ~関数定義 ----------------------------------
 
-# COMポート設定---------------------------------------
+# ---------------- 7. COMポート設定 ----------------------------
 frame1 = tkinter.Frame(tk, pady=10, padx=10)
 frame1.pack(anchor=tkinter.W)  # frame配置左よせ
 
@@ -2244,6 +2245,7 @@ Box1_1.grid(row=0, column=1, sticky=tkinter.W)
 Button1_1.grid(row=0, column=2)
 Button1_2.grid(row=0, column=3)
 
+# ---------------- ~ 7. COMポート設定 --------------------------
 # AD2設定-----------------
 # ---------------------------
 frame2 = tkinter.Frame(tk, pady=10)
