@@ -206,14 +206,14 @@ piset_value_array = [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]  #
 # result_data =[['' for col in range(30)] for row in range(100)]
 
 # vrsウィンドウ変数
-vrswindow_flag = 0      # 使用していない
+vrswindow_flag = 0  # 使用していない
 vrsdt_name = [0] * 4  # [0,0,0,0]
 vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間 GUI上は1400/3000/4000/5000 これはinitial_trainで読み込まれ書き換えられる
 vrsjdg_name = [0] * 16  # [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 vrsjdg_array = [1, 1, 0, 1,
                 0, 1, 0, 1,
                 1, 1, 0, 1,
-                0, 1, 0, 1]          # initial.trainで書き換えられる　patA、patB
+                0, 1, 0, 1]  # initial.trainで書き換えられる　patA、patB
 df_vrs_res = pd.DataFrame()
 
 
@@ -228,7 +228,7 @@ def Select_COM(event):
     Com_No = str(Com_No)
     ser.open()  # シリアルポートOPEN
     # ser.flush()#コマンド送信完了するまで待機
-    time.sleep(wait_uart)       # wait_UART 5msec sleep
+    time.sleep(wait_uart)  # wait_UART 5msec sleep
     manual_pulse_set()
     pulse_train_set()  # パルス列設定送信
     pulse_width_set()  # パルス幅設定送信
@@ -1023,15 +1023,28 @@ def train_sort(array_name):  # パルス数が6以下の場合に配列の行を
     array_prov.append(array_name[array_num])
     return array_prov
 
-
+# 2022.8.25
 def train_conv():  # パルス列を記号に変換
     for y, row in enumerate(pulse_train_array, 0):
-        for x, col in enumerate(row):
-            aph1 = (int(str(col), 2) >> 2) & 0b11  # 文字列を2進数として読み込んでビット取り出し
-            aph2 = (int(str(col), 2) >> 6) & 0b11
-            bph1 = (int(str(col), 2) >> 0) & 0b11
-            bph2 = (int(str(col), 2) >> 4) & 0b11
-
+        for x, col in enumerate(row):       # b7_b6_b5_b4_b3_b2_b1_b0(b7-b6:A相検出、b5-b4:B相検出、b3-b2:A相OUT、b1-b0:B相OUT)
+            aph1 = (int(str(col), 2) >> 2) & 0b11   # ①　文字列を2進数として読み込んでビット取り出し A相OUT
+            aph2 = (int(str(col), 2) >> 6) & 0b11   # ②　A相検出
+            bph1 = (int(str(col), 2) >> 0) & 0b11   # ③　B相OUT
+            bph2 = (int(str(col), 2) >> 4) & 0b11   # ④　B相検出
+            """
+            (例) initial_train.xls 
+                            A1        B1          C1          D1          E1          F1          A2 B2 C2 D2 E2 F2                
+            y=0の時のrowの値 00001000  00001010    01000010    00000110    01000000    00000000    .................         
+                            ↓           ↓           ↓           ↓           ↓          ...........................                         
+                           x=0のcol  x=1のcol     x=2のcol     x=3のcol     x=4のcol     ...........................
+            ①　2進数として数値化すると、0b1000　2bit右シフトで&0b11するとaph1=0b10
+            ②　2進数として数値化すると、0b1000　6bit右シフトで&0b11するとaph2=0b00
+            ③　2進数として数値化すると、0b1000　0bit右シフトで&0b11するとbph1=0b00
+            ④　2進数として数値化すると、0b1000　4bit右シフトで&0b11するとbph1=0b00
+            下の条件式を処理すると、
+            aph="NP"
+            bph="--"            
+            """
             if aph1 == 0b01:
                 aph = "RP"
             elif aph1 == 0b10:
@@ -1696,12 +1709,12 @@ def read_alert(str_al):
     alert_lab.pack(anchor='center', expand=1)
     alertwindow.after(2000, lambda: alertwindow.destroy())
 
-# 2022.8.24
+
 # --------------- 6. initial設定読み込み ----------------------------
 dirpath = os.getcwd()  # カレントディレクトリ取得
 filepath = dirpath + "/" + "initial_train.xlsx"
 print(filepath)
-train_reading(filepath)  # 初期パルス設定読み込み
+train_reading(filepath)  # 初期パルス設定読み込み initial_train.xlsxの読み込み
 train_conv()  # パルスを記号に変換
 
 win_tate = pulse_disp_num * 25 + 500
