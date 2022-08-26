@@ -1025,7 +1025,7 @@ def train_sort(array_name):  # パルス数が6以下の場合に配列の行を
 
 # 2022.8.25
 def train_conv():  # パルス列を記号に変換
-    for y, row in enumerate(pulse_train_array, 0):
+    for y, row in enumerate(pulse_train_array, 0):  # リストpulse_train_arrayから、インデックス初期値を0としyに、値をrowに取り込む
         for x, col in enumerate(row):       # b7_b6_b5_b4_b3_b2_b1_b0(b7-b6:A相検出、b5-b4:B相検出、b3-b2:A相OUT、b1-b0:B相OUT)
             aph1 = (int(str(col), 2) >> 2) & 0b11   # ①　文字列を2進数として読み込んでビット取り出し A相OUT
             aph2 = (int(str(col), 2) >> 6) & 0b11   # ②　A相検出
