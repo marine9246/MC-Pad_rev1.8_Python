@@ -33,7 +33,7 @@ import win32gui  # スクリーンショット関係
 
 # import xlrd     #excel読み込み
 # import pprint   #配列print時に改行で見やすく
-# ------------------- ~1. モジュールインポート -------------------------
+# ------------------- ~ 1. モジュールインポート ------------------------
 # ------------------- 2. データ変数　GUI変数定義 -----------------------
 tk = tkinter.Tk()  # Tkクラスのインスタンス生成 tk.mainloop()を最後に実行してウインドウを表示する
 
@@ -210,14 +210,13 @@ vrswindow_flag = 0  # 使用していない
 vrsdt_name = [0] * 4  # [0,0,0,0]
 vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間 GUI上は1400/3000/4000/5000 これはinitial_trainで読み込まれ書き換えられる
 vrsjdg_name = [0] * 16  # [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-vrsjdg_array = [1, 1, 0, 1,
+vrsjdg_array = [1, 1, 0, 1, # 1:NG, 0:OK
                 0, 1, 0, 1,
                 1, 1, 0, 1,
                 0, 1, 0, 1]  # initial.trainで書き換えられる　patA、patB
-df_vrs_res = pd.DataFrame()
+df_vrs_res = pd.DataFrame()     # df_vrs_resオブジェクトをデータフレームオブジェクトとして扱う
 
-
-# -------------------- 5. Pulse設定配列、GUI表示変数定義 ---------------
+# -------------------- ~ 5. Pulse設定配列、GUI表示変数定義 -----------
 # 6. initial設定読み込み に処理が移る
 #
 # ----------------- 関数定義 ----------------------------------
@@ -1023,7 +1022,7 @@ def train_sort(array_name):  # パルス数が6以下の場合に配列の行を
     array_prov.append(array_name[array_num])
     return array_prov
 
-# 2022.8.25
+
 def train_conv():  # パルス列を記号に変換
     for y, row in enumerate(pulse_train_array, 0):  # リストpulse_train_arrayから、インデックス初期値を0としyに、値をrowに取り込む
         for x, col in enumerate(row):       # b7_b6_b5_b4_b3_b2_b1_b0(b7-b6:A相検出、b5-b4:B相検出、b3-b2:A相OUT、b1-b0:B相OUT)
@@ -1075,25 +1074,45 @@ def train_conv():  # パルス列を記号に変換
     # print(pulse_train_array_str)
 
 
+"""
+Excel file(initial_train.xlsx)のsenddataシートの値を読込む
+例外処理（ファイル無し、読み込みエラー）有り
+引数:initial_train.xlsxのパス 
+"""
 def train_reading(readfile):
-    global pulse_train_array
-    global pulse_width_array
-    global pulse_num_array
-    global pulse_train_name
+    global pulse_train_array        # Excel　P0_Tr～Pr_trをrow、A1～F2をcolデータとする
+    global pulse_width_array        # Excel　P0_wd～Pr_wdをrow、A1～F1をcolデータとする
+    global pulse_num_array          # Excel　P0_wd～Pr_wdをrow、A2～F2をcolデータとする
+    global pulse_train_name         # Excel　P0_wd～Pr_wdをrow、typeをcolデータとする
     global vrsdt_array
     global vrsjdg_array
 
     try:
-        df_tr_raw = pd.read_excel(str(readfile), index_col=0)
+        df_tr_raw = pd.read_excel(str(readfile), index_col=0)   # 第1引数：ファイルパスreadfileで可、第2引数:インデックスにする列
         print(df_tr_raw)
         # print('test:'+ df_tr_raw.index)
         # print( True in df_tr_raw.index.isin(['Dt区間']))
+        """
+        例
+                type    A1      B1  ...F1   A2      B2  ...F2
+        P0_tr   name1   d1      d2  ...d6   d7      d8  ...d12
+        P1_tr   name2   d11     d22 ...d66  d77     d88 ...d122
+        .
+        .
+        .
+        pr_tr   name7   d111    d222...d666 d777    d888...d1222
+        である場合、
+        
+        以下の処理で上記Dataframeをlistに変換する
+        pulse_train_array = [[d1,d2,...d6,d7,d8,...d12],[d11,d22,...d66,d77,d88,...d122],...,[d111,d222...d666,d777,d888,...d1222]]
+        
+        """
 
-        pulse_train_array = df_tr_raw.loc['P0_tr':'Pr_tr', 'A1':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換
-        pulse_width_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A1':'F1'].astype(int).values.tolist()  # Dataframeをlistに変換
-        pulse_num_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A2':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換
-        pulse_train_name = df_tr_raw.loc['P0_tr':'Pr_tr', 'type'].astype(str).values.tolist()
-
+        pulse_train_array = df_tr_raw.loc['P0_tr':'Pr_tr', 'A1':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
+        pulse_width_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A1':'F1'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
+        pulse_num_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A2':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
+        pulse_train_name = df_tr_raw.loc['P0_tr':'Pr_tr', 'type'].astype(str).values.tolist()       # Dataframeをlistに変換　すべてstrに型変換
+# 2022.8.29
         pulse_train_array = train_sort(pulse_train_array)
         pulse_width_array = train_sort(pulse_width_array)
         pulse_num_array = train_sort(pulse_num_array)
@@ -1709,7 +1728,7 @@ def read_alert(str_al):
     alert_lab.pack(anchor='center', expand=1)
     alertwindow.after(2000, lambda: alertwindow.destroy())
 
-
+# 5. Pulse設定配列、GUI表示変数定義より、遷移してきた。
 # --------------- 6. initial設定読み込み ----------------------------
 dirpath = os.getcwd()  # カレントディレクトリ取得
 filepath = dirpath + "/" + "initial_train.xlsx"
