@@ -1005,23 +1005,48 @@ def seq_update(filepath):
     except:
         tkinter.messagebox.showerror('エラー', 'seq.xlsxファイル読み込みに失敗しました')
 
+# ----------------- train_sort() --------------------------
+"""
+***********************************************************
+train_sort()
 
-def train_sort(array_name):  # パルス数が6以下の場合に配列の行を合わせる
+GUI上はパルス種類が7種類表示できるが、パルス種類が6種類以下の場合に
+リストデータを0で補い、リストの行を7行に合わせる
+その際、返還後の最後の行（7行目）に返還前の最後の行のデータを設定する
+
+（例） パルス種類がデフォルト7だが、2種類しか指定されない場合
+返還前
+            A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
+パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12          
+パルス2      P21   P22  P23 ..P26      P27 P28 P29  .. P212
+
+返還後
+            A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
+パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12          
+パルス2      0     0    0  ..  0       0   0   0    .. 0     
+パルス3      0     0    0  ..  0       0   0   0    .. 0  
+パルス4      0     0    0  ..  0       0   0   0    .. 0
+パルス5      0     0    0  ..  0       0   0   0    .. 0 
+パルス6      0     0    0  ..  0       0   0   0    .. 0   
+パルス7      P21   P22  P23 ..P26      P27 P28 P29  .. P212   
+***********************************************************
+"""
+def train_sort(array_name):  # パルス種類数が6以下の場合に配列の行を合わせる
     global pulse_disp_num
     pulse_disp_num = len(array_name) - 1
     array_num = len(array_name) - 1
     array_prov = []  # 編集用の配列
     n = 0
-    row_0 = [0] * len(array_name[0])
-    while n < array_num:
+    row_0 = [0] * len(array_name[0])    # 7種類に足りないリストを0で埋める　*_trainは12個、*_width、*_numは6個の0データ
+    while n < array_num:            # n<パルス種類数-1なので、パルス種類の最後のパルデータの1つ前までリストに追加していく
         array_prov.append(array_name[n])
         n += 1
-    while n < 6:
+    while n < 6:        # パルス種類　最大7種類の1種類手前まで、つまり6種類目までを0データのリストで埋める
         array_prov.append(row_0)
         n += 1
-    array_prov.append(array_name[array_num])
+    array_prov.append(array_name[array_num])    # パルス種類7番目のデータは、もともとの最後のパルス種類データを追加する。
     return array_prov
-
+# ---------------- ~ train_sort() -------------------------
 
 def train_conv():  # パルス列を記号に変換
     for y, row in enumerate(pulse_train_array, 0):  # リストpulse_train_arrayから、インデックス初期値を0としyに、値をrowに取り込む
@@ -1075,9 +1100,13 @@ def train_conv():  # パルス列を記号に変換
 
 
 """
+***********************************************************
+train_reading()
+
 Excel file(initial_train.xlsx)のsenddataシートの値を読込む
 例外処理（ファイル無し、読み込みエラー）有り
 引数:initial_train.xlsxのパス 
+***********************************************************
 """
 def train_reading(readfile):
     global pulse_train_array        # Excel　P0_Tr～Pr_trをrow、A1～F2をcolデータとする
@@ -1112,22 +1141,23 @@ def train_reading(readfile):
         pulse_width_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A1':'F1'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
         pulse_num_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A2':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
         pulse_train_name = df_tr_raw.loc['P0_tr':'Pr_tr', 'type'].astype(str).values.tolist()       # Dataframeをlistに変換　すべてstrに型変換
-# 2022.8.29
+
+        # GUI上は7種類のパルスを設定出来るが、6種類以下の場合は、リストデータを0で補い、パルス種類7種類となるように補正する。
         pulse_train_array = train_sort(pulse_train_array)
         pulse_width_array = train_sort(pulse_width_array)
         pulse_num_array = train_sort(pulse_num_array)
 
         n = len(pulse_train_name) - 1
         while n < 6:
-            pulse_train_name.insert(n, '設定なし')
+            pulse_train_name.insert(n, '設定なし')      # GUI上7種類のパルス種別を設定できるが、6種類以下の場合、train_nameに設定なしを表示する
             n += 1
 
-        if True in df_tr_raw.index.isin(['Dt区間']):
-            vrsdt_array = df_tr_raw.loc['Dt区間', 'type':'C1'].astype(int).values.tolist()
-            vrsjdg_array = (df_tr_raw.loc['patA', 'type':'A2'].astype(int).values.tolist()
-                            + df_tr_raw.loc['patB', 'type':'A2'].astype(int).values.tolist())
+        if True in df_tr_raw.index.isin(['Dt区間']):  # index_colで指定された列に'Dt区間'があればTrueを返す
+            vrsdt_array = df_tr_raw.loc['Dt区間', 'type':'C1'].astype(int).values.tolist()    # 行：'Dt区間'、列：'type'～'C1'までの値をintでcastし、リストに追加
+            vrsjdg_array = (df_tr_raw.loc['patA', 'type':'A2'].astype(int).values.tolist()  # 行：'patA'、列：’type’～’A2’までの値をintでcastし、リストに追加
+                            + df_tr_raw.loc['patB', 'type':'A2'].astype(int).values.tolist())   # 行：'patB'、列：’type’～’A2’までの値をintでcastし、リストに追加
             # vrsWindow()
-
+# 2022.8.30
             if 'vrsWindow' in globals():  # vrsウィンドウが開かれたことがあるか?
                 if vrsWindow.winfo_exists() == 1:  # vrsウィンドウが開かれているか？
                     vrsWindow.destroy()
