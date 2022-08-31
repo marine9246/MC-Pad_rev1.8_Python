@@ -1048,6 +1048,12 @@ def train_sort(array_name):  # パルス種類数が6以下の場合に配列の
     return array_prov
 # ---------------- ~ train_sort() -------------------------
 
+# --------------- train_conv() ----------------------------
+"""
+initial_train.xlsxを読込んだリストの値を、パルス列設定windowに表示する記号に
+変換する
+NP/--,NP/NP,...とか
+"""
 def train_conv():  # パルス列を記号に変換
     for y, row in enumerate(pulse_train_array, 0):  # リストpulse_train_arrayから、インデックス初期値を0としyに、値をrowに取り込む
         for x, col in enumerate(row):       # b7_b6_b5_b4_b3_b2_b1_b0(b7-b6:A相検出、b5-b4:B相検出、b3-b2:A相OUT、b1-b0:B相OUT)
@@ -1064,7 +1070,7 @@ def train_conv():  # パルス列を記号に変換
             ①　2進数として数値化すると、0b1000　2bit右シフトで&0b11するとaph1=0b10
             ②　2進数として数値化すると、0b1000　6bit右シフトで&0b11するとaph2=0b00
             ③　2進数として数値化すると、0b1000　0bit右シフトで&0b11するとbph1=0b00
-            ④　2進数として数値化すると、0b1000　4bit右シフトで&0b11するとbph1=0b00
+            ④　2進数として数値化すると、0b1000　4bit右シフトで&0b11するとbph2=0b00
             下の条件式を処理すると、
             aph="NP"
             bph="--"            
@@ -1097,8 +1103,9 @@ def train_conv():  # パルス列を記号に変換
 
             pulse_train_array_str[y][x] = aph + "/" + bph
     # print(pulse_train_array_str)
+# ---------------- ~ train_conv() -------------------------
 
-
+# ----------------- train_reading() -----------------------
 """
 ***********************************************************
 train_reading()
@@ -1149,19 +1156,19 @@ def train_reading(readfile):
 
         n = len(pulse_train_name) - 1
         while n < 6:
-            pulse_train_name.insert(n, '設定なし')      # GUI上7種類のパルス種別を設定できるが、6種類以下の場合、train_nameに設定なしを表示する
-            n += 1
+            pulse_train_name.insert(n, '設定なし')      # GUI上7種類のパルス種別を設定できるが、6種類以下の場合、train_nameに'設定なし'を挿入していく
+            n += 1                                     # 例えば、3種類のパルス種の場合、2番目と3番目の間に'設定なし'を挿入し、3番目のパルス種類名を7番目にする
 
-        if True in df_tr_raw.index.isin(['Dt区間']):  # index_colで指定された列に'Dt区間'があればTrueを返す
+        if True in df_tr_raw.index.isin(['Dt区間']):  # index_col=0で指定された列に'Dt区間'があればTrueを返す
             vrsdt_array = df_tr_raw.loc['Dt区間', 'type':'C1'].astype(int).values.tolist()    # 行：'Dt区間'、列：'type'～'C1'までの値をintでcastし、リストに追加
             vrsjdg_array = (df_tr_raw.loc['patA', 'type':'A2'].astype(int).values.tolist()  # 行：'patA'、列：’type’～’A2’までの値をintでcastし、リストに追加
                             + df_tr_raw.loc['patB', 'type':'A2'].astype(int).values.tolist())   # 行：'patB'、列：’type’～’A2’までの値をintでcastし、リストに追加
             # vrsWindow()
-# 2022.8.30
-            if 'vrsWindow' in globals():  # vrsウィンドウが開かれたことがあるか?
+
+            if 'vrsWindow' in globals():  # vrsウィンドウが開かれたことがあるか? あればglobal名前空間に変数'vrsWindow'がある。
                 if vrsWindow.winfo_exists() == 1:  # vrsウィンドウが開かれているか？
-                    vrsWindow.destroy()
-                    vrs_window()
+                    vrsWindow.destroy()             # vrwWidowを閉じる
+                    vrs_window()                    # 新たにwindowを開く
 
         # print(pulse_train_name)
         # print(pulse_train_array)
@@ -1172,7 +1179,7 @@ def train_reading(readfile):
     except:
         tkinter.messagebox.showerror('エラー', 'train.xlsxファイル読み込みに失敗しました')
 
-
+# ----------------- ~ train_reading ------------------------
 def train_setting():
     # global  filepath
     filepath = filepath_get('train', 0)
@@ -1764,11 +1771,11 @@ dirpath = os.getcwd()  # カレントディレクトリ取得
 filepath = dirpath + "/" + "initial_train.xlsx"
 print(filepath)
 train_reading(filepath)  # 初期パルス設定読み込み initial_train.xlsxの読み込み
-train_conv()  # パルスを記号に変換
+train_conv()  # パルスを記号に変換 （NP/--,NP/NPとか）
 
-win_tate = pulse_disp_num * 25 + 500
+win_tate = pulse_disp_num * 25 + 500    # windowの縦サイズを設定
 
-tk.title(Software_name)
+tk.title(Software_name)     # windowのタイトル設定
 tk.geometry("500x" + str(win_tate) + "+20+20")  # windowサイズ+x座標+y座標
 
 
@@ -2285,10 +2292,20 @@ def vrs_window():
     entryvrs_2.grid(row=6, column=7, columnspan=1, sticky=tkinter.W)
 
 
-# ---------------- ~関数定義 ----------------------------------
-
-# ---------------- 7. COMポート設定 ----------------------------
-frame1 = tkinter.Frame(tk, pady=10, padx=10)
+# ---------------- ~ 関数定義 ---------------------------------
+# 2022.8.31
+# ---------------- main window設定 ----------------------------
+# 6. initial設定読み込みの次にここの処理に移る
+"""
+mainウインドウの設定
+COMポート
+<Pulse設定>
+<Pulse幅／本数>
+<Pulse出力>
+<オプション機能>
+"""
+# ---------------- 7. COMポート設定GUI ----------------------------
+frame1 = tkinter.Frame(tk, pady=10, padx=10)    # Frame(複数のウィジェットを配置出来るコンテナ)　pady、padx枠とテキストの間の空白
 frame1.pack(anchor=tkinter.W)  # frame配置左よせ
 
 Label1_1 = tkinter.Label(frame1, text='COMポート : ', width=12, anchor='w')
@@ -2307,13 +2324,14 @@ Box1_1.grid(row=0, column=1, sticky=tkinter.W)
 Button1_1.grid(row=0, column=2)
 Button1_2.grid(row=0, column=3)
 
-# ---------------- ~ 7. COMポート設定 --------------------------
-# AD2設定-----------------
-# ---------------------------
+# ---------------- ~ 7. COMポート設定GUI --------------------------
+# --------------- AD2設定GUI -----------------
+# ウインドウ上に確認されない。使用していないのかも
 frame2 = tkinter.Frame(tk, pady=10)
 frame2.pack()
+# --------------- ~ AD2設定GUI ---------------
 
-# Pulse設定--------------------------------------------
+# ---------------- Pulse設定GUI ----------------------------
 frame3 = tkinter.Frame(tk, pady=10, padx=10)
 frame3.pack(anchor=tkinter.W)
 
@@ -2403,8 +2421,9 @@ Label3_3.grid(row=7, column=0, sticky=tkinter.W)
 Box3_3.grid(row=7, column=1, columnspan=2, sticky=tkinter.W)
 
 Button3_1.grid(row=8, column=1, columnspan=2)
+# ---------------- ~ Pulse設定GUI --------------------------
 
-# Pulses幅/本数--------------------------------------------
+# ---------------- Pulses幅/本数設定GUI ----------------------
 frame5 = tkinter.Frame(tk, pady=10, padx=10)
 frame5.pack(anchor=tkinter.W)
 Label5_1 = tkinter.Label(frame5, text='<Pulse幅[us]/本数>', width=labewid_1, anchor='w')
@@ -2455,8 +2474,9 @@ global width_name
 width_name = tkinter.StringVar()
 label5_21 = tkinter.Label(frame5, textvariable=width_name, width=15)
 label5_21.grid(row=pulse_type + 2, column=6, columnspan=5)
+# ---------------- ~ Pulses幅/本数設定GUI ---------------------
 
-# Pulses出力--------------------------------------------
+# ---------------- Pulses出力設定GUI --------------------------
 frame4 = tkinter.Frame(tk, pady=10, padx=10)
 frame4.pack(anchor=tkinter.W)
 
@@ -2507,8 +2527,9 @@ Label4_4.grid(row=1, column=5)
 Box4_4.grid(row=1, column=6)
 chk4_5.grid(row=2, column=5)
 Box4_5.grid(row=2, column=6)
+# ---------------- ~ Pulses出力設定GUI ------------------------
 
-# オプションwindowボタン--------------------------------------------
+# ---------------- オプション機能設定GUI --------------------
 frame7 = tkinter.Frame(tk, pady=10, padx=10)
 frame7.pack(anchor=tkinter.W)
 
@@ -2539,7 +2560,8 @@ Button7_5 = tkinter.Button(frame7, text=u'Vrs 回転検出', width=12,
                            command=vrs_window)
 # Button7_5.bind("<Button-1>",vrs_window)
 Button7_5.grid(row=1, column=9, columnspan=2)
-
+# ---------------- ~ オプション機能設定GUI ---------------------
+# ---------------- ~ main window設定 -------------------------
 ###############
 ####初期設定###
 if Com_No != 'Nucleo未接続':
