@@ -210,18 +210,25 @@ vrswindow_flag = 0  # 使用していない
 vrsdt_name = [0] * 4  # [0,0,0,0]
 vrsdt_array = [1500, 2700, 4000, 8000]  # Dt区間 GUI上は1400/3000/4000/5000 これはinitial_trainで読み込まれ書き換えられる
 vrsjdg_name = [0] * 16  # [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-vrsjdg_array = [1, 1, 0, 1, # 1:NG, 0:OK
+vrsjdg_array = [1, 1, 0, 1,  # 1:NG, 0:OK
                 0, 1, 0, 1,
                 1, 1, 0, 1,
                 0, 1, 0, 1]  # initial.trainで書き換えられる　patA、patB
-df_vrs_res = pd.DataFrame()     # df_vrs_resオブジェクトをデータフレームオブジェクトとして扱う
+df_vrs_res = pd.DataFrame()  # df_vrs_resオブジェクトをデータフレームオブジェクトとして扱う
+
 
 # -------------------- ~ 5. Pulse設定配列、GUI表示変数定義 -----------
 # 6. initial設定読み込み に処理が移る
 #
 # ----------------- 関数定義 ----------------------------------
+# -------------- Select_COM() -----------------------------
 # //シリアルポート制御サブルーチン-----------------------------
 def Select_COM(event):
+    """
+
+    :param event:
+    :return:
+    """
     Com_No = Box1_1.get()  # get()でエントリーボックス値取得
     print(Com_No + ' open')
     Com_No = str(Com_No)
@@ -236,8 +243,15 @@ def Select_COM(event):
     Button1_2.config(state="normal")  # ボタン無効化
     Button1_1.config(state="disable")  # ボタン無効化
 
+# -------------- ~ Select_COM() ---------------------------
 
+# ------------- Close_COM() -------------------------------
 def Close_COM(event):
+    """
+
+    :param event:
+    :return:
+    """
     ser.send_break()  # Brake信号送信 Nucleo reset
     time.sleep(1)
     Com_No = Box1_1.get()
@@ -246,8 +260,14 @@ def Close_COM(event):
     Button1_1.config(state="normal")  # ボタン無効化
     Button1_2.config(state="disable")  # ボタン無効化
 
+# ------------- ~ Close_COM() -----------------------------
 
+# -------------- nucleo_revcheck() ------------------------
 def nucleo_revchek():
+    """
+
+    :return:
+    """
     ser.write(b'v')  # シリアル通信:送信
     ver_str = read_serial2()
     print('chk' + ver_str)
@@ -260,18 +280,33 @@ def nucleo_revchek():
 # --------------------------------------------------------
 # ボタン押し実行サブルーチン-------------------------------
 def manual_pulse_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_pul = threading.Thread(target=manual_pulse_set)
     Button3_1.config(state="disable")  # ボタン無効化
     thread_pul.start()  # スレッド(並列)処理
 
 
 def pulse_width_bot(event):  # パルス幅/本数をBoxから読み取り
+    """
+
+    :param event:
+    :return:
+    """
     thread_pul = threading.Thread(target=pulse_width_set)
     Button5_20.config(state="disable")  # ボタン無効化
     thread_pul.start()  # スレッド(並列)処理
 
 
 def pulse_seq_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_seq = threading.Thread(target=pulse_seq_run)
     seq_run.set('実行中')
     Button6_1.config(state="disable")  # ボタン無効化
@@ -279,36 +314,66 @@ def pulse_seq_bot(event):
 
 
 def pulse_seqread_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_seqread = threading.Thread(target=seq_setting)
     Button6_2.config(state="disable")  # ボタン無効化
     thread_seqread.start()  # スレッド(並列)処理
 
 
 def pulse_train_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_tr = threading.Thread(target=train_setting)
     Button8_1.config(state="disable")  # ボタン無効化
     thread_tr.start()  # スレッド(並列)処理
 
 
 def photo_init_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_phini = threading.Thread(target=photo_init)
     Buttonpi_1.config(state="disable")  # ボタン無効化
     thread_phini.start()  # スレッド(並列)処理
 
 
 def photo_posiset_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_phset = threading.Thread(target=photo_posiset_manu)
     Buttonpi_2.config(state="disable")  # ボタン無効化
     thread_phset.start()  # スレッド(並列)処理
 
 
 def photo_posicheck_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_phche = threading.Thread(target=photo_posicheck)
     Buttonpi_3.config(state="disable")  # ボタン無効化
     thread_phche.start()  # スレッド(並列)処理
 
 
 def photo_seqtest_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_phche = threading.Thread(target=seqrun_repeat)
     Buttonpi2_1.config(state="disable")  # ボタン無効化
     Buttonpi2_2.config(state="normal")  # ボタン無効化
@@ -316,18 +381,34 @@ def photo_seqtest_bot(event):
 
 
 def photo_seqtest_stop_bot(event):
+    """
+
+    :param event:
+    :return:
+    """
     thread_phche = threading.Thread(target=photo_seqtest_stop)
     Buttonpi2_2.config(state="disable")  # ボタン無効化
     thread_phche.start()  # スレッド(並列)処理
 
 
 def vrs_winset(event):
+    """
+
+    :param event:
+    :return:
+    """
     vrs_win.vrs_window(tk, '+' + str(xposi) + '+' + str(yposi))
 
 
 # -------------------------------------------------------
 # NUCLEOパルス設定書込み------------------------------------
 def command_write(command, set_num):
+    """
+
+    :param command:
+    :param set_num:
+    :return:
+    """
     if command != 'x':
         ser.write(bytes(command, 'utf-8'))  # バイト型で送信
         # ser.flush()#コマンド送信完了するまで待機
@@ -338,6 +419,10 @@ def command_write(command, set_num):
 
 
 def pulse_select_set():
+    """
+
+    :return:
+    """
     ser.write(b'1')  # シリアル通信:送信
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)
@@ -347,6 +432,10 @@ def pulse_select_set():
 
 
 def pmode_set():
+    """
+
+    :return:
+    """
     mode = 0b00000
     if pulsemode_4.get() == 1:
         mode = mode | 0b10000
@@ -379,6 +468,10 @@ def pmode_set():
 
 
 def manual_pulse_set():  # パルス設定の取得と送信
+    """
+
+    :return:
+    """
     global pulse_set_array
     pulse_set_array[0][pulse_set_n] = Pulse_cb.get()[0]
     pulse_set_array[0][wait_set_n] = Box3_2.get()
@@ -402,6 +495,12 @@ def manual_pulse_set():  # パルス設定の取得と送信
 
 
 def read_entry(name, array):  # entry読み出し(entry名，書込み先)
+    """
+
+    :param name:
+    :param array:
+    :return:
+    """
     for i, row in enumerate(name, 0):
         for n, col in enumerate(row):
             array[i][n] = col.get()
@@ -409,6 +508,13 @@ def read_entry(name, array):  # entry読み出し(entry名，書込み先)
 
 # --------------------------------------------------------
 def pulse_para_write(command, data, botno):  # パルスパラメータNucleo書込み(コマンド,入力値,有効化するボタン名 xだったら何もしない)
+    """
+
+    :param command:
+    :param data:
+    :param botno:
+    :return:
+    """
     for i, row in enumerate(data, 0):
         ser.write(bytes(command, 'utf-8'))  # バイト型で送信
         # ser.flush()                       #コマンド送信完了するまで待機
@@ -426,6 +532,10 @@ def pulse_para_write(command, data, botno):  # パルスパラメータNucleo書
 
 
 def pulse_width_set():  # パルス幅本数を送信
+    """
+
+    :return:
+    """
     read_entry(pulse_wid_name, pulse_width_array)
     read_entry(pulse_num_name, pulse_num_array)
 
@@ -434,12 +544,20 @@ def pulse_width_set():  # パルス幅本数を送信
 
 
 def pulse_train_set():
+    """
+
+    :return:
+    """
     pulse_para_write('p', pulse_train_array, 'x')
 
 
 # --------------------------------------------------------------------
 # 電圧設定関係サブルーチン----------------------------------------------
 def vm_write():
+    """
+
+    :return:
+    """
     global vm_value
     vm_value = Box4_4.get()
     pulse_set_array[0][Vm_set_n] = Box4_4.get()
@@ -447,11 +565,20 @@ def vm_write():
 
 
 def insert_vm(vm_disp):  # UI表示更新
+    """
+
+    :param vm_disp:
+    :return:
+    """
     Box4_4.delete(0, tkinter.END)
     Box4_4.insert(tkinter.END, vm_disp)
 
 
 def vm_set():
+    """
+
+    :return:
+    """
     global vm_value
     vm_value = pulse_set_array[0][Vm_set_n]
     if vm_value != Box4_4.get():
@@ -465,6 +592,11 @@ def vm_set():
 
 
 def vm_up(step):
+    """
+
+    :param step:
+    :return:
+    """
     global vm_value
     vm_value = str(round(float(vm_value) + float(step), 2))  # 小数点2桁にしてStr
     insert_vm(vm_value)
@@ -474,6 +606,12 @@ def vm_up(step):
 # -----------------------------------------------------------------------------------
 # 任意stepパルス出力
 def manual_pulse_out(dire, step):
+    """
+
+    :param dire:
+    :param step:
+    :return:
+    """
     vm_set()
     if dire == 0:
         if step == 1:
@@ -503,6 +641,10 @@ def manual_pulse_out(dire, step):
 
 # シーケンス動作実行---------------------------------------
 def pulse_seq_run():
+    """
+
+    :return:
+    """
     wait_seq = 0.0005
     if seq_runopt == 0:
         read_entry(sequence_name, sequence_array)  # entry値読み出し
@@ -563,6 +705,13 @@ def pulse_seq_run():
 
 
 def seqrange_output(cnt, test_cnt, save):
+    """
+
+    :param cnt:
+    :param test_cnt:
+    :param save:
+    :return:
+    """
     global result_data
     global result_data_vrs
     global result_data_vrs2
@@ -669,6 +818,10 @@ def seqrange_output(cnt, test_cnt, save):
 
 
 def seqrun_repeat():
+    """
+
+    :return:
+    """
     global seq_runopt
     global now_fname
     now_fname = datetime.datetime.now()  # 保存ファイル名に使用
@@ -688,6 +841,10 @@ def seqrun_repeat():
 
 
 def seqrange_run():
+    """
+
+    :return:
+    """
     global seq_runopt
     global wid_test
     global freq_test
@@ -817,6 +974,11 @@ def seqrange_run():
 
 
 def seq_run_vm(test_cnt):
+    """
+
+    :param test_cnt:
+    :return:
+    """
     global seq_runopt
     global vm_test
 
@@ -869,6 +1031,12 @@ def seq_run_vm(test_cnt):
 
 # エントリーBoxに書込み--------------------------------------------
 def insert_entry(name, array):
+    """
+
+    :param name:
+    :param array:
+    :return:
+    """
     for i, row in enumerate(name, 0):
         for n, col in enumerate(row):
             col.delete(0, tkinter.END)
@@ -876,6 +1044,10 @@ def insert_entry(name, array):
 
 
 def insert_train():
+    """
+
+    :return:
+    """
     for y, row in enumerate(pulse_train_array_name, 0):
         for x, char in enumerate(row):
             # pulse_train_array_name[y][x] = pulse_train_array_str[y][x]
@@ -884,6 +1056,12 @@ def insert_train():
 
 # チェックボックス書込み-------------------------------
 def set_checkbox(name, array):
+    """
+
+    :param name:
+    :param array:
+    :return:
+    """
     for x, col in enumerate(array, 0):
         name[x].set(array[x])
 
@@ -891,6 +1069,14 @@ def set_checkbox(name, array):
 
 
 def csv_write(array, folder, fname, mode):  # mode:w=新規、a=追記
+    """
+
+    :param array:
+    :param folder:
+    :param fname:
+    :param mode:
+    :return:
+    """
     # now = datetime.datetime.now()
     with open(os.getcwd() + '/' + folder + '/' + fname + '.csv', mode, newline="") as f:
         writer = csv.writer(f)
@@ -899,6 +1085,12 @@ def csv_write(array, folder, fname, mode):  # mode:w=新規、a=追記
 
 # ファイル読み込み-----------------------------------------------
 def filepath_get(name, setting):  # setting 0:1ファイル、1:複数ファイル
+    """
+
+    :param name:
+    :param setting:
+    :return:
+    """
     # global  filepath
     # 選択候補を拡張子jpgに絞る（絞らない場合は *.jpg → *）
     filetype = [("", "*" + name + "*.xlsx")]
@@ -914,6 +1106,11 @@ def filepath_get(name, setting):  # setting 0:1ファイル、1:複数ファイ�
 
 
 def pulse_reading(event):
+    """
+
+    :param event:
+    :return:
+    """
     # global  filepath
     filepath = filepath_get('width', 0)
     width_name.set(os.path.basename(filepath))
@@ -934,6 +1131,10 @@ def pulse_reading(event):
 
 ######シーケンス設定読み込み
 def seq_setting():
+    """
+
+    :return:
+    """
     global seq_path
     seq_path = filepath_get('seq', 1)  # ファイル選択ウィンドウ,複数ファイル選択可
 
@@ -949,12 +1150,22 @@ def seq_setting():
 
 
 def seq_reading(event):  # 読み込みボタン処理
+    """
+
+    :param event:
+    :return:
+    """
     if 'seq_path' in globals():
         if (Combopi1.current() != 0) and (Combopi1.get() != "全て実行"):
             seq_update(seq_path[Combopi1.current() - 1])
 
 
 def seq_update(filepath):
+    """
+
+    :param filepath:
+    :return:
+    """
     # filepath = filepath_get('seq',0)#ファイル選択ウィンドウ
 
     seqWindow.lift()  # シーケンスwindowをtopへ
@@ -1005,62 +1216,63 @@ def seq_update(filepath):
     except:
         tkinter.messagebox.showerror('エラー', 'seq.xlsxファイル読み込みに失敗しました')
 
+
 # ----------------- train_sort() --------------------------
-"""
-***********************************************************
-train_sort()
-
-GUI上はパルス種類が7種類表示できるが、パルス種類が6種類以下の場合に
-リストデータを0で補い、リストの行を7行に合わせる
-その際、返還後の最後の行（7行目）に返還前の最後の行のデータを設定する
-
-（例） パルス種類がデフォルト7だが、2種類しか指定されない場合
-返還前
-            A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
-パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12          
-パルス2      P21   P22  P23 ..P26      P27 P28 P29  .. P212
-
-返還後
-            A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
-パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12          
-パルス2      0     0    0  ..  0       0   0   0    .. 0     
-パルス3      0     0    0  ..  0       0   0   0    .. 0  
-パルス4      0     0    0  ..  0       0   0   0    .. 0
-パルス5      0     0    0  ..  0       0   0   0    .. 0 
-パルス6      0     0    0  ..  0       0   0   0    .. 0   
-パルス7      P21   P22  P23 ..P26      P27 P28 P29  .. P212   
-***********************************************************
-"""
 def train_sort(array_name):  # パルス種類数が6以下の場合に配列の行を合わせる
+    """
+    GUI上はパルス種類が7種類表示できるが、パルス種類が6種類以下の場合にリストデータを0で補い、リストの行を7行に合わせる。
+    その際、返還後の最後の行（7行目）に返還前の最後の行データを設定する。
+    （例） パルス種類がデフォルト7だが、2種類しか指定されない場合
+    返還前
+                A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
+    パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12
+    パルス2      P21   P22  P23 ..P26      P27 P28 P29  .. P212
+
+    返還後
+                A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
+    パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12
+    パルス2      0     0    0  ..  0       0   0   0    .. 0
+    パルス3      0     0    0  ..  0       0   0   0    .. 0
+    パルス4      0     0    0  ..  0       0   0   0    .. 0
+    パルス5      0     0    0  ..  0       0   0   0    .. 0
+    パルス6      0     0    0  ..  0       0   0   0    .. 0
+    パルス7      P21   P22  P23 ..P26      P27 P28 P29  .. P212
+
+    :param: array_name   リスト pulse_train_array,pulse_width_array,pulse_name_array
+    :return:    リスト　返還後のpulse_train_array,pulse_width_array,pulse_name_array
+    """
     global pulse_disp_num
     pulse_disp_num = len(array_name) - 1
     array_num = len(array_name) - 1
     array_prov = []  # 編集用の配列
     n = 0
-    row_0 = [0] * len(array_name[0])    # 7種類に足りないリストを0で埋める　*_trainは12個、*_width、*_numは6個の0データ
-    while n < array_num:            # n<パルス種類数-1なので、パルス種類の最後のパルデータの1つ前までリストに追加していく
+    row_0 = [0] * len(array_name[0])  # 7種類に足りないリストを0で埋める　*_trainは12個、*_width、*_numは6個の0データ
+    while n < array_num:  # n<パルス種類数-1なので、パルス種類の最後のパルデータの1つ前までリストに追加していく
         array_prov.append(array_name[n])
         n += 1
-    while n < 6:        # パルス種類　最大7種類の1種類手前まで、つまり6種類目までを0データのリストで埋める
+    while n < 6:  # パルス種類　最大7種類の1種類手前まで、つまり6種類目までを0データのリストで埋める
         array_prov.append(row_0)
         n += 1
-    array_prov.append(array_name[array_num])    # パルス種類7番目のデータは、もともとの最後のパルス種類データを追加する。
+    array_prov.append(array_name[array_num])  # パルス種類7番目のデータは、もともとの最後のパルス種類データを追加する。
     return array_prov
+
+
 # ---------------- ~ train_sort() -------------------------
 
 # --------------- train_conv() ----------------------------
-"""
-initial_train.xlsxを読込んだリストの値を、パルス列設定windowに表示する記号に
-変換する
-NP/--,NP/NP,...とか
-"""
 def train_conv():  # パルス列を記号に変換
+    """
+    initial_train.xlsxを読込んだリストの値を、パルス列設定windowに表示する記号に変換する
+    NP/--,NP/NP,...とか
+
+    :return:
+    """
     for y, row in enumerate(pulse_train_array, 0):  # リストpulse_train_arrayから、インデックス初期値を0としyに、値をrowに取り込む
-        for x, col in enumerate(row):       # b7_b6_b5_b4_b3_b2_b1_b0(b7-b6:A相検出、b5-b4:B相検出、b3-b2:A相OUT、b1-b0:B相OUT)
-            aph1 = (int(str(col), 2) >> 2) & 0b11   # ①　文字列を2進数として読み込んでビット取り出し A相OUT
-            aph2 = (int(str(col), 2) >> 6) & 0b11   # ②　A相検出
-            bph1 = (int(str(col), 2) >> 0) & 0b11   # ③　B相OUT
-            bph2 = (int(str(col), 2) >> 4) & 0b11   # ④　B相検出
+        for x, col in enumerate(row):  # b7_b6_b5_b4_b3_b2_b1_b0(b7-b6:A相検出、b5-b4:B相検出、b3-b2:A相OUT、b1-b0:B相OUT)
+            aph1 = (int(str(col), 2) >> 2) & 0b11  # ①　文字列を2進数として読み込んでビット取り出し A相OUT
+            aph2 = (int(str(col), 2) >> 6) & 0b11  # ②　A相検出
+            bph1 = (int(str(col), 2) >> 0) & 0b11  # ③　B相OUT
+            bph2 = (int(str(col), 2) >> 4) & 0b11  # ④　B相検出
             """
             (例) initial_train.xls 
                             A1        B1          C1          D1          E1          F1          A2 B2 C2 D2 E2 F2                
@@ -1103,28 +1315,28 @@ def train_conv():  # パルス列を記号に変換
 
             pulse_train_array_str[y][x] = aph + "/" + bph
     # print(pulse_train_array_str)
+
+
 # ---------------- ~ train_conv() -------------------------
 
 # ----------------- train_reading() -----------------------
-"""
-***********************************************************
-train_reading()
-
-Excel file(initial_train.xlsx)のsenddataシートの値を読込む
-例外処理（ファイル無し、読み込みエラー）有り
-引数:initial_train.xlsxのパス 
-***********************************************************
-"""
 def train_reading(readfile):
-    global pulse_train_array        # Excel　P0_Tr～Pr_trをrow、A1～F2をcolデータとする
-    global pulse_width_array        # Excel　P0_wd～Pr_wdをrow、A1～F1をcolデータとする
-    global pulse_num_array          # Excel　P0_wd～Pr_wdをrow、A2～F2をcolデータとする
-    global pulse_train_name         # Excel　P0_wd～Pr_wdをrow、typeをcolデータとする
+    """
+    Excel file(initial_train.xlsx)のsenddataシートの値を読み込み、各項目をリスト化する。
+    例外処理（ファイル無し、読み込みエラー）有り
+
+    :param readfile: initial_train.xlsxファイルのフルパス
+    :return:
+    """
+    global pulse_train_array  # Excel　P0_Tr～Pr_trをrow、A1～F2をcolデータとする
+    global pulse_width_array  # Excel　P0_wd～Pr_wdをrow、A1～F1をcolデータとする
+    global pulse_num_array  # Excel　P0_wd～Pr_wdをrow、A2～F2をcolデータとする
+    global pulse_train_name  # Excel　P0_wd～Pr_wdをrow、typeをcolデータとする
     global vrsdt_array
     global vrsjdg_array
 
     try:
-        df_tr_raw = pd.read_excel(str(readfile), index_col=0)   # 第1引数：ファイルパスreadfileで可、第2引数:インデックスにする列
+        df_tr_raw = pd.read_excel(str(readfile), index_col=0)  # 第1引数：ファイルパスreadfileで可、第2引数:インデックスにする列
         print(df_tr_raw)
         # print('test:'+ df_tr_raw.index)
         # print( True in df_tr_raw.index.isin(['Dt区間']))
@@ -1144,10 +1356,14 @@ def train_reading(readfile):
         
         """
 
-        pulse_train_array = df_tr_raw.loc['P0_tr':'Pr_tr', 'A1':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
-        pulse_width_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A1':'F1'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
-        pulse_num_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A2':'F2'].astype(int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
-        pulse_train_name = df_tr_raw.loc['P0_tr':'Pr_tr', 'type'].astype(str).values.tolist()       # Dataframeをlistに変換　すべてstrに型変換
+        pulse_train_array = df_tr_raw.loc['P0_tr':'Pr_tr', 'A1':'F2'].astype(
+            int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
+        pulse_width_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A1':'F1'].astype(
+            int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
+        pulse_num_array = df_tr_raw.loc['P0_wd':'Pr_wd', 'A2':'F2'].astype(
+            int).values.tolist()  # Dataframeをlistに変換 すべてintに型変換
+        pulse_train_name = df_tr_raw.loc['P0_tr':'Pr_tr', 'type'].astype(
+            str).values.tolist()  # Dataframeをlistに変換　すべてstrに型変換
 
         # GUI上は7種類のパルスを設定出来るが、6種類以下の場合は、リストデータを0で補い、パルス種類7種類となるように補正する。
         pulse_train_array = train_sort(pulse_train_array)
@@ -1156,19 +1372,22 @@ def train_reading(readfile):
 
         n = len(pulse_train_name) - 1
         while n < 6:
-            pulse_train_name.insert(n, '設定なし')      # GUI上7種類のパルス種別を設定できるが、6種類以下の場合、train_nameに'設定なし'を挿入していく
-            n += 1                                     # 例えば、3種類のパルス種の場合、2番目と3番目の間に'設定なし'を挿入し、3番目のパルス種類名を7番目にする
+            pulse_train_name.insert(n, '設定なし')  # GUI上7種類のパルス種別を設定できるが、6種類以下の場合、train_nameに'設定なし'を挿入していく
+            n += 1  # 例えば、3種類のパルス種の場合、2番目と3番目の間に'設定なし'を挿入し、3番目のパルス種類名を7番目にする
 
         if True in df_tr_raw.index.isin(['Dt区間']):  # index_col=0で指定された列に'Dt区間'があればTrueを返す
-            vrsdt_array = df_tr_raw.loc['Dt区間', 'type':'C1'].astype(int).values.tolist()    # 行：'Dt区間'、列：'type'～'C1'までの値をintでcastし、リストに追加
-            vrsjdg_array = (df_tr_raw.loc['patA', 'type':'A2'].astype(int).values.tolist()  # 行：'patA'、列：’type’～’A2’までの値をintでcastし、リストに追加
-                            + df_tr_raw.loc['patB', 'type':'A2'].astype(int).values.tolist())   # 行：'patB'、列：’type’～’A2’までの値をintでcastし、リストに追加
+            vrsdt_array = df_tr_raw.loc['Dt区間', 'type':'C1'].astype(
+                int).values.tolist()  # 行：'Dt区間'、列：'type'～'C1'までの値をintでcastし、リストに追加
+            vrsjdg_array = (df_tr_raw.loc['patA', 'type':'A2'].astype(
+                int).values.tolist()  # 行：'patA'、列：’type’～’A2’までの値をintでcastし、リストに追加
+                            + df_tr_raw.loc['patB', 'type':'A2'].astype(
+                        int).values.tolist())  # 行：'patB'、列：’type’～’A2’までの値をintでcastし、リストに追加
             # vrsWindow()
 
             if 'vrsWindow' in globals():  # vrsウィンドウが開かれたことがあるか? あればglobal名前空間に変数'vrsWindow'がある。
                 if vrsWindow.winfo_exists() == 1:  # vrsウィンドウが開かれているか？
-                    vrsWindow.destroy()             # vrwWidowを閉じる
-                    vrs_window()                    # 新たにwindowを開く
+                    vrsWindow.destroy()  # vrwWidowを閉じる
+                    vrs_window()  # 新たにwindowを開く
 
         # print(pulse_train_name)
         # print(pulse_train_array)
@@ -1179,8 +1398,13 @@ def train_reading(readfile):
     except:
         tkinter.messagebox.showerror('エラー', 'train.xlsxファイル読み込みに失敗しました')
 
+
 # ----------------- ~ train_reading ------------------------
 def train_setting():
+    """
+
+    :return:
+    """
     # global  filepath
     filepath = filepath_get('train', 0)
 
@@ -1206,6 +1430,13 @@ def train_setting():
 
 # スクリーンショット#############
 def screen_shot(handle1, handle2, fname):
+    """
+
+    :param handle1:
+    :param handle2:
+    :param fname:
+    :return:
+    """
     # 最前面のウィンドウのスクショを取得する
     # handle = win32gui.GetForegroundWindow() # 最前面のウィンドウハンドルを取得
     rect1 = win32gui.GetWindowRect(handle1)  # ウィンドウの位置を取得
@@ -1215,6 +1446,11 @@ def screen_shot(handle1, handle2, fname):
 
 
 def screen_shot(handle):
+    """
+
+    :param handle:
+    :return:
+    """
     # handle = win32gui.GetForegroundWindow() # 最前面のウィンドウハンドルを取得
     rect = win32gui.GetWindowRect(handle)  # ウィンドウの位置を取得
     im = ImageGrab.grab().crop(rect)
@@ -1222,6 +1458,13 @@ def screen_shot(handle):
 
 
 def concat_img(im1, im2, fname):  # 画像の結合
+    """
+
+    :param im1:
+    :param im2:
+    :param fname:
+    :return:
+    """
     color = (0, 0, 0)
     dst = Image.new('RGB', (im1.width + im2.width, max(im1.height, im2.height)), color)
     dst.paste(im1, (0, 0))
@@ -1230,12 +1473,20 @@ def concat_img(im1, im2, fname):  # 画像の結合
 
 
 def get_handle():
+    """
+
+    :return:
+    """
     handle = win32gui.GetForegroundWindow()  # 最前面のウィンドウハンドルを取得
     return handle
 
 
 # カメラ関係サブルーチン##################
 def find_cam():
+    """
+
+    :return:
+    """
     global cam_list
     cam_list = []
     for camera_number in range(0, 10):
@@ -1249,6 +1500,11 @@ def find_cam():
 
 
 def disp_cam(event):
+    """
+
+    :param event:
+    :return:
+    """
     global capture
     global cap_size
     global windowsize
@@ -1308,6 +1564,11 @@ def disp_cam(event):
 
 
 def cam_focus_set(focus):
+    """
+
+    :param focus:
+    :return:
+    """
     print('\r' + 'focus val ', focus, end='')  # フォーカス値を重ね書き
     capture.set(cv2.CAP_PROP_AUTOFOCUS, 0)  # オートフォーカス OFF
     capture.set(cv2.CAP_PROP_FOCUS, focus)  # focus位置セット
@@ -1315,6 +1576,11 @@ def cam_focus_set(focus):
 
 
 def cam_get_img(pulseno):
+    """
+
+    :param pulseno:
+    :return:
+    """
     if Com_No == 'Nucleo未接続':
         tkinter.messagebox.showerror('エラー', 'Nucleoが接続されていません')
     else:
@@ -1360,9 +1626,15 @@ def cam_get_img(pulseno):
 
 
 #################################################
-####フォトインタラプタ関係サブルーチン#######
+####　フォトインタラプタ関係サブルーチン　#######
 
 def photo_result(response, no):
+    """
+
+    :param response:
+    :param no:
+    :return:
+    """
     if ('result OK' in response):
         # if(alf_flag == 1):
         #    piresult[no].set('alf OK')
@@ -1376,6 +1648,11 @@ def photo_result(response, no):
 
 
 def photo_init_w(offset_num):  # フォト設定書込み
+    """
+
+    :param offset_num:
+    :return:
+    """
     ser.write(b't')  # シリアル通信:送信
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)
@@ -1404,6 +1681,10 @@ def photo_init_w(offset_num):  # フォト設定書込み
 
 
 def photo_init():  # フォトインタラプタ初期設定
+    """
+
+    :return:
+    """
     piresult[0].set('実施中')
     piresult[1].set('-----')
     piresult[2].set('-----')
@@ -1428,11 +1709,19 @@ def photo_init():  # フォトインタラプタ初期設定
 
 
 def photo_posiset_manu():
+    """
+
+    :return:
+    """
     photo_init_w(0)
     photo_posiset()
 
 
 def photo_posiset():
+    """
+
+    :return:
+    """
     piresult[1].set('実施中')
     piresult[2].set('-----')
     ser.write(b'e')  # シリアル通信:送信
@@ -1451,6 +1740,10 @@ def photo_posiset():
 
 
 def photo_posicheck():
+    """
+
+    :return:
+    """
     piresult[2].set('実施中')
     ser.write(b'r')  # シリアル通信:送信
     # ser.flush()#コマンド送信完了するまで待機
@@ -1470,6 +1763,10 @@ def photo_posicheck():
 
 
 def photo_seq_init():
+    """
+
+    :return:
+    """
     pi_window()
     piresult[0].set('未実施')
     piresult[1].set('未実施')
@@ -1481,6 +1778,13 @@ def photo_seq_init():
 
 
 def photo_seq_set(flag, cnt, test_cnt):
+    """
+
+    :param flag:
+    :param cnt:
+    :param test_cnt:
+    :return:
+    """
     if flag == 0:
         photo_posiset()
         if piresult[1].get() != 'OK':
@@ -1494,6 +1798,12 @@ def photo_seq_set(flag, cnt, test_cnt):
 
 
 def photo_seq_check(cnt, test_cnt):
+    """
+
+    :param cnt:
+    :param test_cnt:
+    :return:
+    """
     flag = 1
     photo_posicheck()
 
@@ -1521,26 +1831,49 @@ def photo_seq_check(cnt, test_cnt):
 
 
 def photo_seqtest_stop():
+    """
+
+    :return:
+    """
     global seq_runopt
     seq_runopt = int(2)
 
 
 def num_judg(readstr):
+    """
+
+    :param readstr:
+    :return:
+    """
     return readstr.replace('.', '').isnumeric()
 
 
 ##########################
 ####Vrs検出関係
 def vrstext_clear():
+    """
+
+    :return:
+    """
     for x, col in enumerate(vrsres_name):
         vrsres_name[x].delete('1.0', 'end')
 
 
 def vrstext_save_manu():
+    """
+
+    :return:
+    """
     vrstext_save(0, 'a')
 
 
 def vrstext_save(mode, write):
+    """
+
+    :param mode:
+    :param write:
+    :return:
+    """
     read_vrs = []
     max_time = []
     for i in range(3):
@@ -1583,6 +1916,12 @@ def vrstext_save(mode, write):
 
 
 def vrs_jdge_res(time_array, vrs_steps):
+    """
+
+    :param time_array:
+    :param vrs_steps:
+    :return:
+    """
     vrs_pat = 0
     vrs_pat_cnt = [0, 0, 0, 0]
     for x, col in enumerate(time_array):
@@ -1600,6 +1939,10 @@ def vrs_jdge_res(time_array, vrs_steps):
 
 
 def vrsng_phoffset():  # vrsNG位置をフォトオフセットへコピーする
+    """
+
+    :return:
+    """
     sequence_window()
     send_posi = []
     for i in range(len(vrsng_posi)):  # vrsNG位置から、既定ステップを引く
@@ -1612,6 +1955,14 @@ def vrsng_phoffset():  # vrsNG位置をフォトオフセットへコピーす�
 
 
 def vrs_print(time, pat, pat_cnt, vrs_steps):
+    """
+
+    :param time:
+    :param pat:
+    :param pat_cnt:
+    :param vrs_steps:
+    :return:
+    """
     global df_vrs_res  # Vrs判定結果保存用df
     global vrs_step_bf
     global vrsng_posi
@@ -1644,6 +1995,10 @@ def vrs_print(time, pat, pat_cnt, vrs_steps):
 
 
 def vrstime_print():
+    """
+
+    :return:
+    """
     while 1:  # 測定中フリーズ対策　測定中に他アプリ操作などで停止することがあったため修正
         vrs_res = read_serial2()
         if ('End!' in vrs_res):
@@ -1703,16 +2058,26 @@ def vrstime_print():
 
 
 # ---------------------------------------------------------------------
+# ------------------- read_serial() -----------------------
 def read_serial():
+    """
+    Nucleoからのserialで１行読み込み、soft verを読み込む
+    :return:
+    """
     # time.sleep(wait_uart)
     # ser.flush()#コマンド送信完了するまで待機
 
-    line = ser.readline().rstrip()  # シリアル読み込み　改行コード除去
+    line = ser.readline().rstrip()  # シリアル1行読み込み　空白、タブ、改行コード除去
     line = line.decode()  # bytes型からstr型に変換
     print(line)
 
+# ------------------- ~ read_serial() ----------------------
 
 def read_serial2():
+    """
+
+    :return:
+    """
     # time.sleep(wait_uart)
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)
@@ -1738,6 +2103,10 @@ def read_serial2():
 
 
 def get_winposition():
+    """
+
+    :return:
+    """
     global xposi
     global yposi
     xposi = tk.winfo_rootx() + tk.winfo_width()
@@ -1745,6 +2114,11 @@ def get_winposition():
 
 
 def read_alert(str_al):
+    """
+
+    :param str_al:
+    :return:
+    """
     global alertwindow
     if 'mV' in str_al:
         return
@@ -1765,6 +2139,7 @@ def read_alert(str_al):
     alert_lab.pack(anchor='center', expand=1)
     alertwindow.after(2000, lambda: alertwindow.destroy())
 
+
 # 5. Pulse設定配列、GUI表示変数定義より、遷移してきた。
 # --------------- 6. initial設定読み込み ----------------------------
 dirpath = os.getcwd()  # カレントディレクトリ取得
@@ -1773,9 +2148,9 @@ print(filepath)
 train_reading(filepath)  # 初期パルス設定読み込み initial_train.xlsxの読み込み
 train_conv()  # パルスを記号に変換 （NP/--,NP/NPとか）
 
-win_tate = pulse_disp_num * 25 + 500    # windowの縦サイズを設定
+win_tate = pulse_disp_num * 25 + 500  # windowの縦サイズを設定
 
-tk.title(Software_name)     # windowのタイトル設定
+tk.title(Software_name)  # windowのタイトル設定
 tk.geometry("500x" + str(win_tate) + "+20+20")  # windowサイズ+x座標+y座標
 
 
@@ -1785,6 +2160,10 @@ tk.geometry("500x" + str(win_tate) + "+20+20")  # windowサイズ+x座標+y座�
 ####GUI設定#####
 # シーケンス機能window作成
 def sequence_window():
+    """
+
+    :return:
+    """
     global seqWindow
 
     # 複数開かないようにする処理
@@ -1992,6 +2371,11 @@ def sequence_window():
 
 # パルス列設定window作成-------------------------------------------
 def pulsetrain_window(event):
+    """
+
+    :param event:
+    :return:
+    """
     global trainWindow
 
     # 複数開かないようにする処理
@@ -2052,6 +2436,11 @@ def pulsetrain_window(event):
 
 # カメラウィンドウ作成---------------------------------
 def cam_window(event):
+    """
+
+    :param event:
+    :return:
+    """
     global cbcam  # カメラNo
     global Boxcam_4  # 撮影Delay
     global Boxcam_5  # 撮影枚数
@@ -2122,6 +2511,10 @@ def cam_window(event):
 
 # フォトインタラプタ機能window作成
 def pi_window():
+    """
+
+    :return:
+    """
     global piWindow
 
     # 複数開かないようにする処理
@@ -2180,6 +2573,10 @@ def pi_window():
 
 # Vrsタイミング表示機能window作成
 def vrs_window():
+    """
+
+    :return:
+    """
     global vrsWindow
 
     # 複数開かないようにする処理
@@ -2305,7 +2702,7 @@ COMポート
 <オプション機能>
 """
 # ---------------- 7. COMポート設定GUI ----------------------------
-frame1 = tkinter.Frame(tk, pady=10, padx=10)    # Frame(複数のウィジェットを配置出来るコンテナ)　pady、padx枠とテキストの間の空白
+frame1 = tkinter.Frame(tk, pady=10, padx=10)  # Frame(複数のウィジェットを配置出来るコンテナ)　pady、padx枠とテキストの間の空白
 frame1.pack(anchor=tkinter.W)  # frame配置左よせ
 
 Label1_1 = tkinter.Label(frame1, text='COMポート : ', width=12, anchor='w')
