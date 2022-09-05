@@ -225,11 +225,12 @@ df_vrs_res = pd.DataFrame()  # df_vrs_resオブジェクトをデータフレー
 # //シリアルポート制御サブルーチン-----------------------------
 def Select_COM(event):
     """
+    メインウインドのCOMポートOPENボタンの左クリック入力により、コールされる。
 
     :param event:
     :return:
     """
-    Com_No = Box1_1.get()  # get()でエントリーボックス値取得
+    Com_No = Box1_1.get()  # get()でエントリーボックス値取得　この時点でstr型のため、下でのstr型変換不要
     print(Com_No + ' open')
     Com_No = str(Com_No)
     ser.open()  # シリアルポートOPEN
@@ -242,6 +243,7 @@ def Select_COM(event):
     print('init end')
     Button1_2.config(state="normal")  # ボタン無効化
     Button1_1.config(state="disable")  # ボタン無効化
+
 
 # -------------- ~ Select_COM() ---------------------------
 
@@ -260,20 +262,22 @@ def Close_COM(event):
     Button1_1.config(state="normal")  # ボタン無効化
     Button1_2.config(state="disable")  # ボタン無効化
 
+
 # ------------- ~ Close_COM() -----------------------------
 
 # -------------- nucleo_revcheck() ------------------------
 def nucleo_revchek():
     """
-
+    Nucleoのソフトver.チェック
+    シリアル通信で、'v'を送信し、Nucleoからver.のchar型配列データを得る。
     :return:
     """
-    ser.write(b'v')  # シリアル通信:送信
-    ver_str = read_serial2()
+    ser.write(b'v')  # シリアル通信:送信 'v':ver.チェックコマンド送信
+    ver_str = read_serial2()  # シリアル通信受信により、ver.取得
     print('chk' + ver_str)
-    if (rev_name in ver_str):
-        time.sleep(0.001)
-    else:
+    if (rev_name in ver_str):  # python側のrev_nameとNucleo側のverが同じかチェックする。
+        time.sleep(0.001)  # 1msecのsleep
+    else:  # ver.が異なっていてもその後の動作は継続する。
         tkinter.messagebox.showerror('エラー', 'Nucleoをアップデートする必要があります')
 
 
@@ -420,15 +424,15 @@ def command_write(command, set_num):
 
 def pulse_select_set():
     """
-
+    Nucleoへのコマンド'1'　pulse_setを送信し、受付メッセージを受信する
     :return:
     """
-    ser.write(b'1')  # シリアル通信:送信
+    ser.write(b'1')  # シリアル通信:送信　pulse_set
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)
-    ser.write(bytes(pulse_set_array[0][pulse_set_n], 'utf-8'))
-    read_serial()
-    read_serial()
+    ser.write(bytes(pulse_set_array[0][pulse_set_n], 'utf-8'))  # pulse_set_nは0でcw-0を選択している
+    read_serial()  # Pulse set 0 or 2,4　がNucleoから送信される
+    read_serial()  # Pulse_set(1)=0 select　がNucleoから送信される
 
 
 def pmode_set():
@@ -472,17 +476,18 @@ def manual_pulse_set():  # パルス設定の取得と送信
 
     :return:
     """
-    global pulse_set_array
-    pulse_set_array[0][pulse_set_n] = Pulse_cb.get()[0]
-    pulse_set_array[0][wait_set_n] = Box3_2.get()
-    pulse_set_array[0][anystep_n] = Box3_3.get()
-    pulse_set_array[0][pewidth_n] = Box3_4.get()
-    pulse_set_array[0][pewait_n] = Box3_5.get()
-    pulse_set_array[0][spkperiod_n] = Box3_7.get()
-    pulse_set_array[0][spkon_n] = Box3_8.get()
-    pulse_set_array[0][Vth_set_n] = Box3_9.get()
-    print(pulse_set_array)
-    pulse_select_set()
+    global pulse_set_array  # 2次元リスト [["","","","",...."",""]]だが値は1次元しかない
+    pulse_set_array[0][pulse_set_n] = Pulse_cb.get()[0]  # 初期値　pulse_set_array[0][0]=0
+    pulse_set_array[0][wait_set_n] = Box3_2.get()  # 初期値　pulse_set_array[0][1]=200
+    pulse_set_array[0][anystep_n] = Box3_3.get()  # 初期値　pulse_set_array[0][2]=60
+    pulse_set_array[0][pewidth_n] = Box3_4.get()  # 初期値　pulse_set_array[0][3]=244
+    pulse_set_array[0][pewait_n] = Box3_5.get()  # 初期値　pulse_set_array[0][4]=3000
+    pulse_set_array[0][spkperiod_n] = Box3_7.get()  # 初期値　pulse_set_array[0][5]=488
+    pulse_set_array[0][spkon_n] = Box3_8.get()  # 初期値　pulse_set_array[0][6]=31
+    pulse_set_array[0][Vth_set_n] = Box3_9.get()  # 初期値　pulse_set_array[0][11]=3.0
+    print(
+        pulse_set_array)  # [['0', '200', '60', '244', '3000', '488', '31', '', '', '', '', '3.0', '', '', '', '', '', '', '', '']]
+    pulse_select_set()  # Nucleoへコマンド'1'　pulse_set送信
     command_write('2', wait_set_n)  # wait time 設定
     command_write('7', anystep_n)  # 任意step数設定
     command_write('8', pewidth_n)  # Pe設定
@@ -2061,7 +2066,8 @@ def vrstime_print():
 # ------------------- read_serial() -----------------------
 def read_serial():
     """
-    Nucleoからのserialで１行読み込み、soft verを読み込む
+    Nucleoとのシリアル通信読み込み処理 1
+
     :return:
     """
     # time.sleep(wait_uart)
@@ -2069,18 +2075,20 @@ def read_serial():
 
     line = ser.readline().rstrip()  # シリアル1行読み込み　空白、タブ、改行コード除去
     line = line.decode()  # bytes型からstr型に変換
-    print(line)
+    print(line)  # 読み込んだ文字列を表示
+
 
 # ------------------- ~ read_serial() ----------------------
 
 def read_serial2():
     """
-
+    Nucleoとのシリアル通信読み込み処理 2
+    読み込み時の警告があった場合の処理機能付き
     :return:
     """
     # time.sleep(wait_uart)
     # ser.flush()#コマンド送信完了するまで待機
-    time.sleep(wait_uart)
+    time.sleep(wait_uart)  # wait_uart(sec)のsleepで通信時の動作ウエイト
     '''
     while 1:    #シリアル通信の受信待ちループ
         line = ser.read(1)#シリアル読み込み1文字
@@ -2140,7 +2148,7 @@ def read_alert(str_al):
     alertwindow.after(2000, lambda: alertwindow.destroy())
 
 
-# 5. Pulse設定配列、GUI表示変数定義より、遷移してきた。
+# 5. Pulse設定配列、GUI表示変数定義より、処理がこの場所へ移る。
 # --------------- 6. initial設定読み込み ----------------------------
 dirpath = os.getcwd()  # カレントディレクトリ取得
 filepath = dirpath + "/" + "initial_train.xlsx"
@@ -2711,7 +2719,7 @@ Box1_1 = tkinter.Entry(frame1, width=40)
 Box1_1.insert(tkinter.END, Com_No)
 
 Button1_1 = tkinter.Button(frame1, text=u'OPEN', width=7)
-Button1_1.bind("<Button-1>", Select_COM)
+Button1_1.bind("<Button-1>", Select_COM)  # マウスの左クリックにより、Select_COM関数を実施する
 Button1_2 = tkinter.Button(frame1, text=u'Close', width=7)
 Button1_2.bind("<Button-1>", Close_COM)
 # 左クリック（<Button-1>）されると，DeleteEntryValue関数を呼び出すようにバインド
@@ -2964,9 +2972,9 @@ Button7_5.grid(row=1, column=9, columnspan=2)
 if Com_No != 'Nucleo未接続':
     Button1_1.config(state="disable")  # ボタン無効化
 
-    read_serial()
-    nucleo_revchek()
-    manual_pulse_set()
+    read_serial()  # Nucleoのver読み込み
+    nucleo_revchek()  # Python側とのver.比較
+    manual_pulse_set()  # 2022.9.5ここより再開すること
     pulse_train_set()  # パルス列設定送信
     pulse_width_set()  # パルス幅設定送信
     vm_set()
