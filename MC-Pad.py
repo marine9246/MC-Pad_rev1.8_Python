@@ -35,7 +35,7 @@ import win32gui  # スクリーンショット関係
 # import pprint   #配列print時に改行で見やすく
 # ------------------- ~ 1. モジュールインポート ------------------------
 # ------------------- 2. データ変数　GUI変数定義 -----------------------
-tk = tkinter.Tk()  # Tkクラスのインスタンス生成 tk.mainloop()を最後に実行してウインドウを表示する
+tk = tkinter.Tk()  # メインウインドウの作成 tk.mainloop()を最後に実行してウインドウを表示する
 
 rev_name = 'rev1.8'  # Nucleoで表示するRevと合わせる必要あり
 Software_name = 'MC-Pad ' + rev_name + ' ~Pulse Analysis & Development~'
@@ -64,13 +64,13 @@ else:
 pulse_disp_num = 6  # UIに表示するパルスの数
 labewid_1 = 16  # ラベルの幅
 boxwid_1 = 10
-pulsemode_0 = tkinter.BooleanVar()  # チェックボックス変数　pulsemode_0.set(True)でON .set(False)でOFF
-pulsemode_1 = tkinter.BooleanVar()  # チェックボックス変数
-pulsemode_2 = tkinter.BooleanVar()  # チェックボックス変数
-pulsemode_3 = tkinter.BooleanVar()  # チェックボックス変数
-pulsemode_4 = tkinter.BooleanVar()  # チェックボックス変数
-pulsemode_5 = tkinter.BooleanVar()  # チェックボックス変数
-stepvm_en = tkinter.BooleanVar()  # チェックボックス変数
+pulsemode_0 = tkinter.BooleanVar()  # チェックボックス変数　pulsemode_0.set(True)でON .set(False)でOFF　Triger
+pulsemode_1 = tkinter.BooleanVar()  # チェックボックス変数　極性反転
+pulsemode_2 = tkinter.BooleanVar()  # チェックボックス変数　Vrs enable
+pulsemode_3 = tkinter.BooleanVar()  # チェックボックス変数　補正有り
+pulsemode_4 = tkinter.BooleanVar()  # チェックボックス変数　Pe設定 Enable
+pulsemode_5 = tkinter.BooleanVar()  # チェックボックス変数　※使用箇所無し
+stepvm_en = tkinter.BooleanVar()  # チェックボックス変数 Vm設定　±step
 # -------------------- ~ 4. Tkinter関係変数 ---------------------------
 # -------------------- 5. Pulse設定配列、GUI表示データ定義 ---------------
 pulse_set_array = [['' for i in range(20)] for j in range(1)]  # 2次元配列定義 jのrange(1)なので["","","",....,""]
@@ -408,18 +408,20 @@ def vrs_winset(event):
 # NUCLEOパルス設定書込み------------------------------------
 def command_write(command, set_num):
     """
-
-    :param command:
-    :param set_num:
+    Nucleoに対し、UARTでコマンドを送信し、設定値データを送信する
+    コマンド'x'の場合は、その前のコマンド＆データ送信に続いて、データ送信のみである。
+    例)　pe waitとspk onはデータのみでその前のコマンド&データに引き続きデータを送信する
+    :param command:Nucleoへの送信制御コマンド
+    :param set_num:Nucleoへの送信データ
     :return:
     """
     if command != 'x':
         ser.write(bytes(command, 'utf-8'))  # バイト型で送信
         # ser.flush()#コマンド送信完了するまで待機
         time.sleep(wait_uart)
-    ser.write(bytes(pulse_set_array[0][set_num], 'utf-8'))
-    ser.write(b'\r')
-    read_serial()
+    ser.write(bytes(pulse_set_array[0][set_num], 'utf-8'))  # Nucleoへの送信するデータをリストから選択する
+    ser.write(b'\r')    # Nucleoへ上記データを送信後、終了としてリターン送信
+    read_serial()       # Nucleoからのシリアルデータ受信しょり
 
 
 def pulse_select_set():
@@ -437,26 +439,26 @@ def pulse_select_set():
 
 def pmode_set():
     """
-
+    GUIの各チェックボックス変数が1なら各モードを’１’にしてNucleoにmode_setコマンド＆データを送信する
     :return:
     """
     mode = 0b00000
-    if pulsemode_4.get() == 1:
+    if pulsemode_4.get() == 1:      # Pe設定 Enable
         mode = mode | 0b10000
-    if pulsemode_3.get() == 1:
+    if pulsemode_3.get() == 1:      # 補正有り
         mode = mode | 0b01000
-    if pulsemode_2.get() == 1:
+    if pulsemode_2.get() == 1:      # Vrs enable
         mode = mode | 0b00100
-    if pulsemode_1.get() == 1:
+    if pulsemode_1.get() == 1:      # 極性反転
         mode = mode | 0b00010
-    if pulsemode_0.get() == 1:
+    if pulsemode_0.get() == 1:      # Triger
         mode = mode | 0b00001
-    ser.write(b'6')  # シリアル通信:送信
+    ser.write(b'6')  # シリアル通信:コマンド　mode_set送信
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)
-    ser.write(bytes(str(mode), 'utf-8'))
-    ser.write(b'\r')
-    read_serial()
+    ser.write(bytes(str(mode), 'utf-8'))    # 上記で設定したmode送信
+    ser.write(b'\r')            # 送信終了リターン送信
+    read_serial()               # Nucleoからの'mode = *set\n'を受信しコンソールに表示 *は送信したモード
     '''
     if pulsemode_5.get() == True:
         ser.write(bytes('1','utf-8'))
@@ -473,7 +475,7 @@ def pmode_set():
 
 def manual_pulse_set():  # パルス設定の取得と送信
     """
-
+    GUIの<Pulse設定>欄の各ウィジェットの値をリスト変数pulse_set_arrayに読み込み、Nucleoに送信する
     :return:
     """
     global pulse_set_array  # 2次元リスト [["","","","",...."",""]]だが値は1次元しかない
@@ -488,36 +490,37 @@ def manual_pulse_set():  # パルス設定の取得と送信
     print(
         pulse_set_array)  # [['0', '200', '60', '244', '3000', '488', '31', '', '', '', '', '3.0', '', '', '', '', '', '', '', '']]
     pulse_select_set()  # Nucleoへコマンド'1'　pulse_set送信
-    command_write('2', wait_set_n)  # wait time 設定
+    command_write('2', wait_set_n)  # wait time 設定 パルス周期
     command_write('7', anystep_n)  # 任意step数設定
     command_write('8', pewidth_n)  # Pe設定
-    command_write('x', pewait_n)
+    command_write('x', pewait_n)    # 上のPe設定コマンド処理内でpewaitデータを送信する
     command_write('-', spkperiod_n)  # spk設定
-    command_write('x', spkon_n)
+    command_write('x', spkon_n)     # 上のspk設定処理内でspkonデータを送信する
     command_write('o', Vth_set_n)  # Vth設定
-    pmode_set()
-    Button3_1.config(state="normal")  # ボタン有効化
+    pmode_set()                     # mode設定
+    Button3_1.config(state="normal")  # ボタン有効化　<Pulse設定>の設定送信ボタン
 
 
 def read_entry(name, array):  # entry読み出し(entry名，書込み先)
     """
+    パルス列設定、シーケンス設定のGUI上のEntryウィジェットに設定されている値を読み込み、リストに保存する。
 
-    :param name:
-    :param array:
+    :param name:GUI上のEntryウィジェットのentry名
+    :param array:entryに入力された値を保存するリスト変数
     :return:
     """
-    for i, row in enumerate(name, 0):
-        for n, col in enumerate(row):
-            array[i][n] = col.get()
+    for i, row in enumerate(name, 0):   # 例 CW-0行~Pr行まで1行づつ取り出す i=0のときrow=CW-0行
+        for n, col in enumerate(row):   # 例 A列~F列まで取り出す i=0,n=0の時、CW-0行のA列
+            array[i][n] = col.get()     # 例 書き込み先のリストに書き出す
 
 
 # --------------------------------------------------------
 def pulse_para_write(command, data, botno):  # パルスパラメータNucleo書込み(コマンド,入力値,有効化するボタン名 xだったら何もしない)
     """
-
-    :param command:
-    :param data:
-    :param botno:
+    パルスパラメータ（設定値）をNucleoに書き込む
+    :param command:Nucleo送信コマンド　p:pulse_train_set, 3:pulse_width_set, 4:pulse_num_set
+    :param data:initial_train.xlsx、あるいはtrainファイルで読み込んだパラメータ
+    :param botno:'x'以外なら、ボタン有化する　対象ボタン不明？
     :return:
     """
     for i, row in enumerate(data, 0):
@@ -538,19 +541,20 @@ def pulse_para_write(command, data, botno):  # パルスパラメータNucleo書
 
 def pulse_width_set():  # パルス幅本数を送信
     """
+    GUI上の<Pulse幅/本数>のEntry欄に設定された値を読み込み、リストに保存して、Nucleoに送信セットする。
 
     :return:
     """
-    read_entry(pulse_wid_name, pulse_width_array)
-    read_entry(pulse_num_name, pulse_num_array)
+    read_entry(pulse_wid_name, pulse_width_array)   # GUI上の<Pulse幅/本数>のパルス幅を読み込み、pulse_width_arrayリストに保存
+    read_entry(pulse_num_name, pulse_num_array)     # GUI上の<Pulse幅/本数>のパルス本数を読み込み、pulse_num_arrayリストに保存
 
-    pulse_para_write('3', pulse_width_array, 'x')
-    pulse_para_write('4', pulse_num_array, Button5_20)
+    pulse_para_write('3', pulse_width_array, 'x')   # Nucleo送信コマンド'3':pulse_width_setでパルス幅送信セット
+    pulse_para_write('4', pulse_num_array, Button5_20)  # Nucleo送信コマンド'4':pulse_num_setでパルス数送信セット
 
 
 def pulse_train_set():
     """
-
+    Nucleo　送信コマンド'p':pulse_train_setでpulse_train_arrayリストデータを送信する
     :return:
     """
     pulse_para_write('p', pulse_train_array, 'x')
@@ -560,13 +564,13 @@ def pulse_train_set():
 # 電圧設定関係サブルーチン----------------------------------------------
 def vm_write():
     """
-
+    Vm設定Boxの値を読み込み、pulse_set_arrayリストに記憶し、Nucleoにコマンド:Voltage_setで送信する
     :return:
     """
     global vm_value
-    vm_value = Box4_4.get()
-    pulse_set_array[0][Vm_set_n] = Box4_4.get()
-    command_write('^', Vm_set_n)
+    vm_value = Box4_4.get()     # Vm設定Box値の読み込み
+    pulse_set_array[0][Vm_set_n] = Box4_4.get()     # Vm設定Box値をリストに保存
+    command_write('^', Vm_set_n)        # Voltage_setコマンドでデータpulse_set_array[0][Vm_set_n]を送信
 
 
 def insert_vm(vm_disp):  # UI表示更新
@@ -585,14 +589,14 @@ def vm_set():
     :return:
     """
     global vm_value
-    vm_value = pulse_set_array[0][Vm_set_n]
-    if vm_value != Box4_4.get():
-        if float(Box4_4.get()) < vm_minmum:
+    vm_value = pulse_set_array[0][Vm_set_n]     # pulse_set_arrayに書き込まれたvm値を読み込む
+    if vm_value != Box4_4.get():    # Vm設定Boxに入力されたVm値と保存されているVm値が異なる場合に処理する。
+        if float(Box4_4.get()) < vm_minmum:     # vm最小値未満の場合の処理
             tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_minmum) + 'V以上としてください')
-            insert_vm(vm_minmum)
-        elif float(Box4_4.get()) > vm_maximum:
-            tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_maximum) + 'V以上としてください')
-            insert_vm(vm_maximum)
+            insert_vm(vm_minmum)                # vm最小値で書き換える
+        elif float(Box4_4.get()) > vm_maximum:  # vm最大値より大きい場合の処理
+            tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_maximum) + 'V以上としてください') # ここは'以下’の間違い
+            insert_vm(vm_maximum)               # vm最大値で書き換える
         vm_write()
 
 
@@ -2968,16 +2972,16 @@ Button7_5.grid(row=1, column=9, columnspan=2)
 # ---------------- ~ オプション機能設定GUI ---------------------
 # ---------------- ~ main window設定 -------------------------
 ###############
-####初期設定###
+####初期設定### 2022.9.7終了
 if Com_No != 'Nucleo未接続':
     Button1_1.config(state="disable")  # ボタン無効化
 
     read_serial()  # Nucleoのver読み込み
-    nucleo_revchek()  # Python側とのver.比較
-    manual_pulse_set()  # 2022.9.5ここより再開すること
+    nucleo_revchek()  # Python側とNucleo側のver.比較
+    manual_pulse_set()  # GUIのPulse設定欄の値を読み込み、Nucleoに送信設定する
     pulse_train_set()  # パルス列設定送信
-    pulse_width_set()  # パルス幅設定送信
-    vm_set()
+    pulse_width_set()  # パルス幅、本数設定送信
+    vm_set()            # Vm設定値をGUI上のBoxから読み込み、送信設定する
     print('init end')
 
 # vrs_windowset()
@@ -2989,4 +2993,5 @@ if Com_No != 'Nucleo未接続':
 # print(tk.winfo_width())
 # print(tk.winfo_exists())#windowが存在するか
 
+# メインウインドウのループ処理
 tk.mainloop()
