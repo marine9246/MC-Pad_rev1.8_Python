@@ -2702,40 +2702,42 @@ def vrs_window():
 
 
 # ---------------- ~ 関数定義 ---------------------------------
-# 2022.8.31
-# ---------------- main window設定 ----------------------------
-# 6. initial設定読み込みの次にここの処理に移る
+#
+# ---------------- main window作成 ----------------------------
+#
 """
-mainウインドウの設定
+mainウインドウの作成
+mainウインドウの中に配置するウィジェットのサイズ、配置を指定し、初期状態を設定する。
+
 COMポート
 <Pulse設定>
 <Pulse幅／本数>
 <Pulse出力>
 <オプション機能>
 """
-# ---------------- 7. COMポート設定GUI ----------------------------
+# ---------------- COMポート設定GUI ----------------------------
 frame1 = tkinter.Frame(tk, pady=10, padx=10)  # Frame(複数のウィジェットを配置出来るコンテナ)　pady、padx枠とテキストの間の空白
 frame1.pack(anchor=tkinter.W)  # frame配置左よせ
 
-Label1_1 = tkinter.Label(frame1, text='COMポート : ', width=12, anchor='w')
+Label1_1 = tkinter.Label(frame1, text='COMポート : ', width=12, anchor='w')    # ラベル'COMポート:'配置frame1の左端
 
-Box1_1 = tkinter.Entry(frame1, width=40)
-Box1_1.insert(tkinter.END, Com_No)
+Box1_1 = tkinter.Entry(frame1, width=40)    # COMポート入力欄　半角40文字
+Box1_1.insert(tkinter.END, Com_No)          # 入力欄の最後に追加
 
-Button1_1 = tkinter.Button(frame1, text=u'OPEN', width=7)
-Button1_1.bind("<Button-1>", Select_COM)  # マウスの左クリックにより、Select_COM関数を実施する
+Button1_1 = tkinter.Button(frame1, text=u'OPEN', width=7)       # u:unicode文字列が作成される
+Button1_1.bind("<Button-1>", Select_COM)  # "<Button-1>"=マウスの左クリックにより、Select_COM関数を実施する
 Button1_2 = tkinter.Button(frame1, text=u'Close', width=7)
-Button1_2.bind("<Button-1>", Close_COM)
-# 左クリック（<Button-1>）されると，DeleteEntryValue関数を呼び出すようにバインド
+Button1_2.bind("<Button-1>", Close_COM)     # "<Button-1>"=マウスの左クリックにより、Close_COM関数を実施する
+# 2022.9.8
 
 Label1_1.grid(row=0, column=0)
 Box1_1.grid(row=0, column=1, sticky=tkinter.W)
 Button1_1.grid(row=0, column=2)
 Button1_2.grid(row=0, column=3)
 
-# ---------------- ~ 7. COMポート設定GUI --------------------------
+# ---------------- ~ COMポート設定GUI --------------------------
 # --------------- AD2設定GUI -----------------
-# ウインドウ上に確認されない。使用していないのかも
+# 本スクリプトでframe2を使用する箇所はない。
 frame2 = tkinter.Frame(tk, pady=10)
 frame2.pack()
 # --------------- ~ AD2設定GUI ---------------
@@ -2970,9 +2972,9 @@ Button7_5 = tkinter.Button(frame7, text=u'Vrs 回転検出', width=12,
 # Button7_5.bind("<Button-1>",vrs_window)
 Button7_5.grid(row=1, column=9, columnspan=2)
 # ---------------- ~ オプション機能設定GUI ---------------------
-# ---------------- ~ main window設定 -------------------------
+# ---------------- ~ main window作成 -------------------------
 ###############
-####初期設定### 2022.9.7終了
+####初期設定###
 if Com_No != 'Nucleo未接続':
     Button1_1.config(state="disable")  # ボタン無効化
 
