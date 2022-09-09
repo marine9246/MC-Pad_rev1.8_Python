@@ -2728,54 +2728,56 @@ Button1_1 = tkinter.Button(frame1, text=u'OPEN', width=7)       # u:unicode文�
 Button1_1.bind("<Button-1>", Select_COM)  # "<Button-1>"=マウスの左クリックにより、Select_COM関数を実施する
 Button1_2 = tkinter.Button(frame1, text=u'Close', width=7)
 Button1_2.bind("<Button-1>", Close_COM)     # "<Button-1>"=マウスの左クリックにより、Close_COM関数を実施する
-# 2022.9.8
 
-Label1_1.grid(row=0, column=0)
-Box1_1.grid(row=0, column=1, sticky=tkinter.W)
-Button1_1.grid(row=0, column=2)
-Button1_2.grid(row=0, column=3)
+
+Label1_1.grid(row=0, column=0)                  # Label1_1、BOX1_1、Button1_1、Button1_2をgridでrow=0行に一列に配置する
+Box1_1.grid(row=0, column=1, sticky=tkinter.W)  # COMポートEntryBox　stickyで配置方向指定W:左寄せ
+Button1_1.grid(row=0, column=2)                 # 'OPEN'ボタン
+Button1_2.grid(row=0, column=3)                 # 'Close'ボタン
 
 # ---------------- ~ COMポート設定GUI --------------------------
 # --------------- AD2設定GUI -----------------
 # 本スクリプトでframe2を使用する箇所はない。
 frame2 = tkinter.Frame(tk, pady=10)
-frame2.pack()
+frame2.pack()                                   # frame1の下に配置されているが、サイズ小さくて見えない。⇒使用していない
 # --------------- ~ AD2設定GUI ---------------
 
 # ---------------- Pulse設定GUI ----------------------------
-frame3 = tkinter.Frame(tk, pady=10, padx=10)
-frame3.pack(anchor=tkinter.W)
+frame3 = tkinter.Frame(tk, pady=10, padx=10)        # frame3に<Pulse設定>部分のウィジェットを配置する
+frame3.pack(anchor=tkinter.W)                       # 左端に配置
 
-Label3_1 = tkinter.Label(frame3, text='<Pulse設定>', width=labewid_1, anchor='w')
+Label3_1 = tkinter.Label(frame3, text='<Pulse設定>', width=labewid_1, anchor='w')     # Label3_1をframe3の左端に配置
 
 # コンボボックス
+# ----------- このコンボボックスはメインウインドウに表示していない。⇒使用していない ----------------------
 Pulse_cbLabe = tkinter.Label(frame3, text='Pulse選択 : ', width=labewid_1, anchor='w')
 Pulse_cb = ttk.Combobox(frame3, width=10, state='readonly')  # Combobox作成 書込み禁止設定
 Pulse_cb["values"] = ("0: 2Coil-1", "1: NS", "2: 2Coil-2", "3: NS", "4: 1coil")
 Pulse_cb.current(0)  # 初期値
+# --------------------------------------------------------------------------------------------
 
 # checkボックス
-chklabe1 = tkinter.Label(frame3, text='オプション : ', width=10, anchor='w')
-chk3_1 = tkinter.Checkbutton(frame3, variable=pulsemode_0, text='Triger', width=8, anchor='w')
-chk3_2 = tkinter.Checkbutton(frame3, variable=pulsemode_1, text='極性反転', width=8, anchor='w')
-chk3_4 = tkinter.Checkbutton(frame3, variable=pulsemode_3, text='補正あり', width=8, anchor='w')
-chklabe2 = tkinter.Label(frame3, text='Vrs検出 : ', width=10, anchor='w')
-chk3_3 = tkinter.Checkbutton(frame3, variable=pulsemode_2, text='Vrs enable', width=8, anchor='w')
+chklabe1 = tkinter.Label(frame3, text='オプション : ', width=10, anchor='w')     # frame3の左端にラベル'オプション:'を配置
+chk3_1 = tkinter.Checkbutton(frame3, variable=pulsemode_0, text='Triger', width=8, anchor='w')  # frame3にチェックボタンを作成し、'Triger'テキストを左配置、チェック状態はvariableによる
+chk3_2 = tkinter.Checkbutton(frame3, variable=pulsemode_1, text='極性反転', width=8, anchor='w')    # frame3にチェックボタンを作成し、'極性反転'テキストを左配置、チェック状態はvariableによる
+chk3_4 = tkinter.Checkbutton(frame3, variable=pulsemode_3, text='補正あり', width=8, anchor='w')    # frame3にチェックボタンを作成し、'補正あり'テキストを左配置、チェック状態はvariableによる
+chklabe2 = tkinter.Label(frame3, text='Vrs検出 : ', width=10, anchor='w')                 # メインウインドウ上に表示していない。⇒使用していない
+chk3_3 = tkinter.Checkbutton(frame3, variable=pulsemode_2, text='Vrs enable', width=8, anchor='w')  # frame3にチェックボタンを作成し、'Vrs enable'テキストを左配置、チェック状態はvariableによる
 # chk3_4 = tkinter.Label(frame3, text='',width=8,anchor='w')
 # chk3_4 = tkinter.Checkbutton(frame3, variable=pulsemode_3, text='Vrs Wait',width=8,anchor='w')
-chklabe3 = tkinter.Label(frame3, text='Pe設定 : ', width=10, anchor='w')
-chk3_5 = tkinter.Checkbutton(frame3, variable=pulsemode_4, text='Enable', width=6, anchor='w')
-Label3_4 = tkinter.Label(frame3, text='Pe幅[us]', width=8, anchor='e')
+chklabe3 = tkinter.Label(frame3, text='Pe設定 : ', width=10, anchor='w')      # frame3にラベル'Pe設定'を左配置
+chk3_5 = tkinter.Checkbutton(frame3, variable=pulsemode_4, text='Enable', width=6, anchor='w')      # frame3にチェックボタンを作成し、'Enable'テキストを左配置、チェック状態はvariableによる
+Label3_4 = tkinter.Label(frame3, text='Pe幅[us]', width=8, anchor='e')   # frame3にラベル'Pe幅[us]'右配置
 Box3_4 = tkinter.Entry(frame3, width=6)
-Box3_4.insert(tkinter.END, 244)
-Label3_5 = tkinter.Label(frame3, text='wait[us]', width=8, anchor='e')
+Box3_4.insert(tkinter.END, 244)                                         # frame3に入力欄を作成し、入力欄の最後に244を挿入
+Label3_5 = tkinter.Label(frame3, text='wait[us]', width=8, anchor='e')  # frame3にラベル'wait[us]'右配置
 Box3_5 = tkinter.Entry(frame3, width=6)
-Box3_5.insert(tkinter.END, 3000)
+Box3_5.insert(tkinter.END, 3000)                                        # frame3に入力欄を作成し、入力欄の最後に3000を挿入
 
-pulsemode_0.set(True)  # chekbox初期値セット
+pulsemode_0.set(True)  # chekbox初期値セット 'Triger'チェックBOXの初期値
 # pulsemode_2.set(True)#chekbox初期値セット
 
-Label3_6 = tkinter.Label(frame3, text='SPK設定 : ', width=10, anchor='w')
+Label3_6 = tkinter.Label(frame3, text='SPK設定 : ', width=10, anchor='w') #2022.9.9
 Label3_7 = tkinter.Label(frame3, text='周期[us]', width=8, anchor='e')
 Box3_7 = tkinter.Entry(frame3, width=6)
 Box3_7.insert(tkinter.END, 488)
