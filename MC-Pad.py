@@ -2777,65 +2777,64 @@ Box3_5.insert(tkinter.END, 3000)                                        # frame3
 pulsemode_0.set(True)  # chekbox初期値セット 'Triger'チェックBOXの初期値
 # pulsemode_2.set(True)#chekbox初期値セット
 
-Label3_6 = tkinter.Label(frame3, text='SPK設定 : ', width=10, anchor='w') #2022.9.9
-Label3_7 = tkinter.Label(frame3, text='周期[us]', width=8, anchor='e')
-Box3_7 = tkinter.Entry(frame3, width=6)
-Box3_7.insert(tkinter.END, 488)
-Label3_8 = tkinter.Label(frame3, text='ON[us]', width=8, anchor='e')
-Box3_8 = tkinter.Entry(frame3, width=6)
-Box3_8.insert(tkinter.END, 31)
+Label3_6 = tkinter.Label(frame3, text='SPK設定 : ', width=10, anchor='w')  # anchor:Labelウイジェットに表示するtextの配置指定左
+Label3_7 = tkinter.Label(frame3, text='周期[us]', width=8, anchor='e')    # anchor:Labelウイジェットに表示するtextの配置指定右
+Box3_7 = tkinter.Entry(frame3, width=6)     # Entryウィジェット作成
+Box3_7.insert(tkinter.END, 488)             # Entry欄の最後に488挿入
+Label3_8 = tkinter.Label(frame3, text='ON[us]', width=8, anchor='e')    # anchor:Labelウイジェットに表示するtextの配置指定右
+Box3_8 = tkinter.Entry(frame3, width=6)     # Entryウィジェット作成
+Box3_8.insert(tkinter.END, 31)              # Entry欄の最後に31挿入
 
-Label3_2 = tkinter.Label(frame3, text='周波数[Hz] : ', width=10, anchor='w')
-Box3_2 = tkinter.Entry(frame3, width=8)
-Box3_2.insert(tkinter.END, 200)
-Label3_3 = tkinter.Label(frame3, text='Anysteps : ', width=10, anchor='w')
-Box3_3 = tkinter.Entry(frame3, width=8)
-Box3_3.insert(tkinter.END, 60)
+Label3_2 = tkinter.Label(frame3, text='周波数[Hz] : ', width=10, anchor='w')   # anchor:Labelウイジェットに表示するtextの配置指定左
+Box3_2 = tkinter.Entry(frame3, width=8)     # 周波数入力欄 半角8文字
+Box3_2.insert(tkinter.END, 200)             # 初期値として入力欄の最後に追加
+Label3_3 = tkinter.Label(frame3, text='Anysteps : ', width=10, anchor='w')      # anchor:Labelウイジェットに表示するtextの配置指定左
+Box3_3 = tkinter.Entry(frame3, width=8)     # Anysteps入力欄 半角8文字
+Box3_3.insert(tkinter.END, 60)              # 初期値として入力欄の最後に追加
 
-Label3_9 = tkinter.Label(frame3, text='Vcomp[V] : ', width=10, anchor='e')
-Box3_9 = tkinter.Entry(frame3, width=6, )
-Box3_9.insert(tkinter.END, 3.0)
-Label3_10 = tkinter.Label(frame3, text='※Jumper注意 max3V', width=14, anchor='e')
+Label3_9 = tkinter.Label(frame3, text='Vcomp[V] : ', width=10, anchor='e')      # anchor:Labelウイジェットに表示するtextの配置指定右 左と右で大差ない
+Box3_9 = tkinter.Entry(frame3, width=6)     # Vcomp入力欄　半角6文字
+Box3_9.insert(tkinter.END, 3.0)             # 初期値として入力欄の最後に追加
+Label3_10 = tkinter.Label(frame3, text='※Jumper注意 max3V', width=14, anchor='e')     # anchor:Labelウイジェットに表示するtextの配置指定 16文字無いと※表示されない
+Button3_1 = tkinter.Button(frame3, text=u'設定送信', width=10)      # ’設定送信'ボタン作成 u:unicode文字列が作成される
+Button3_1.bind("<Button-1>", manual_pulse_bot)      # <Button-1>"=マウスの左クリックにより、manual_pulse_bot関数処理する
 
-Button3_1 = tkinter.Button(frame3, text=u'設定送信', width=10)
-Button3_1.bind("<Button-1>", manual_pulse_bot)
-
-Label3_1.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)
+Label3_1.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)  # <Pulse設定>のラベルの配置位置指定 ここでcolumnspan指定しても影響しない
 # Pulse_cbLabe.grid(row=1,column=0)
 # Pulse_cb.grid(row=1,column=1,columnspan=1)
-chklabe1.grid(row=2, column=0, sticky=tkinter.W)
-chk3_1.grid(row=2, column=1, sticky=tkinter.W)
-chk3_2.grid(row=2, column=3, sticky=tkinter.W)
-chk3_4.grid(row=2, column=4)
+chklabe1.grid(row=2, column=0, sticky=tkinter.W)    # ラベル'オプション'配置指定 stickyで左に配置
+chk3_1.grid(row=2, column=1, sticky=tkinter.W)      # チェックボタン'Triger'を’オプション'の右のcolumnに配置
+chk3_2.grid(row=2, column=3, sticky=tkinter.W)      # チェックボタン'極性反転'を'Triger'の右のcolumnに配置
+chk3_4.grid(row=2, column=4)                        # チェックボタン'補正あり'を'極性反転'の右のcolumnに配置
 # chk3_6.grid(row=2,column=4,sticky=tkinter.W)
 
 # Pe設定配置
-chklabe3.grid(row=4, column=0, sticky=tkinter.W)
-chk3_5.grid(row=4, column=1, sticky=tkinter.W)
-Label3_4.grid(row=4, column=3, sticky=tkinter.E)
-Box3_4.grid(row=4, column=4, sticky=tkinter.W)
-Label3_5.grid(row=4, column=5, sticky=tkinter.E)
-Box3_5.grid(row=4, column=6, sticky=tkinter.W)
+chklabe3.grid(row=4, column=0, sticky=tkinter.W)    # ラベル'Pe設定'配置指定
+chk3_5.grid(row=4, column=1, sticky=tkinter.W)      # チェックボタン'Enable'をPe設定の右のcolumnに配置
+Label3_4.grid(row=4, column=3, sticky=tkinter.E)    # ラベル'Pe幅'を'Enable'の右のcolumnに配置
+Box3_4.grid(row=4, column=4, sticky=tkinter.W)      # 入力欄を'Pe幅'の右のcolumnに配置
+Label3_5.grid(row=4, column=5, sticky=tkinter.E)    # ラベル'wait'をPe幅の入力欄の右のcolumnに配置
+Box3_5.grid(row=4, column=6, sticky=tkinter.W)      # 入力欄を'wait'の右のcolumnに配置
 
 # SPK設定配置
-Label3_6.grid(row=5, column=0, sticky=tkinter.W)
-chk3_3.grid(row=5, column=1, sticky=tkinter.W)
-Label3_7.grid(row=5, column=3, sticky=tkinter.E)
-Box3_7.grid(row=5, column=4, sticky=tkinter.W)
-Label3_8.grid(row=5, column=5, sticky=tkinter.E)
-Box3_8.grid(row=5, column=6, sticky=tkinter.W)
-Label3_9.grid(row=6, column=3, sticky=tkinter.E)
-Box3_9.grid(row=6, column=4, sticky=tkinter.W)
-Label3_10.grid(row=7, column=4, sticky=tkinter.E)
+Label3_6.grid(row=5, column=0, sticky=tkinter.W)    # ラベル'SPK設定'配置指定
+chk3_3.grid(row=5, column=1, sticky=tkinter.W)      # チェックボタン'Vrs enable'をSPK設定の右のcolumnに配置
+Label3_7.grid(row=5, column=3, sticky=tkinter.E)    # ラベル'周期'を'Vrs enable'の右のcolumnに配置
+Box3_7.grid(row=5, column=4, sticky=tkinter.W)      # 入力欄を'周期'の右のcolumnに配置
+Label3_8.grid(row=5, column=5, sticky=tkinter.E)    # ラベル'ON'を周期の入力欄の右のcolumnに配置
+Box3_8.grid(row=5, column=6, sticky=tkinter.W)      # 入力欄を'ON'の右のcolumnに配置
+Label3_9.grid(row=6, column=3, sticky=tkinter.E)    # ラベル'Vcomp[V]'を'周波数'の入力欄の右のcolumnに配置
+Box3_9.grid(row=6, column=4, sticky=tkinter.W)      # 入力欄を'Vcomp[V]'の右のcolumnに配置
+Label3_10.grid(row=7, column=4, sticky=tkinter.E)   # ラベル'Jumper注意...'を'Vcomp'の入力欄の下のrowに配置
 
-Label3_2.grid(row=6, column=0, sticky=tkinter.W)
-Box3_2.grid(row=6, column=1, sticky=tkinter.W)
-Label3_3.grid(row=7, column=0, sticky=tkinter.W)
-Box3_3.grid(row=7, column=1, columnspan=2, sticky=tkinter.W)
-
-Button3_1.grid(row=8, column=1, columnspan=2)
+Label3_2.grid(row=6, column=0, sticky=tkinter.W)    # ラベル'周波数'配置指定
+Box3_2.grid(row=6, column=1, sticky=tkinter.W)      # 入力欄を'周波数'の右のcolumnに配置
+Label3_3.grid(row=7, column=0, sticky=tkinter.W)    # ラベル'Anysteps'配置指定
+Box3_3.grid(row=7, column=1, columnspan=2, sticky=tkinter.W)    # 入力欄を'Anysteps'の右のcolumnに配置
+                                                                # columnspan影響しない
+Button3_1.grid(row=8, column=1, columnspan=2)       # '設定送信'ボタン配置指定 columnspan影響しない
 # ---------------- ~ Pulse設定GUI --------------------------
-
+# 2022.9.12
 # ---------------- Pulses幅/本数設定GUI ----------------------
 frame5 = tkinter.Frame(tk, pady=10, padx=10)
 frame5.pack(anchor=tkinter.W)
