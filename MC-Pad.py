@@ -624,7 +624,7 @@ def manual_pulse_out(dire, step):
     vm_set()
     if dire == 0:
         if step == 1:
-            ser.write(b'z')  # シリアル通信:送信
+            ser.write(b'z')  # シリアル通信:送信 文字の場合はバイト型に変換して送信する　b'文字'
         elif step == 0:
             ser.write(b'b')  # シリアル通信:送信
         elif step == 360:
