@@ -2834,78 +2834,78 @@ Box3_3.grid(row=7, column=1, columnspan=2, sticky=tkinter.W)    # 入力欄を'A
                                                                 # columnspan影響しない
 Button3_1.grid(row=8, column=1, columnspan=2)       # '設定送信'ボタン配置指定 columnspan影響しない
 # ---------------- ~ Pulse設定GUI --------------------------
-# 2022.9.12
+
 # ---------------- Pulses幅/本数設定GUI ----------------------
-frame5 = tkinter.Frame(tk, pady=10, padx=10)
-frame5.pack(anchor=tkinter.W)
-Label5_1 = tkinter.Label(frame5, text='<Pulse幅[us]/本数>', width=labewid_1, anchor='w')
-Label5_1.grid(column=0, row=0, columnspan=3, sticky=tkinter.W)
+frame5 = tkinter.Frame(tk, pady=10, padx=10)        # <Pulse幅/本数>ウィジェット用のフレーム作成
+frame5.pack(anchor=tkinter.W)                       # frame5を左端に配置　ただし、実際はメインウィンドウの横サイズに合わせられる
+Label5_1 = tkinter.Label(frame5, text='<Pulse幅[us]/本数>', width=labewid_1, anchor='w')   # ラベル'<Pulse幅/本数>'をframe5に配置指示
+Label5_1.grid(column=0, row=0, columnspan=3, sticky=tkinter.W)      # ラベル'<Pulse幅/本数>'を左配置で表示
 
-Label5_2 = tkinter.Label(frame5, text='区間', width=6, anchor='e')
-Label5_2.grid(column=0, row=1, columnspan=1, sticky=tkinter.W)
+Label5_2 = tkinter.Label(frame5, text='区間', width=6, anchor='e')    # ラベル'区間'を右配置指示
+Label5_2.grid(column=0, row=1, columnspan=1, sticky=tkinter.W)      # ラベル'区間'を表示　左配置
 
-label5_Pnum = [['CW -0', 'CCW-1', '補CW -2', '補CCW-3', 'CW-4', 'CCW-5', 'Pr-6']]
-for y, row in enumerate(label5_Pnum, 0):
-    for x, char in enumerate(row):
-        label5_P = tkinter.Label(frame5, text=char, width=7, anchor='w')
-        if x < pulse_disp_num or x == 6:
-            label5_P.grid(column=0, row=x + 2, sticky=tkinter.W)
+label5_Pnum = [['CW -0', 'CCW-1', '補CW -2', '補CCW-3', 'CW-4', 'CCW-5', 'Pr-6']]     # ラベルデータをリストで用意
+for y, row in enumerate(label5_Pnum, 0):        # y=0のみ, row='CW -0' row='CCW-1'........
+    for x, char in enumerate(row):              # x=0, char=CW -0 x=1, char=CCW-1 ........x=6, char=Pr-6
+        label5_P = tkinter.Label(frame5, text=char, width=7, anchor='w')    # ラベルの作成
+        if x < pulse_disp_num or x == 6:                    # pulse_disp_num = 6 なので結局x<=6で判定
+            label5_P.grid(column=0, row=x + 2, sticky=tkinter.W)        # ’区間'の下からrow=1置きにラベルを配置表示する
 
-label5_Pname = [['A', 'B', 'C', 'D', 'E', 'F', 'A', 'B', 'C', 'D', 'E', 'F']]
-for y, row in enumerate(label5_Pname, 0):
-    for x, char in enumerate(row):
-        if x < 6:
+label5_Pname = [['A', 'B', 'C', 'D', 'E', 'F', 'A', 'B', 'C', 'D', 'E', 'F']]       # ラベルデータをリストで用意
+for y, row in enumerate(label5_Pname, 0):       # y=0のみ, row='A' row='B'........
+    for x, char in enumerate(row):              # x=0, char=A x=1, char=B ........x=11, char=F
+        if x < 6:                               # X=0～5まではパルス幅入力欄
             label5_P = tkinter.Label(frame5, text=char, width=5)
-        else:
+        else:                                   # X=6～11まではパルス本数入力欄
             label5_P = tkinter.Label(frame5, text=char, width=3)
-        label5_P.grid(column=x + 1, row=y + 1)
+        label5_P.grid(column=x + 1, row=y + 1)   # '区間'と同じ行(row=1)で右にcolumn=1置きに移動させて表示する
 
-for i in range(pulse_type):  # パルス幅設定Entry作成
-    for n in range(6):
-        pulse_wid_name[i][n] = tkinter.Entry(frame5, width=5)
-        pulse_wid_name[i][n].insert(tkinter.END, pulse_width_array[i][n])
-        if i < pulse_disp_num or i == 6:
-            pulse_wid_name[i][n].grid(row=i + 2, column=n + 1)
+for i in range(pulse_type):  # パルス幅設定Entry作成 pulse_type=7なので、0～6まで繰り返す （パルス種別数7）
+    for n in range(6):      # 0～5まで繰り返す　区間（A～Fの6）
+        pulse_wid_name[i][n] = tkinter.Entry(frame5, width=5)       # Entryボックスをframe5に作成 i:パルス種別、n:区間
+        pulse_wid_name[i][n].insert(tkinter.END, pulse_width_array[i][n])   # 上で作成したEntryボックスにpulse_width_array[i][n]の値を挿入
+        if i < pulse_disp_num or i == 6:        # pulse_disp_num = 6 なので結局x<=6で判定
+            pulse_wid_name[i][n].grid(row=i + 2, column=n + 1)      # 上で作成したEntryボックスを配置表示  row=2,column=1から1行づつ配置
 
-for i in range(pulse_type):  # パルス本数設定Entry作成
-    for n in range(6):
-        pulse_num_name[i][n] = tkinter.Entry(frame5, width=3)
-        pulse_num_name[i][n].insert(tkinter.END, pulse_num_array[i][n])
-        if i < pulse_disp_num or i == 6:
-            pulse_num_name[i][n].grid(row=i + 2, column=n + 7)
+for i in range(pulse_type):  # パルス本数設定Entry作成 pulse_type=7なので、0～6まで繰り返す （パルス種別数7）
+    for n in range(6):      # 0～5まで繰り返す　区間（A～Fの6）
+        pulse_num_name[i][n] = tkinter.Entry(frame5, width=3)       # Entryボックスをframe5に作成 i:パルス種別、n:区間 本数なので、上の幅よりはwidth少ない
+        pulse_num_name[i][n].insert(tkinter.END, pulse_num_array[i][n])     # 上で作成したEntryボックスにpulse_num_array[i][n]の値を挿入
+        if i < pulse_disp_num or i == 6:        # pulse_disp_num = 6 なので結局x<=6で判定
+            pulse_num_name[i][n].grid(row=i + 2, column=n + 7)      # 上で作成したEntryボックスを配置表示  row=2,column=7から1行づつ配置
 
-Button5_20 = tkinter.Button(frame5, text=u'設定送信', width=12)
-Button5_20.bind("<Button-1>", pulse_width_bot)
-Button5_20.grid(row=pulse_type + 2, column=1, columnspan=2)
+Button5_20 = tkinter.Button(frame5, text=u'設定送信', width=12)     # ’設定送信'ボタン作成 u:unicode文字列が作成される
+Button5_20.bind("<Button-1>", pulse_width_bot)                      # <Button-1>"=マウスの左クリックにより、pulse_width_bot関数処理する
+Button5_20.grid(row=pulse_type + 2, column=1, columnspan=2)         # '設定送信'ボタンを表示 row=9, column=1,Pr-6の欄の'A','B'column2つ分を1つとして表示する
 
-Button5_21 = tkinter.Button(frame5, text=u'設定読込', width=12)
-Button5_21.bind("<Button-1>", pulse_reading)
-# Button5_21.grid(row=pulse_type+2,column=4,columnspan=2)
+Button5_21 = tkinter.Button(frame5, text=u'設定読込', width=12)     # '設定読込'ボタン作成
+Button5_21.bind("<Button-1>", pulse_reading)                    # <Button-1>"=マウスの左クリックにより、pulse_reading関数処理する
+# Button5_21.grid(row=pulse_type+2,column=4,columnspan=2)       # ただし、'設定読込'ボタンは表示されていない
 
-global width_name
-width_name = tkinter.StringVar()
+global width_name           # 上記の’設定読込'ボタンが無効化されているために、width_nameを表示するラベルは機能しない
+width_name = tkinter.StringVar()        # StringVar()で読み込まれたテキスト変数でlabel5_21のテキスト表示を可変する仕組みだが機能しない
 label5_21 = tkinter.Label(frame5, textvariable=width_name, width=15)
-label5_21.grid(row=pulse_type + 2, column=6, columnspan=5)
+label5_21.grid(row=pulse_type + 2, column=6, columnspan=5)  # '設定送信'の横、F～Dの範囲にラベルが用意されるが、機能しないので何も表示されない
 # ---------------- ~ Pulses幅/本数設定GUI ---------------------
 
 # ---------------- Pulses出力設定GUI --------------------------
-frame4 = tkinter.Frame(tk, pady=10, padx=10)
-frame4.pack(anchor=tkinter.W)
+frame4 = tkinter.Frame(tk, pady=10, padx=10)        # <Pulse出力>ウィジェット用のフレーム作成
+frame4.pack(anchor=tkinter.W)                       # frame4を左端に配置　ただし、実際はメインウィンドウの横サイズに合わせられる
 
-Label4_1 = tkinter.Label(frame4, text='<Pulse出力>', width=labewid_1, anchor='w')
+Label4_1 = tkinter.Label(frame4, text='<Pulse出力>', width=labewid_1, anchor='w')     # ラベル'<Pulse出力>'をframe4に配置指示　文字数半角16
 
-Label4_2 = tkinter.Label(frame4, text='CW -0', width=8, anchor='w')
-Label4_3 = tkinter.Label(frame4, text='CCW-1', width=8, anchor='w')
+Label4_2 = tkinter.Label(frame4, text='CW -0', width=8, anchor='w')     # ラベル'CW -0'をframe4に配置指示左　文字数半角8
+Label4_3 = tkinter.Label(frame4, text='CCW-1', width=8, anchor='w')     # ラベル'CCW-1'をframe4に配置指示左　文字数半角8
 
-Button4_1 = tkinter.Button(frame4, text=u'1step', width=7, command=lambda: manual_pulse_out(0, 1))
-Button4_2 = tkinter.Button(frame4, text=u'Any step', width=7, command=lambda: manual_pulse_out(0, 0))
-Button4_3 = tkinter.Button(frame4, text=u'360step', width=7, command=lambda: manual_pulse_out(0, 360))
-Button4_4 = tkinter.Button(frame4, text=u'1step', width=7, command=lambda: manual_pulse_out(1, 1))
-Button4_5 = tkinter.Button(frame4, text=u'Any step', width=7, command=lambda: manual_pulse_out(1, 0))
-Button4_6 = tkinter.Button(frame4, text=u'360step', width=7, command=lambda: manual_pulse_out(1, 360))
-Button4_7 = tkinter.Button(frame4, text=u'Pr', width=7, command=lambda: manual_pulse_out(2, 1))
-Button4_8 = tkinter.Button(frame4, text=u'Any 往復', width=7, command=lambda: manual_pulse_out(3, 0))
-
+Button4_1 = tkinter.Button(frame4, text=u'1step', width=7, command=lambda: manual_pulse_out(0, 1))      # '1step'ボタン作成し、クリック時は、Nucleoにコマンド'z'送信
+Button4_2 = tkinter.Button(frame4, text=u'Any step', width=7, command=lambda: manual_pulse_out(0, 0))   # 'Any step'ボタン作成し、クリック時は、Nucleoにコマンド'b'送信
+Button4_3 = tkinter.Button(frame4, text=u'360step', width=7, command=lambda: manual_pulse_out(0, 360))  # '360step'ボタン作成し、クリック時は、Nucleoにコマンド'a'送信
+Button4_4 = tkinter.Button(frame4, text=u'1step', width=7, command=lambda: manual_pulse_out(1, 1))      # '1step'ボタン作成し、クリック時は、Nucleoにコマンド'x'送信
+Button4_5 = tkinter.Button(frame4, text=u'Any step', width=7, command=lambda: manual_pulse_out(1, 0))   # 'Any step'ボタン作成し、クリック時は、Nucleoにコマンド'n'送信
+Button4_6 = tkinter.Button(frame4, text=u'360step', width=7, command=lambda: manual_pulse_out(1, 360))  # '360step'ボタン作成し、クリック時は、Nucleoにコマンド's'送信
+Button4_7 = tkinter.Button(frame4, text=u'Pr', width=7, command=lambda: manual_pulse_out(2, 1))         # 'Pr'ボタン作成し、クリック時は、Nucleoにコマンド'q'送信
+Button4_8 = tkinter.Button(frame4, text=u'Any 往復', width=7, command=lambda: manual_pulse_out(3, 0))     # 'Any往復'ボタン作成し、クリック時は、Nucleoにコマンド'n'送信,コマンド'b'送信
+# 2022.9.13
 global Box4_4
 Label4_4 = tkinter.Label(frame4, text='Vm設定[V]', width=10, anchor='e')
 Box4_4 = tkinter.Entry(frame4, width=4)
