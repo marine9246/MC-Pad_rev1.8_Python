@@ -226,6 +226,8 @@ df_vrs_res = pd.DataFrame()  # df_vrs_resオブジェクトをデータフレー
 def Select_COM(event):
     """
     メインウインドのCOMポートOPENボタンの左クリック入力により、コールされる。
+    COMポートEntryのCOMポート番号を取得し、シリアルポートOPEN
+    パルス設定、パルス列、幅、本数をNucleoに送信する
 
     :param event:
     :return:
@@ -236,13 +238,13 @@ def Select_COM(event):
     ser.open()  # シリアルポートOPEN
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)  # wait_UART 5msec sleep
-    manual_pulse_set()
-    pulse_train_set()  # パルス列設定送信
-    pulse_width_set()  # パルス幅設定送信
-    vm_write()
+    manual_pulse_set()  # パルス設定の取得とNucleoへの送信
+    pulse_train_set()  # パルス列設定をNucleoへ送信
+    pulse_width_set()  # パルス幅設定と本数をNucleoへ送信
+    vm_write()  # Vm設定値を読み込みNucleoへ送信
     print('init end')
-    Button1_2.config(state="normal")  # ボタン無効化
-    Button1_1.config(state="disable")  # ボタン無効化
+    Button1_2.config(state="normal")  # Closeボタン有効化
+    Button1_1.config(state="disabled")  # Openボタン無効化 disableをdisabledに変更
 
 
 # -------------- ~ Select_COM() ---------------------------
@@ -250,17 +252,19 @@ def Select_COM(event):
 # ------------- Close_COM() -------------------------------
 def Close_COM(event):
     """
+    メインウインドのCOMポートCloseボタンの左クリック入力により、コールされる。
+    COMポートEntryのCOMポート番号を取得しコンソールにClose表示とNucleoにブレーク信号送信
 
     :param event:
     :return:
     """
     ser.send_break()  # Brake信号送信 Nucleo reset
     time.sleep(1)
-    Com_No = Box1_1.get()
+    Com_No = Box1_1.get()  # get()でエントリーボックス値取得
     print(Com_No + ' close')
     ser.close()  # シリアルポートCLOSE
-    Button1_1.config(state="normal")  # ボタン無効化
-    Button1_2.config(state="disable")  # ボタン無効化
+    Button1_1.config(state="normal")  # OPENボタン有効化
+    Button1_2.config(state="disabled")  # Closeボタン無効化 disableをdisabledに変更
 
 
 # ------------- ~ Close_COM() -----------------------------
@@ -281,30 +285,43 @@ def nucleo_revchek():
         tkinter.messagebox.showerror('エラー', 'Nucleoをアップデートする必要があります')
 
 
-# --------------------------------------------------------
-# ボタン押し実行サブルーチン-------------------------------
+# --------------　~ nucleo_revcheck() -----------------------
+
+# ------------- manual_pulse_bot() -------------------------
+# ボタン押し実行サブルーチン-------------------------------------
 def manual_pulse_bot(event):
     """
-
+    <pulse設定>項目内の'設定送信'ボタンが左クリックされた際に実行される。
+    平行処理として、manual_pulse_set(項目内のパラメータを読み込み、Nucleoに送信する。)
+    を開始する。
     :param event:
     :return:
     """
-    thread_pul = threading.Thread(target=manual_pulse_set)
-    Button3_1.config(state="disable")  # ボタン無効化
-    thread_pul.start()  # スレッド(並列)処理
+    thread_pul = threading.Thread(target=manual_pulse_set)  # 平行処理のインスタンス作成
+    Button3_1.config(state="disabled")  # ボタン無効化 disable⇒disabledに変更
+    thread_pul.start()  # 平行処理開始
 
 
+# ------------- ~ manual_pulse_bot() ----------------------
+
+# ------------ pulse_width_bot() --------------------------
 def pulse_width_bot(event):  # パルス幅/本数をBoxから読み取り
     """
+    <Pulse幅/本数>項目内の'設定送信'ボタンが左クリックされた際に実行される。
+    平行処理として、pulse_width_set(項目内のパラメータを読み込み、Nucleoに送信する。)
+    を開始する。
 
     :param event:
     :return:
     """
-    thread_pul = threading.Thread(target=pulse_width_set)
-    Button5_20.config(state="disable")  # ボタン無効化
-    thread_pul.start()  # スレッド(並列)処理
+    thread_pul = threading.Thread(target=pulse_width_set)  # 平行処理のインスタンス作成
+    Button5_20.config(state="disabled")  # ボタン無効化 disable⇒disabledに変更
+    thread_pul.start()  # 平行処理開始
 
 
+# ------------ ~ pulse_width_bot() ------------------------
+
+# ---------------- pulse_seq_bot() ------------------------
 def pulse_seq_bot(event):
     """
 
@@ -420,8 +437,8 @@ def command_write(command, set_num):
         # ser.flush()#コマンド送信完了するまで待機
         time.sleep(wait_uart)
     ser.write(bytes(pulse_set_array[0][set_num], 'utf-8'))  # Nucleoへの送信するデータをリストから選択する
-    ser.write(b'\r')    # Nucleoへ上記データを送信後、終了としてリターン送信
-    read_serial()       # Nucleoからのシリアルデータ受信しょり
+    ser.write(b'\r')  # Nucleoへ上記データを送信後、終了としてリターン送信
+    read_serial()  # Nucleoからのシリアルデータ受信しょり
 
 
 def pulse_select_set():
@@ -443,22 +460,22 @@ def pmode_set():
     :return:
     """
     mode = 0b00000
-    if pulsemode_4.get() == 1:      # Pe設定 Enable
+    if pulsemode_4.get() == 1:  # Pe設定 Enable
         mode = mode | 0b10000
-    if pulsemode_3.get() == 1:      # 補正有り
+    if pulsemode_3.get() == 1:  # 補正有り
         mode = mode | 0b01000
-    if pulsemode_2.get() == 1:      # Vrs enable
+    if pulsemode_2.get() == 1:  # Vrs enable
         mode = mode | 0b00100
-    if pulsemode_1.get() == 1:      # 極性反転
+    if pulsemode_1.get() == 1:  # 極性反転
         mode = mode | 0b00010
-    if pulsemode_0.get() == 1:      # Triger
+    if pulsemode_0.get() == 1:  # Triger
         mode = mode | 0b00001
     ser.write(b'6')  # シリアル通信:コマンド　mode_set送信
     # ser.flush()#コマンド送信完了するまで待機
     time.sleep(wait_uart)
-    ser.write(bytes(str(mode), 'utf-8'))    # 上記で設定したmode送信
-    ser.write(b'\r')            # 送信終了リターン送信
-    read_serial()               # Nucleoからの'mode = *set\n'を受信しコンソールに表示 *は送信したモード
+    ser.write(bytes(str(mode), 'utf-8'))  # 上記で設定したmode送信
+    ser.write(b'\r')  # 送信終了リターン送信
+    read_serial()  # Nucleoからの'mode = *set\n'を受信しコンソールに表示 *は送信したモード
     '''
     if pulsemode_5.get() == True:
         ser.write(bytes('1','utf-8'))
@@ -493,11 +510,11 @@ def manual_pulse_set():  # パルス設定の取得と送信
     command_write('2', wait_set_n)  # wait time 設定 パルス周期
     command_write('7', anystep_n)  # 任意step数設定
     command_write('8', pewidth_n)  # Pe設定
-    command_write('x', pewait_n)    # 上のPe設定コマンド処理内でpewaitデータを送信する
+    command_write('x', pewait_n)  # 上のPe設定コマンド処理内でpewaitデータを送信する
     command_write('-', spkperiod_n)  # spk設定
-    command_write('x', spkon_n)     # 上のspk設定処理内でspkonデータを送信する
+    command_write('x', spkon_n)  # 上のspk設定処理内でspkonデータを送信する
     command_write('o', Vth_set_n)  # Vth設定
-    pmode_set()                     # mode設定
+    pmode_set()  # mode設定
     Button3_1.config(state="normal")  # ボタン有効化　<Pulse設定>の設定送信ボタン
 
 
@@ -509,9 +526,9 @@ def read_entry(name, array):  # entry読み出し(entry名，書込み先)
     :param array:entryに入力された値を保存するリスト変数
     :return:
     """
-    for i, row in enumerate(name, 0):   # 例 CW-0行~Pr行まで1行づつ取り出す i=0のときrow=CW-0行
-        for n, col in enumerate(row):   # 例 A列~F列まで取り出す i=0,n=0の時、CW-0行のA列
-            array[i][n] = col.get()     # 例 書き込み先のリストに書き出す
+    for i, row in enumerate(name, 0):  # 例 CW-0行~Pr行まで1行づつ取り出す i=0のときrow=CW-0行
+        for n, col in enumerate(row):  # 例 A列~F列まで取り出す i=0,n=0の時、CW-0行のA列
+            array[i][n] = col.get()  # 例 書き込み先のリストに書き出す
 
 
 # --------------------------------------------------------
@@ -545,10 +562,10 @@ def pulse_width_set():  # パルス幅本数を送信
 
     :return:
     """
-    read_entry(pulse_wid_name, pulse_width_array)   # GUI上の<Pulse幅/本数>のパルス幅を読み込み、pulse_width_arrayリストに保存
-    read_entry(pulse_num_name, pulse_num_array)     # GUI上の<Pulse幅/本数>のパルス本数を読み込み、pulse_num_arrayリストに保存
+    read_entry(pulse_wid_name, pulse_width_array)  # GUI上の<Pulse幅/本数>のパルス幅を読み込み、pulse_width_arrayリストに保存
+    read_entry(pulse_num_name, pulse_num_array)  # GUI上の<Pulse幅/本数>のパルス本数を読み込み、pulse_num_arrayリストに保存
 
-    pulse_para_write('3', pulse_width_array, 'x')   # Nucleo送信コマンド'3':pulse_width_setでパルス幅送信セット
+    pulse_para_write('3', pulse_width_array, 'x')  # Nucleo送信コマンド'3':pulse_width_setでパルス幅送信セット
     pulse_para_write('4', pulse_num_array, Button5_20)  # Nucleo送信コマンド'4':pulse_num_setでパルス数送信セット
 
 
@@ -568,9 +585,9 @@ def vm_write():
     :return:
     """
     global vm_value
-    vm_value = Box4_4.get()     # Vm設定Box値の読み込み
-    pulse_set_array[0][Vm_set_n] = Box4_4.get()     # Vm設定Box値をリストに保存
-    command_write('^', Vm_set_n)        # Voltage_setコマンドでデータpulse_set_array[0][Vm_set_n]を送信
+    vm_value = Box4_4.get()  # Vm設定Box値の読み込み
+    pulse_set_array[0][Vm_set_n] = Box4_4.get()  # Vm設定Box値をリストに保存
+    command_write('^', Vm_set_n)  # Voltage_setコマンドでデータpulse_set_array[0][Vm_set_n]を送信
 
 
 def insert_vm(vm_disp):  # UI表示更新
@@ -589,14 +606,14 @@ def vm_set():
     :return:
     """
     global vm_value
-    vm_value = pulse_set_array[0][Vm_set_n]     # pulse_set_arrayに書き込まれたvm値を読み込む
-    if vm_value != Box4_4.get():    # Vm設定Boxに入力されたVm値と保存されているVm値が異なる場合に処理する。
-        if float(Box4_4.get()) < vm_minmum:     # vm最小値未満の場合の処理
+    vm_value = pulse_set_array[0][Vm_set_n]  # pulse_set_arrayに書き込まれたvm値を読み込む
+    if vm_value != Box4_4.get():  # Vm設定Boxに入力されたVm値と保存されているVm値が異なる場合に処理する。
+        if float(Box4_4.get()) < vm_minmum:  # vm最小値未満の場合の処理
             tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_minmum) + 'V以上としてください')
-            insert_vm(vm_minmum)                # vm最小値で書き換える
+            insert_vm(vm_minmum)  # vm最小値で書き換える
         elif float(Box4_4.get()) > vm_maximum:  # vm最大値より大きい場合の処理
-            tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_maximum) + 'V以上としてください') # ここは'以下’の間違い
-            insert_vm(vm_maximum)               # vm最大値で書き換える
+            tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_maximum) + 'V以上としてください')  # ここは'以下’の間違い
+            insert_vm(vm_maximum)  # vm最大値で書き換える
         vm_write()
 
 
@@ -2168,6 +2185,7 @@ tk.geometry("500x" + str(win_tate) + "+20+20")  # windowサイズ+x座標+y座�
 
 # ------------ ~ 6. initial設定読み込み -------------------------------
 # 7. COMポート設定に処理が移る
+# 2022.9.14
 ###############
 ####GUI設定#####
 # シーケンス機能window作成
@@ -2719,34 +2737,33 @@ COMポート
 frame1 = tkinter.Frame(tk, pady=10, padx=10)  # Frame(複数のウィジェットを配置出来るコンテナ)　pady、padx枠とテキストの間の空白
 frame1.pack(anchor=tkinter.W)  # frame配置左よせ
 
-Label1_1 = tkinter.Label(frame1, text='COMポート : ', width=12, anchor='w')    # ラベル'COMポート:'配置frame1の左端
+Label1_1 = tkinter.Label(frame1, text='COMポート : ', width=12, anchor='w')  # ラベル'COMポート:'配置frame1の左端
 
-Box1_1 = tkinter.Entry(frame1, width=40)    # COMポート入力欄　半角40文字
-Box1_1.insert(tkinter.END, Com_No)          # 入力欄の最後に追加
+Box1_1 = tkinter.Entry(frame1, width=40)  # COMポート入力欄　半角40文字
+Box1_1.insert(tkinter.END, Com_No)  # 入力欄の最後に追加
 
-Button1_1 = tkinter.Button(frame1, text=u'OPEN', width=7)       # u:unicode文字列が作成される
+Button1_1 = tkinter.Button(frame1, text=u'OPEN', width=7)  # u:unicode文字列が作成される
 Button1_1.bind("<Button-1>", Select_COM)  # "<Button-1>"=マウスの左クリックにより、Select_COM関数を実施する
 Button1_2 = tkinter.Button(frame1, text=u'Close', width=7)
-Button1_2.bind("<Button-1>", Close_COM)     # "<Button-1>"=マウスの左クリックにより、Close_COM関数を実施する
+Button1_2.bind("<Button-1>", Close_COM)  # "<Button-1>"=マウスの左クリックにより、Close_COM関数を実施する
 
-
-Label1_1.grid(row=0, column=0)                  # Label1_1、BOX1_1、Button1_1、Button1_2をgridでrow=0行に一列に配置する
+Label1_1.grid(row=0, column=0)  # Label1_1、BOX1_1、Button1_1、Button1_2をgridでrow=0行に一列に配置する
 Box1_1.grid(row=0, column=1, sticky=tkinter.W)  # COMポートEntryBox　stickyで配置方向指定W:左寄せ
-Button1_1.grid(row=0, column=2)                 # 'OPEN'ボタン
-Button1_2.grid(row=0, column=3)                 # 'Close'ボタン
+Button1_1.grid(row=0, column=2)  # 'OPEN'ボタン
+Button1_2.grid(row=0, column=3)  # 'Close'ボタン
 
 # ---------------- ~ COMポート設定GUI --------------------------
 # --------------- AD2設定GUI -----------------
 # 本スクリプトでframe2を使用する箇所はない。
 frame2 = tkinter.Frame(tk, pady=10)
-frame2.pack()                                   # frame1の下に配置されているが、サイズ小さくて見えない。⇒使用していない
+frame2.pack()  # frame1の下に配置されているが、サイズ小さくて見えない。⇒使用していない
 # --------------- ~ AD2設定GUI ---------------
 
 # ---------------- Pulse設定GUI ----------------------------
-frame3 = tkinter.Frame(tk, pady=10, padx=10)        # frame3に<Pulse設定>部分のウィジェットを配置する
-frame3.pack(anchor=tkinter.W)                       # 左端に配置
+frame3 = tkinter.Frame(tk, pady=10, padx=10)  # frame3に<Pulse設定>部分のウィジェットを配置する
+frame3.pack(anchor=tkinter.W)  # 左端に配置
 
-Label3_1 = tkinter.Label(frame3, text='<Pulse設定>', width=labewid_1, anchor='w')     # Label3_1をframe3の左端に配置
+Label3_1 = tkinter.Label(frame3, text='<Pulse設定>', width=labewid_1, anchor='w')  # Label3_1をframe3の左端に配置
 
 # コンボボックス
 # ----------- このコンボボックスはメインウインドウに表示していない。⇒使用していない ----------------------
@@ -2757,221 +2774,241 @@ Pulse_cb.current(0)  # 初期値
 # --------------------------------------------------------------------------------------------
 
 # checkボックス
-chklabe1 = tkinter.Label(frame3, text='オプション : ', width=10, anchor='w')     # frame3の左端にラベル'オプション:'を配置
-chk3_1 = tkinter.Checkbutton(frame3, variable=pulsemode_0, text='Triger', width=8, anchor='w')  # frame3にチェックボタンを作成し、'Triger'テキストを左配置、チェック状態はvariableによる
-chk3_2 = tkinter.Checkbutton(frame3, variable=pulsemode_1, text='極性反転', width=8, anchor='w')    # frame3にチェックボタンを作成し、'極性反転'テキストを左配置、チェック状態はvariableによる
-chk3_4 = tkinter.Checkbutton(frame3, variable=pulsemode_3, text='補正あり', width=8, anchor='w')    # frame3にチェックボタンを作成し、'補正あり'テキストを左配置、チェック状態はvariableによる
-chklabe2 = tkinter.Label(frame3, text='Vrs検出 : ', width=10, anchor='w')                 # メインウインドウ上に表示していない。⇒使用していない
-chk3_3 = tkinter.Checkbutton(frame3, variable=pulsemode_2, text='Vrs enable', width=8, anchor='w')  # frame3にチェックボタンを作成し、'Vrs enable'テキストを左配置、チェック状態はvariableによる
+chklabe1 = tkinter.Label(frame3, text='オプション : ', width=10, anchor='w')  # frame3の左端にラベル'オプション:'を配置
+chk3_1 = tkinter.Checkbutton(frame3, variable=pulsemode_0, text='Triger', width=8,
+                             anchor='w')  # frame3にチェックボタンを作成し、'Triger'テキストを左配置、チェック状態はvariableによる
+chk3_2 = tkinter.Checkbutton(frame3, variable=pulsemode_1, text='極性反転', width=8,
+                             anchor='w')  # frame3にチェックボタンを作成し、'極性反転'テキストを左配置、チェック状態はvariableによる
+chk3_4 = tkinter.Checkbutton(frame3, variable=pulsemode_3, text='補正あり', width=8,
+                             anchor='w')  # frame3にチェックボタンを作成し、'補正あり'テキストを左配置、チェック状態はvariableによる
+chklabe2 = tkinter.Label(frame3, text='Vrs検出 : ', width=10, anchor='w')  # メインウインドウ上に表示していない。⇒使用していない
+chk3_3 = tkinter.Checkbutton(frame3, variable=pulsemode_2, text='Vrs enable', width=8,
+                             anchor='w')  # frame3にチェックボタンを作成し、'Vrs enable'テキストを左配置、チェック状態はvariableによる
 # chk3_4 = tkinter.Label(frame3, text='',width=8,anchor='w')
 # chk3_4 = tkinter.Checkbutton(frame3, variable=pulsemode_3, text='Vrs Wait',width=8,anchor='w')
-chklabe3 = tkinter.Label(frame3, text='Pe設定 : ', width=10, anchor='w')      # frame3にラベル'Pe設定'を左配置
-chk3_5 = tkinter.Checkbutton(frame3, variable=pulsemode_4, text='Enable', width=6, anchor='w')      # frame3にチェックボタンを作成し、'Enable'テキストを左配置、チェック状態はvariableによる
-Label3_4 = tkinter.Label(frame3, text='Pe幅[us]', width=8, anchor='e')   # frame3にラベル'Pe幅[us]'右配置
+chklabe3 = tkinter.Label(frame3, text='Pe設定 : ', width=10, anchor='w')  # frame3にラベル'Pe設定'を左配置
+chk3_5 = tkinter.Checkbutton(frame3, variable=pulsemode_4, text='Enable', width=6,
+                             anchor='w')  # frame3にチェックボタンを作成し、'Enable'テキストを左配置、チェック状態はvariableによる
+Label3_4 = tkinter.Label(frame3, text='Pe幅[us]', width=8, anchor='e')  # frame3にラベル'Pe幅[us]'右配置
 Box3_4 = tkinter.Entry(frame3, width=6)
-Box3_4.insert(tkinter.END, 244)                                         # frame3に入力欄を作成し、入力欄の最後に244を挿入
+Box3_4.insert(tkinter.END, 244)  # frame3に入力欄を作成し、入力欄の最後に244を挿入
 Label3_5 = tkinter.Label(frame3, text='wait[us]', width=8, anchor='e')  # frame3にラベル'wait[us]'右配置
 Box3_5 = tkinter.Entry(frame3, width=6)
-Box3_5.insert(tkinter.END, 3000)                                        # frame3に入力欄を作成し、入力欄の最後に3000を挿入
+Box3_5.insert(tkinter.END, 3000)  # frame3に入力欄を作成し、入力欄の最後に3000を挿入
 
 pulsemode_0.set(True)  # chekbox初期値セット 'Triger'チェックBOXの初期値
 # pulsemode_2.set(True)#chekbox初期値セット
 
 Label3_6 = tkinter.Label(frame3, text='SPK設定 : ', width=10, anchor='w')  # anchor:Labelウイジェットに表示するtextの配置指定左
-Label3_7 = tkinter.Label(frame3, text='周期[us]', width=8, anchor='e')    # anchor:Labelウイジェットに表示するtextの配置指定右
-Box3_7 = tkinter.Entry(frame3, width=6)     # Entryウィジェット作成
-Box3_7.insert(tkinter.END, 488)             # Entry欄の最後に488挿入
-Label3_8 = tkinter.Label(frame3, text='ON[us]', width=8, anchor='e')    # anchor:Labelウイジェットに表示するtextの配置指定右
-Box3_8 = tkinter.Entry(frame3, width=6)     # Entryウィジェット作成
-Box3_8.insert(tkinter.END, 31)              # Entry欄の最後に31挿入
+Label3_7 = tkinter.Label(frame3, text='周期[us]', width=8, anchor='e')  # anchor:Labelウイジェットに表示するtextの配置指定右
+Box3_7 = tkinter.Entry(frame3, width=6)  # Entryウィジェット作成
+Box3_7.insert(tkinter.END, 488)  # Entry欄の最後に488挿入
+Label3_8 = tkinter.Label(frame3, text='ON[us]', width=8, anchor='e')  # anchor:Labelウイジェットに表示するtextの配置指定右
+Box3_8 = tkinter.Entry(frame3, width=6)  # Entryウィジェット作成
+Box3_8.insert(tkinter.END, 31)  # Entry欄の最後に31挿入
 
-Label3_2 = tkinter.Label(frame3, text='周波数[Hz] : ', width=10, anchor='w')   # anchor:Labelウイジェットに表示するtextの配置指定左
-Box3_2 = tkinter.Entry(frame3, width=8)     # 周波数入力欄 半角8文字
-Box3_2.insert(tkinter.END, 200)             # 初期値として入力欄の最後に追加
-Label3_3 = tkinter.Label(frame3, text='Anysteps : ', width=10, anchor='w')      # anchor:Labelウイジェットに表示するtextの配置指定左
-Box3_3 = tkinter.Entry(frame3, width=8)     # Anysteps入力欄 半角8文字
-Box3_3.insert(tkinter.END, 60)              # 初期値として入力欄の最後に追加
+Label3_2 = tkinter.Label(frame3, text='周波数[Hz] : ', width=10, anchor='w')  # anchor:Labelウイジェットに表示するtextの配置指定左
+Box3_2 = tkinter.Entry(frame3, width=8)  # 周波数入力欄 半角8文字
+Box3_2.insert(tkinter.END, 200)  # 初期値として入力欄の最後に追加
+Label3_3 = tkinter.Label(frame3, text='Anysteps : ', width=10, anchor='w')  # anchor:Labelウイジェットに表示するtextの配置指定左
+Box3_3 = tkinter.Entry(frame3, width=8)  # Anysteps入力欄 半角8文字
+Box3_3.insert(tkinter.END, 60)  # 初期値として入力欄の最後に追加
 
-Label3_9 = tkinter.Label(frame3, text='Vcomp[V] : ', width=10, anchor='e')      # anchor:Labelウイジェットに表示するtextの配置指定右 左と右で大差ない
-Box3_9 = tkinter.Entry(frame3, width=6)     # Vcomp入力欄　半角6文字
-Box3_9.insert(tkinter.END, 3.0)             # 初期値として入力欄の最後に追加
-Label3_10 = tkinter.Label(frame3, text='※Jumper注意 max3V', width=14, anchor='e')     # anchor:Labelウイジェットに表示するtextの配置指定 16文字無いと※表示されない
-Button3_1 = tkinter.Button(frame3, text=u'設定送信', width=10)      # ’設定送信'ボタン作成 u:unicode文字列が作成される
-Button3_1.bind("<Button-1>", manual_pulse_bot)      # <Button-1>"=マウスの左クリックにより、manual_pulse_bot関数処理する
+Label3_9 = tkinter.Label(frame3, text='Vcomp[V] : ', width=10, anchor='e')  # anchor:Labelウイジェットに表示するtextの配置指定右 左と右で大差ない
+Box3_9 = tkinter.Entry(frame3, width=6)  # Vcomp入力欄　半角6文字
+Box3_9.insert(tkinter.END, 3.0)  # 初期値として入力欄の最後に追加
+Label3_10 = tkinter.Label(frame3, text='※Jumper注意 max3V', width=14,
+                          anchor='e')  # anchor:Labelウイジェットに表示するtextの配置指定 16文字無いと※表示されない
+Button3_1 = tkinter.Button(frame3, text=u'設定送信', width=10)  # ’設定送信'ボタン作成 u:unicode文字列が作成される
+Button3_1.bind("<Button-1>", manual_pulse_bot)  # <Button-1>"=マウスの左クリックにより、manual_pulse_bot関数処理する
 
-Label3_1.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)  # <Pulse設定>のラベルの配置位置指定 ここでcolumnspan指定しても影響しない
+Label3_1.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)  # <Pulse設定>のラベルの配置位置指定
 # Pulse_cbLabe.grid(row=1,column=0)
 # Pulse_cb.grid(row=1,column=1,columnspan=1)
-chklabe1.grid(row=2, column=0, sticky=tkinter.W)    # ラベル'オプション'配置指定 stickyで左に配置
-chk3_1.grid(row=2, column=1, sticky=tkinter.W)      # チェックボタン'Triger'を’オプション'の右のcolumnに配置
-chk3_2.grid(row=2, column=3, sticky=tkinter.W)      # チェックボタン'極性反転'を'Triger'の右のcolumnに配置
-chk3_4.grid(row=2, column=4)                        # チェックボタン'補正あり'を'極性反転'の右のcolumnに配置
+chklabe1.grid(row=2, column=0, sticky=tkinter.W)  # ラベル'オプション'配置指定 stickyで左に配置
+chk3_1.grid(row=2, column=1, sticky=tkinter.W)  # チェックボタン'Triger'を’オプション'の右のcolumnに配置
+chk3_2.grid(row=2, column=3, sticky=tkinter.W)  # チェックボタン'極性反転'を'Triger'の右のcolumnに配置
+chk3_4.grid(row=2, column=4)  # チェックボタン'補正あり'を'極性反転'の右のcolumnに配置
 # chk3_6.grid(row=2,column=4,sticky=tkinter.W)
 
 # Pe設定配置
-chklabe3.grid(row=4, column=0, sticky=tkinter.W)    # ラベル'Pe設定'配置指定
-chk3_5.grid(row=4, column=1, sticky=tkinter.W)      # チェックボタン'Enable'をPe設定の右のcolumnに配置
-Label3_4.grid(row=4, column=3, sticky=tkinter.E)    # ラベル'Pe幅'を'Enable'の右のcolumnに配置
-Box3_4.grid(row=4, column=4, sticky=tkinter.W)      # 入力欄を'Pe幅'の右のcolumnに配置
-Label3_5.grid(row=4, column=5, sticky=tkinter.E)    # ラベル'wait'をPe幅の入力欄の右のcolumnに配置
-Box3_5.grid(row=4, column=6, sticky=tkinter.W)      # 入力欄を'wait'の右のcolumnに配置
+chklabe3.grid(row=4, column=0, sticky=tkinter.W)  # ラベル'Pe設定'配置指定
+chk3_5.grid(row=4, column=1, sticky=tkinter.W)  # チェックボタン'Enable'をPe設定の右のcolumnに配置
+Label3_4.grid(row=4, column=3, sticky=tkinter.E)  # ラベル'Pe幅'を'Enable'の右のcolumnに配置
+Box3_4.grid(row=4, column=4, sticky=tkinter.W)  # 入力欄を'Pe幅'の右のcolumnに配置
+Label3_5.grid(row=4, column=5, sticky=tkinter.E)  # ラベル'wait'をPe幅の入力欄の右のcolumnに配置
+Box3_5.grid(row=4, column=6, sticky=tkinter.W)  # 入力欄を'wait'の右のcolumnに配置
 
 # SPK設定配置
-Label3_6.grid(row=5, column=0, sticky=tkinter.W)    # ラベル'SPK設定'配置指定
-chk3_3.grid(row=5, column=1, sticky=tkinter.W)      # チェックボタン'Vrs enable'をSPK設定の右のcolumnに配置
-Label3_7.grid(row=5, column=3, sticky=tkinter.E)    # ラベル'周期'を'Vrs enable'の右のcolumnに配置
-Box3_7.grid(row=5, column=4, sticky=tkinter.W)      # 入力欄を'周期'の右のcolumnに配置
-Label3_8.grid(row=5, column=5, sticky=tkinter.E)    # ラベル'ON'を周期の入力欄の右のcolumnに配置
-Box3_8.grid(row=5, column=6, sticky=tkinter.W)      # 入力欄を'ON'の右のcolumnに配置
-Label3_9.grid(row=6, column=3, sticky=tkinter.E)    # ラベル'Vcomp[V]'を'周波数'の入力欄の右のcolumnに配置
-Box3_9.grid(row=6, column=4, sticky=tkinter.W)      # 入力欄を'Vcomp[V]'の右のcolumnに配置
-Label3_10.grid(row=7, column=4, sticky=tkinter.E)   # ラベル'Jumper注意...'を'Vcomp'の入力欄の下のrowに配置
+Label3_6.grid(row=5, column=0, sticky=tkinter.W)  # ラベル'SPK設定'配置指定
+chk3_3.grid(row=5, column=1, sticky=tkinter.W)  # チェックボタン'Vrs enable'をSPK設定の右のcolumnに配置
+Label3_7.grid(row=5, column=3, sticky=tkinter.E)  # ラベル'周期'を'Vrs enable'の右のcolumnに配置
+Box3_7.grid(row=5, column=4, sticky=tkinter.W)  # 入力欄を'周期'の右のcolumnに配置
+Label3_8.grid(row=5, column=5, sticky=tkinter.E)  # ラベル'ON'を周期の入力欄の右のcolumnに配置
+Box3_8.grid(row=5, column=6, sticky=tkinter.W)  # 入力欄を'ON'の右のcolumnに配置
+Label3_9.grid(row=6, column=3, sticky=tkinter.E)  # ラベル'Vcomp[V]'を'周波数'の入力欄の右のcolumnに配置
+Box3_9.grid(row=6, column=4, sticky=tkinter.W)  # 入力欄を'Vcomp[V]'の右のcolumnに配置
+Label3_10.grid(row=7, column=4, sticky=tkinter.E)  # ラベル'Jumper注意...'を'Vcomp'の入力欄の下のrowに配置
 
-Label3_2.grid(row=6, column=0, sticky=tkinter.W)    # ラベル'周波数'配置指定
-Box3_2.grid(row=6, column=1, sticky=tkinter.W)      # 入力欄を'周波数'の右のcolumnに配置
-Label3_3.grid(row=7, column=0, sticky=tkinter.W)    # ラベル'Anysteps'配置指定
-Box3_3.grid(row=7, column=1, columnspan=2, sticky=tkinter.W)    # 入力欄を'Anysteps'の右のcolumnに配置
-                                                                # columnspan影響しない
-Button3_1.grid(row=8, column=1, columnspan=2)       # '設定送信'ボタン配置指定 columnspan影響しない
+Label3_2.grid(row=6, column=0, sticky=tkinter.W)  # ラベル'周波数'配置指定
+Box3_2.grid(row=6, column=1, sticky=tkinter.W)  # 入力欄を'周波数'の右のcolumnに配置
+Label3_3.grid(row=7, column=0, sticky=tkinter.W)  # ラベル'Anysteps'配置指定
+Box3_3.grid(row=7, column=1, columnspan=2, sticky=tkinter.W)  # 入力欄を'Anysteps'の右のcolumnに配置
+
+Button3_1.grid(row=8, column=1, columnspan=2)  # '設定送信'ボタン配置指定
 # ---------------- ~ Pulse設定GUI --------------------------
 
 # ---------------- Pulses幅/本数設定GUI ----------------------
-frame5 = tkinter.Frame(tk, pady=10, padx=10)        # <Pulse幅/本数>ウィジェット用のフレーム作成
-frame5.pack(anchor=tkinter.W)                       # frame5を左端に配置　ただし、実際はメインウィンドウの横サイズに合わせられる
-Label5_1 = tkinter.Label(frame5, text='<Pulse幅[us]/本数>', width=labewid_1, anchor='w')   # ラベル'<Pulse幅/本数>'をframe5に配置指示
-Label5_1.grid(column=0, row=0, columnspan=3, sticky=tkinter.W)      # ラベル'<Pulse幅/本数>'を左配置で表示
+frame5 = tkinter.Frame(tk, pady=10, padx=10)  # <Pulse幅/本数>ウィジェット用のフレーム作成
+frame5.pack(anchor=tkinter.W)  # frame5を左端に配置　ただし、実際はメインウィンドウの横サイズに合わせられる
+Label5_1 = tkinter.Label(frame5, text='<Pulse幅[us]/本数>', width=labewid_1, anchor='w')  # ラベル'<Pulse幅/本数>'をframe5に配置指示
+Label5_1.grid(column=0, row=0, columnspan=3, sticky=tkinter.W)  # ラベル'<Pulse幅/本数>'を左配置で表示
 
-Label5_2 = tkinter.Label(frame5, text='区間', width=6, anchor='e')    # ラベル'区間'を右配置指示
-Label5_2.grid(column=0, row=1, columnspan=1, sticky=tkinter.W)      # ラベル'区間'を表示　左配置
+Label5_2 = tkinter.Label(frame5, text='区間', width=6, anchor='e')  # ラベル'区間'を右配置指示
+Label5_2.grid(column=0, row=1, columnspan=1, sticky=tkinter.W)  # ラベル'区間'を表示　左配置
 
-label5_Pnum = [['CW -0', 'CCW-1', '補CW -2', '補CCW-3', 'CW-4', 'CCW-5', 'Pr-6']]     # ラベルデータをリストで用意
-for y, row in enumerate(label5_Pnum, 0):        # y=0のみ, row='CW -0' row='CCW-1'........
-    for x, char in enumerate(row):              # x=0, char=CW -0 x=1, char=CCW-1 ........x=6, char=Pr-6
-        label5_P = tkinter.Label(frame5, text=char, width=7, anchor='w')    # ラベルの作成
-        if x < pulse_disp_num or x == 6:                    # pulse_disp_num = 6 なので結局x<=6で判定
-            label5_P.grid(column=0, row=x + 2, sticky=tkinter.W)        # ’区間'の下からrow=1置きにラベルを配置表示する
+label5_Pnum = [['CW -0', 'CCW-1', '補CW -2', '補CCW-3', 'CW-4', 'CCW-5', 'Pr-6']]  # ラベルデータをリストで用意
+for y, row in enumerate(label5_Pnum, 0):  # y=0のみ, row='CW -0' row='CCW-1'........
+    for x, char in enumerate(row):  # x=0, char=CW -0 x=1, char=CCW-1 ........x=6, char=Pr-6
+        label5_P = tkinter.Label(frame5, text=char, width=7, anchor='w')  # ラベルの作成
+        if x < pulse_disp_num or x == 6:  # pulse_disp_num = 6 なので結局x<=6で判定
+            label5_P.grid(column=0, row=x + 2, sticky=tkinter.W)  # ’区間'の下からrow=1置きにラベルを配置表示する
 
-label5_Pname = [['A', 'B', 'C', 'D', 'E', 'F', 'A', 'B', 'C', 'D', 'E', 'F']]       # ラベルデータをリストで用意
-for y, row in enumerate(label5_Pname, 0):       # y=0のみ, row='A' row='B'........
-    for x, char in enumerate(row):              # x=0, char=A x=1, char=B ........x=11, char=F
-        if x < 6:                               # X=0～5まではパルス幅入力欄
+label5_Pname = [['A', 'B', 'C', 'D', 'E', 'F', 'A', 'B', 'C', 'D', 'E', 'F']]  # ラベルデータをリストで用意
+for y, row in enumerate(label5_Pname, 0):  # y=0のみ, row='A' row='B'........
+    for x, char in enumerate(row):  # x=0, char=A x=1, char=B ........x=11, char=F
+        if x < 6:  # X=0～5まではパルス幅入力欄
             label5_P = tkinter.Label(frame5, text=char, width=5)
-        else:                                   # X=6～11まではパルス本数入力欄
+        else:  # X=6～11まではパルス本数入力欄
             label5_P = tkinter.Label(frame5, text=char, width=3)
-        label5_P.grid(column=x + 1, row=y + 1)   # '区間'と同じ行(row=1)で右にcolumn=1置きに移動させて表示する
+        label5_P.grid(column=x + 1, row=y + 1)  # '区間'と同じ行(row=1)で右にcolumn=1置きに移動させて表示する
 
 for i in range(pulse_type):  # パルス幅設定Entry作成 pulse_type=7なので、0～6まで繰り返す （パルス種別数7）
-    for n in range(6):      # 0～5まで繰り返す　区間（A～Fの6）
-        pulse_wid_name[i][n] = tkinter.Entry(frame5, width=5)       # Entryボックスをframe5に作成 i:パルス種別、n:区間
-        pulse_wid_name[i][n].insert(tkinter.END, pulse_width_array[i][n])   # 上で作成したEntryボックスにpulse_width_array[i][n]の値を挿入
-        if i < pulse_disp_num or i == 6:        # pulse_disp_num = 6 なので結局x<=6で判定
-            pulse_wid_name[i][n].grid(row=i + 2, column=n + 1)      # 上で作成したEntryボックスを配置表示  row=2,column=1から1行づつ配置
+    for n in range(6):  # 0～5まで繰り返す　区間（A～Fの6）
+        pulse_wid_name[i][n] = tkinter.Entry(frame5, width=5)  # Entryボックスをframe5に作成 i:パルス種別、n:区間
+        pulse_wid_name[i][n].insert(tkinter.END,
+                                    pulse_width_array[i][n])  # 上で作成したEntryボックスにpulse_width_array[i][n]の値を挿入
+        if i < pulse_disp_num or i == 6:  # pulse_disp_num = 6 なので結局x<=6で判定
+            pulse_wid_name[i][n].grid(row=i + 2, column=n + 1)  # 上で作成したEntryボックスを配置表示  row=2,column=1から1行づつ配置
 
 for i in range(pulse_type):  # パルス本数設定Entry作成 pulse_type=7なので、0～6まで繰り返す （パルス種別数7）
-    for n in range(6):      # 0～5まで繰り返す　区間（A～Fの6）
-        pulse_num_name[i][n] = tkinter.Entry(frame5, width=3)       # Entryボックスをframe5に作成 i:パルス種別、n:区間 本数なので、上の幅よりはwidth少ない
-        pulse_num_name[i][n].insert(tkinter.END, pulse_num_array[i][n])     # 上で作成したEntryボックスにpulse_num_array[i][n]の値を挿入
-        if i < pulse_disp_num or i == 6:        # pulse_disp_num = 6 なので結局x<=6で判定
-            pulse_num_name[i][n].grid(row=i + 2, column=n + 7)      # 上で作成したEntryボックスを配置表示  row=2,column=7から1行づつ配置
+    for n in range(6):  # 0～5まで繰り返す　区間（A～Fの6）
+        pulse_num_name[i][n] = tkinter.Entry(frame5, width=3)  # Entryボックスをframe5に作成 i:パルス種別、n:区間 本数なので、上の幅よりはwidth少ない
+        pulse_num_name[i][n].insert(tkinter.END, pulse_num_array[i][n])  # 上で作成したEntryボックスにpulse_num_array[i][n]の値を挿入
+        if i < pulse_disp_num or i == 6:  # pulse_disp_num = 6 なので結局x<=6で判定
+            pulse_num_name[i][n].grid(row=i + 2, column=n + 7)  # 上で作成したEntryボックスを配置表示  row=2,column=7から1行づつ配置
 
-Button5_20 = tkinter.Button(frame5, text=u'設定送信', width=12)     # ’設定送信'ボタン作成 u:unicode文字列が作成される
-Button5_20.bind("<Button-1>", pulse_width_bot)                      # <Button-1>"=マウスの左クリックにより、pulse_width_bot関数処理する
-Button5_20.grid(row=pulse_type + 2, column=1, columnspan=2)         # '設定送信'ボタンを表示 row=9, column=1,Pr-6の欄の'A','B'column2つ分を1つとして表示する
+Button5_20 = tkinter.Button(frame5, text=u'設定送信', width=12)  # ’設定送信'ボタン作成 u:unicode文字列が作成される
+Button5_20.bind("<Button-1>", pulse_width_bot)  # <Button-1>"=マウスの左クリックにより、pulse_width_bot関数処理する
+Button5_20.grid(row=pulse_type + 2, column=1,
+                columnspan=2)  # '設定送信'ボタンを表示 row=9, column=1,Pr-6の欄の'A','B'column2つ分を1つとして表示する
 
-Button5_21 = tkinter.Button(frame5, text=u'設定読込', width=12)     # '設定読込'ボタン作成
-Button5_21.bind("<Button-1>", pulse_reading)                    # <Button-1>"=マウスの左クリックにより、pulse_reading関数処理する
+Button5_21 = tkinter.Button(frame5, text=u'設定読込', width=12)  # '設定読込'ボタン作成
+Button5_21.bind("<Button-1>", pulse_reading)  # <Button-1>"=マウスの左クリックにより、pulse_reading関数処理する
 # Button5_21.grid(row=pulse_type+2,column=4,columnspan=2)       # ただし、'設定読込'ボタンは表示されていない
 
-global width_name           # 上記の’設定読込'ボタンが無効化されているために、width_nameを表示するラベルは機能しない
-width_name = tkinter.StringVar()        # StringVar()で読み込まれたテキスト変数でlabel5_21のテキスト表示を可変する仕組みだが機能しない
+global width_name  # 上記の’設定読込'ボタンが無効化されているために、width_nameを表示するラベルは機能しない
+width_name = tkinter.StringVar()  # StringVar()で読み込まれたテキスト変数でlabel5_21のテキスト表示を可変する仕組みだが機能しない
 label5_21 = tkinter.Label(frame5, textvariable=width_name, width=15)
 label5_21.grid(row=pulse_type + 2, column=6, columnspan=5)  # '設定送信'の横、F～Dの範囲にラベルが用意されるが、機能しないので何も表示されない
 # ---------------- ~ Pulses幅/本数設定GUI ---------------------
 
 # ---------------- Pulses出力設定GUI --------------------------
-frame4 = tkinter.Frame(tk, pady=10, padx=10)        # <Pulse出力>ウィジェット用のフレーム作成
-frame4.pack(anchor=tkinter.W)                       # frame4を左端に配置　ただし、実際はメインウィンドウの横サイズに合わせられる
+frame4 = tkinter.Frame(tk, pady=10, padx=10)  # <Pulse出力>ウィジェット用のフレーム作成
+frame4.pack(anchor=tkinter.W)  # frame4を左端に配置　ただし、実際はメインウィンドウの横サイズに合わせられる
 
-Label4_1 = tkinter.Label(frame4, text='<Pulse出力>', width=labewid_1, anchor='w')     # ラベル'<Pulse出力>'をframe4に配置指示　文字数半角16
+Label4_1 = tkinter.Label(frame4, text='<Pulse出力>', width=labewid_1, anchor='w')  # ラベル'<Pulse出力>'をframe4に配置指示　文字数半角16
 
-Label4_2 = tkinter.Label(frame4, text='CW -0', width=8, anchor='w')     # ラベル'CW -0'をframe4に配置指示左　文字数半角8
-Label4_3 = tkinter.Label(frame4, text='CCW-1', width=8, anchor='w')     # ラベル'CCW-1'をframe4に配置指示左　文字数半角8
+Label4_2 = tkinter.Label(frame4, text='CW -0', width=8, anchor='w')  # ラベル'CW -0'をframe4に配置指示左　文字数半角8
+Label4_3 = tkinter.Label(frame4, text='CCW-1', width=8, anchor='w')  # ラベル'CCW-1'をframe4に配置指示左　文字数半角8
 
-Button4_1 = tkinter.Button(frame4, text=u'1step', width=7, command=lambda: manual_pulse_out(0, 1))      # '1step'ボタン作成し、クリック時は、Nucleoにコマンド'z'送信
-Button4_2 = tkinter.Button(frame4, text=u'Any step', width=7, command=lambda: manual_pulse_out(0, 0))   # 'Any step'ボタン作成し、クリック時は、Nucleoにコマンド'b'送信
-Button4_3 = tkinter.Button(frame4, text=u'360step', width=7, command=lambda: manual_pulse_out(0, 360))  # '360step'ボタン作成し、クリック時は、Nucleoにコマンド'a'送信
-Button4_4 = tkinter.Button(frame4, text=u'1step', width=7, command=lambda: manual_pulse_out(1, 1))      # '1step'ボタン作成し、クリック時は、Nucleoにコマンド'x'送信
-Button4_5 = tkinter.Button(frame4, text=u'Any step', width=7, command=lambda: manual_pulse_out(1, 0))   # 'Any step'ボタン作成し、クリック時は、Nucleoにコマンド'n'送信
-Button4_6 = tkinter.Button(frame4, text=u'360step', width=7, command=lambda: manual_pulse_out(1, 360))  # '360step'ボタン作成し、クリック時は、Nucleoにコマンド's'送信
-Button4_7 = tkinter.Button(frame4, text=u'Pr', width=7, command=lambda: manual_pulse_out(2, 1))         # 'Pr'ボタン作成し、クリック時は、Nucleoにコマンド'q'送信
-Button4_8 = tkinter.Button(frame4, text=u'Any 往復', width=7, command=lambda: manual_pulse_out(3, 0))     # 'Any往復'ボタン作成し、クリック時は、Nucleoにコマンド'n'送信,コマンド'b'送信
-# 2022.9.13
+Button4_1 = tkinter.Button(frame4, text=u'1step', width=7,
+                           command=lambda: manual_pulse_out(0, 1))  # '1step'ボタン作成し、クリック時は、Nucleoにコマンド'z'送信
+Button4_2 = tkinter.Button(frame4, text=u'Any step', width=7,
+                           command=lambda: manual_pulse_out(0, 0))  # 'Any step'ボタン作成し、クリック時は、Nucleoにコマンド'b'送信
+Button4_3 = tkinter.Button(frame4, text=u'360step', width=7,
+                           command=lambda: manual_pulse_out(0, 360))  # '360step'ボタン作成し、クリック時は、Nucleoにコマンド'a'送信
+Button4_4 = tkinter.Button(frame4, text=u'1step', width=7,
+                           command=lambda: manual_pulse_out(1, 1))  # '1step'ボタン作成し、クリック時は、Nucleoにコマンド'x'送信
+Button4_5 = tkinter.Button(frame4, text=u'Any step', width=7,
+                           command=lambda: manual_pulse_out(1, 0))  # 'Any step'ボタン作成し、クリック時は、Nucleoにコマンド'n'送信
+Button4_6 = tkinter.Button(frame4, text=u'360step', width=7,
+                           command=lambda: manual_pulse_out(1, 360))  # '360step'ボタン作成し、クリック時は、Nucleoにコマンド's'送信
+Button4_7 = tkinter.Button(frame4, text=u'Pr', width=7,
+                           command=lambda: manual_pulse_out(2, 1))  # 'Pr'ボタン作成し、クリック時は、Nucleoにコマンド'q'送信
+Button4_8 = tkinter.Button(frame4, text=u'Any 往復', width=7,
+                           command=lambda: manual_pulse_out(3, 0))  # 'Any往復'ボタン作成し、クリック時は、Nucleoにコマンド'n'送信,コマンド'b'送信
+
 global Box4_4
-Label4_4 = tkinter.Label(frame4, text='Vm設定[V]', width=10, anchor='e')
-Box4_4 = tkinter.Entry(frame4, width=4)
-Box4_4.insert(tkinter.END, 3.0)
+Label4_4 = tkinter.Label(frame4, text='Vm設定[V]', width=10, anchor='e')  # ラベル'Vm設定[V]'の作成、配置は右
+Box4_4 = tkinter.Entry(frame4, width=4)  # Entry入力欄作成
+Box4_4.insert(tkinter.END, 3.0)  # Entryに3.0を挿入
 
-chk4_5 = tkinter.Checkbutton(frame4, variable=stepvm_en, text='step±', width=10, anchor='e')
-Box4_5 = tkinter.Entry(frame4, width=4)
-Box4_5.insert(tkinter.END, 0.1)
+chk4_5 = tkinter.Checkbutton(frame4, variable=stepvm_en, text='step±', width=10,
+                             anchor='e')  # チェックボタン'step±'作成、テキストの配置は右
+Box4_5 = tkinter.Entry(frame4, width=4)  # Entry入力欄作成
+Box4_5.insert(tkinter.END, 0.1)  # Entryに0.1挿入
 
-Box4_6 = tkinter.Entry(frame4, width=7)
-Box4_6.insert(tkinter.END, 1.4)
-Box4_7 = tkinter.Entry(frame4, width=7)
-Box4_7.insert(tkinter.END, 3.4)
-Box4_8 = tkinter.Entry(frame4, width=7)
-Box4_8.insert(tkinter.END, 0.2)
+# ****** Box4_6 ~ Box4_8は作成されるが、メインウインドウ上に表示していない **********
+Box4_6 = tkinter.Entry(frame4, width=7)  # Entryの作成
+Box4_6.insert(tkinter.END, 1.4)  # 作成したEntryに1.4挿入
+Box4_7 = tkinter.Entry(frame4, width=7)  # Entryの作成
+Box4_7.insert(tkinter.END, 3.4)  # 作成したEntryに3.4挿入
+Box4_8 = tkinter.Entry(frame4, width=7)  # Entryの作成
+Box4_8.insert(tkinter.END, 0.2)  # 作成したEntryに0.2挿入
+# *************************************************************************
 
-Label4_1.grid(row=0, column=0, columnspan=2, sticky=tkinter.W)
-Label4_2.grid(row=1, column=0)
-Label4_3.grid(row=2, column=0)
+# <Pulse出力>欄のウィジェットの表示指定
+Label4_1.grid(row=0, column=0, columnspan=2, sticky=tkinter.W)  # ラベル'<Pulse出力>'の表示指示　左
+Label4_2.grid(row=1, column=0)  # ラベル'CW -0'の表示指示
+Label4_3.grid(row=2, column=0)  # ラベル'CCW-1'の表示指示
 
-Button4_1.grid(row=1, column=1)
-Button4_2.grid(row=1, column=2)
-Button4_3.grid(row=1, column=3)
-Button4_4.grid(row=2, column=1)
-Button4_5.grid(row=2, column=2)
-Button4_6.grid(row=2, column=3)
-Button4_7.grid(row=1, column=4)
-Button4_8.grid(row=2, column=4)
+Button4_1.grid(row=1, column=1)  # ボタン'1step'の表示指示 CW -0
+Button4_2.grid(row=1, column=2)  # ボタン'Anystep'の表示指示 CW -0
+Button4_3.grid(row=1, column=3)  # ボタン'360step'の表示指示 CW -0
+Button4_4.grid(row=2, column=1)  # ボタン'1step'の表示指示 CCW-1
+Button4_5.grid(row=2, column=2)  # ボタン'Anystep'の表示指示 CCW-1
+Button4_6.grid(row=2, column=3)  # ボタン'360step'の表示指示 CCW-1
+Button4_7.grid(row=1, column=4)  # ボタン'Pr'の表示指示 CW -0
+Button4_8.grid(row=2, column=4)  # ボタン'Any往復'の表示指示 CCW-1
 
-Label4_4.grid(row=1, column=5)
-Box4_4.grid(row=1, column=6)
-chk4_5.grid(row=2, column=5)
-Box4_5.grid(row=2, column=6)
+Label4_4.grid(row=1, column=5)  # ラベル'Vm設定[V]'の表示指示
+Box4_4.grid(row=1, column=6)  # Entryの表示指示
+chk4_5.grid(row=2, column=5)  # チェックボタン'step±'の表示指示
+Box4_5.grid(row=2, column=6)  # Entryの表示指示
 # ---------------- ~ Pulses出力設定GUI ------------------------
 
 # ---------------- オプション機能設定GUI --------------------
-frame7 = tkinter.Frame(tk, pady=10, padx=10)
-frame7.pack(anchor=tkinter.W)
+frame7 = tkinter.Frame(tk, pady=10, padx=10)  # <オプション機能>のウィジェット用のフレーム作成
+frame7.pack(anchor=tkinter.W)  # フレームの表示指示　左
 
-Label7_1 = tkinter.Label(frame7, text='<オプション機能>', width=labewid_1, anchor='w')
-Label7_1.grid(row=0, column=0, columnspan=3)
+Label7_1 = tkinter.Label(frame7, text='<オプション機能>', width=labewid_1, anchor='w')  # ラベル'<オプション機能>の作成　左
+Label7_1.grid(row=0, column=0, columnspan=3)  # ラベルの表示指示 column 3個結合
 
 Button7_1 = tkinter.Button(frame7, text=u'シーケンス機能', width=12,
-                           command=sequence_window)
+                           command=sequence_window)  # ボタン'シーケンス機能'を作成、選択時sequence_window関数を実行　関数名のみ
 # Button7_1.bind("<Button-1>",sequence_window)
-Button7_1.grid(row=1, column=3, columnspan=2)
+Button7_1.grid(row=1, column=3, columnspan=2)  # ボタンの表示指示、column　2個結合
 
-Button7_2 = tkinter.Button(frame7, text=u'パルス列設定', width=12)
-Button7_2.bind("<Button-1>", pulsetrain_window)
-Button7_2.grid(row=1, column=1, columnspan=2)
+Button7_2 = tkinter.Button(frame7, text=u'パルス列設定', width=12)  # ボタン'パルス列設定'を作成
+Button7_2.bind("<Button-1>", pulsetrain_window)  # ボタンが左クリックされたら、pulsetrain_window関数を実行 関数名のみ
+Button7_2.grid(row=1, column=1, columnspan=2)  # ボタンの表示指示、column　2個結合
 
-Button7_3 = tkinter.Button(frame7, text=u'カメラ機能', width=10)
-Button7_3.bind("<Button-1>", cam_window)
-Button7_3.grid(row=1, column=5, columnspan=2)
+Button7_3 = tkinter.Button(frame7, text=u'カメラ機能', width=10)  # ボタン'カメラ機能'を作成
+Button7_3.bind("<Button-1>", cam_window)  # ボタンが左クリックされたら、cam_window関数を実行 関数名のみ
+Button7_3.grid(row=1, column=5, columnspan=2)  # ボタンの表示指示、column　2個結合
 
 '''
 Button7_4 = tkinter.Button(frame7, text=u'PI 針位置', width=12,
-                            command = pi_window)
-#Button7_4.bind("<Button-1>",pi_window)
-Button7_4.grid(row=1,column=7,columnspan=2)
+                            command = pi_window)                # ボタン'PI 針位置'を作成　入力が有ったら、pi_window関数実行　関数名のみ
+#Button7_4.bind("<Button-1>",pi_window)                 # 上記でボタンが押された時の処理を実行するのでコメントアウト
+Button7_4.grid(row=1,column=7,columnspan=2)             # ボタンの表示指示、column　2個結合
 '''
 
 Button7_5 = tkinter.Button(frame7, text=u'Vrs 回転検出', width=12,
-                           command=vrs_window)
-# Button7_5.bind("<Button-1>",vrs_window)
-Button7_5.grid(row=1, column=9, columnspan=2)
+                           command=vrs_window)  # ボタン'vrs 回転検出'を作成 入力されたら、vrs_window関数実行 関数名のみ
+# Button7_5.bind("<Button-1>",vrs_window)               # 上記でボタンが押された時の処理を実行するので、コメントアウト
+Button7_5.grid(row=1, column=9, columnspan=2)  # ボタンの表示指示、column　2個結合
 # ---------------- ~ オプション機能設定GUI ---------------------
 # ---------------- ~ main window作成 -------------------------
 ###############
@@ -2984,7 +3021,7 @@ if Com_No != 'Nucleo未接続':
     manual_pulse_set()  # GUIのPulse設定欄の値を読み込み、Nucleoに送信設定する
     pulse_train_set()  # パルス列設定送信
     pulse_width_set()  # パルス幅、本数設定送信
-    vm_set()            # Vm設定値をGUI上のBoxから読み込み、送信設定する
+    vm_set()  # Vm設定値をGUI上のBoxから読み込み、送信設定する
     print('init end')
 
 # vrs_windowset()
