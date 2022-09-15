@@ -2185,19 +2185,18 @@ tk.geometry("500x" + str(win_tate) + "+20+20")  # windowサイズ+x座標+y座�
 
 # ------------ ~ 6. initial設定読み込み -------------------------------
 # 7. COMポート設定に処理が移る
-# 2022.9.14
 ###############
 ####GUI設定#####
 # シーケンス機能window作成
 def sequence_window():
     """
-
+    mainウインドウでシーケンス機能ボタンを押下した際に開くウィンドウの設定＆表示処理
     :return:
     """
     global seqWindow
 
     # 複数開かないようにする処理
-    if 'seqWindow' in globals():  # Windowが定義されているか？
+    if 'seqWindow' in globals():  # Windowが定義されているか？  global名前空間にあるシンボルの中にseqWindowが有れば、開かれている。
         if seqWindow.winfo_exists() == 1:  # windowが存在するか？
             seqWindow.attributes('-topmost', 1)  # トップに固定表示
             seqWindow.attributes('-topmost', 0)  # 固定解除
