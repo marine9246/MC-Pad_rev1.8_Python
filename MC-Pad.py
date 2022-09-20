@@ -2197,8 +2197,8 @@ def sequence_window():
 
     # 複数開かないようにする処理
     if 'seqWindow' in globals():  # Windowが定義されているか？  global名前空間にあるシンボルの中にseqWindowが有れば、開かれている。
-        if seqWindow.winfo_exists() == 1:  # windowが存在するか？
-            seqWindow.attributes('-topmost', 1)  # トップに固定表示
+        if seqWindow.winfo_exists() == 1:  # windowが存在するか？　ここでもseqWindowが存在するか否か確認している 存在しているならreturn
+            seqWindow.attributes('-topmost', 1)  # トップに固定表示 下で解除しないと常に最前面に固定表示される
             seqWindow.attributes('-topmost', 0)  # 固定解除
             return
     global main_handle
@@ -2207,12 +2207,12 @@ def sequence_window():
     main_handle = get_handle()  # main_windowのHandle取得
 
     get_winposition()  # メインwindow座標取得
-    seqWindow = tkinter.Toplevel(tk)
-    seqWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定
+    seqWindow = tkinter.Toplevel(tk)        # seqWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
+    seqWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # seqWindowの座標指定 メインウインドウの横に表示する
 
-    frameseq = tkinter.Frame(seqWindow, pady=10, padx=10)
-    frameseq.pack(anchor=tkinter.W)
-
+    frameseq = tkinter.Frame(seqWindow, pady=10, padx=10)   # <シーケンス設定>の項目用にframeをseqWindowに作成
+    frameseq.pack(anchor=tkinter.W)                         # フレームを配置表示 左寄せ指示
+# 2022.9.20
     Labelseq_1 = tkinter.Label(frameseq, text='<シーケンス設定>', width=labewid_1, anchor='w')
     Labelseq_1.grid(row=0, column=0, columnspan=4, sticky=tkinter.W)
 
