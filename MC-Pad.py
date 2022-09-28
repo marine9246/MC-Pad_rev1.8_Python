@@ -2130,16 +2130,16 @@ def read_serial2():
     print(line)
     return line
 
-# 2022.9.27
 def get_winposition():
     """
-    メインウインドウの座標を取得し
+    メインウインドウの座標を取得し,ｘ座標：メインウィンドウの右横、ｙ座標：メインウインドウより上に30
+    の座標を返す
     :return:
     """
     global xposi
     global yposi
-    xposi = tk.winfo_rootx() + tk.winfo_width()
-    yposi = tk.winfo_rooty() - 30
+    xposi = tk.winfo_rootx() + tk.winfo_width()     # メインウインドウのディスプレー左上原点のx座標+メインウィンドウの幅
+    yposi = tk.winfo_rooty() - 30       # メインウインドウのディスプレー左上原点のy座標-30
 
 def read_alert(str_al):
     """
@@ -2206,24 +2206,24 @@ def sequence_window():
     tk.attributes('-topmost', 0)  # メイン画面の固定解除
     main_handle = get_handle()  # 最前面のウィンドウ(main_window)のHandle取得
 
-    get_winposition()  # メインwindow座標取得
+    get_winposition()  # メインwindowの右横位置の座標取得（y座標は30だけ上）
     seqWindow = tkinter.Toplevel(tk)        # seqWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
-    seqWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # seqWindowの座標指定 メインウインドウの横に表示する
+    seqWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # seqWindowの座標指定 メインウインドウの右横に表示する
 
     frameseq = tkinter.Frame(seqWindow, pady=10, padx=10)   # <シーケンス設定>の項目用にframeをseqWindowに作成
     frameseq.pack(anchor=tkinter.W)                         # フレームを配置表示 左寄せ指示
 
-    Labelseq_1 = tkinter.Label(frameseq, text='<シーケンス設定>', width=labewid_1, anchor='w')
-    Labelseq_1.grid(row=0, column=0, columnspan=4, sticky=tkinter.W)
+    Labelseq_1 = tkinter.Label(frameseq, text='<シーケンス設定>', width=labewid_1, anchor='w')  # <シーケンス設定>ラベルの作成
+    Labelseq_1.grid(row=0, column=0, columnspan=4, sticky=tkinter.W)    # <シーケンス設定>ラベルの配置、左寄せ、column４つを結合
 
     # ラベル配置
-    labelpi2_name = ['Start', 'Stop', 'step']
-    for x, row in enumerate(labelpi2_name, 0):
-        labelpi_N = tkinter.Label(frameseq, text=row, width=5, anchor='w')
-        labelpi_N.grid(column=x + 1, row=2, columnspan=1, sticky=tkinter.W)
-
+    labelpi2_name = ['Start', 'Stop', 'step']       # ラベルnameをリストで作成
+    for x, row in enumerate(labelpi2_name, 0):      # 0番目(x=0)からリストの要素を取り出す
+        labelpi_N = tkinter.Label(frameseq, text=row, width=5, anchor='w')      # ラベル作成
+        labelpi_N.grid(column=x + 1, row=2, columnspan=1, sticky=tkinter.W)     # ラベルの配置 インデックスを使い、columnを移動
+# 2022.9.28
     # ラベル配置
-    labelpi3_name = ['電圧範囲[V]', 'Pulse幅比率', '周波数[Hz]', '評価パルス']
+    labelpi3_name = ['電圧範囲[V]', 'Pulse幅比率', '周波数[Hz]', '評価パルス']     # ラベルnameをリストで作成
     for x, row in enumerate(labelpi3_name, 0):
         labelpi_N = tkinter.Label(frameseq, text=row, width=10, anchor='w')
         if x < 3:
