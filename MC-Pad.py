@@ -177,9 +177,9 @@ for i, row in enumerate(sequence_array, 0):  # i=行番号、row=行内容 上�
     else:  # i=1~9
         sequence_array[i] = [0, 0, 200, 0, 0, 0, 0, 0, 0, 3.0]  # シーケンス設定配列 初期値
 
-seq_jdge_array = [0] * 7  # 判定方法選択　0 フォト判定/1 Vrs判定/2フォトNG停止3/周波数設定/4保存/5詳細保存/6評価パルス設定
+seq_jdge_array = [0] * 7  # 判定方法選択　0 フォト判定/1 Vrs判定/2フォトNG停止3/周波数設定/4保存/5詳細保存/6評価パルス設定　3周波数設定⇒設定無効
 for i, row in enumerate(seq_jdge_array, 0):  # seq_jdge_array = [0,0,0,0,0,0,0] インデックスがi、値がrow
-    seq_jdge_array[i] = tkinter.BooleanVar()  # チェックボックス変数　7個のチェックボックスを用意しているが、5個しかGUI上に無い
+    seq_jdge_array[i] = tkinter.BooleanVar()  # チェックボックス変数　7個のチェックボックスを用意しているが、6個しかGUI上に無い。評価パルス設定が無い
 
 # カメラ関係変数
 # cam_list = []
@@ -2139,7 +2139,7 @@ def get_winposition():
     global xposi
     global yposi
     xposi = tk.winfo_rootx() + tk.winfo_width()     # メインウインドウのディスプレー左上原点のx座標+メインウィンドウの幅
-    yposi = tk.winfo_rooty() - 30       # メインウインドウのディスプレー左上原点のy座標-30
+    yposi = tk.winfo_rooty() - 30       # メインウインドウのディスプレー左上原点のy座標-30 30:ウインドウのタイトル部のyサイズ
 
 def read_alert(str_al):
     """
@@ -2206,7 +2206,7 @@ def sequence_window():
     tk.attributes('-topmost', 0)  # メイン画面の固定解除
     main_handle = get_handle()  # 最前面のウィンドウ(main_window)のHandle取得
 
-    get_winposition()  # メインwindowの右横位置の座標取得（y座標は30だけ上）
+    get_winposition()  # メインwindowの右横位置の座標取得（y座標は30だけ上　ウインドウのタイトル部分のyサイズを引いてある）
     seqWindow = tkinter.Toplevel(tk)        # seqWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
     seqWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # seqWindowの座標指定 メインウインドウの右横に表示する
 
@@ -2221,51 +2221,51 @@ def sequence_window():
     for x, row in enumerate(labelpi2_name, 0):      # 0番目(x=0)からリストの要素を取り出す
         labelpi_N = tkinter.Label(frameseq, text=row, width=5, anchor='w')      # ラベル作成
         labelpi_N.grid(column=x + 1, row=2, columnspan=1, sticky=tkinter.W)     # ラベルの配置 インデックスを使い、columnを移動
-# 2022.9.28
+
     # ラベル配置
     labelpi3_name = ['電圧範囲[V]', 'Pulse幅比率', '周波数[Hz]', '評価パルス']     # ラベルnameをリストで作成
-    for x, row in enumerate(labelpi3_name, 0):
-        labelpi_N = tkinter.Label(frameseq, text=row, width=10, anchor='w')
+    for x, row in enumerate(labelpi3_name, 0):      # 0番目（x=0)からリストの要素を取り出す
+        labelpi_N = tkinter.Label(frameseq, text=row, width=10, anchor='w')     # ラベル作成 左に配置
         if x < 3:
-            labelpi_N.grid(column=0, row=4 + x, sticky=tkinter.W)
+            labelpi_N.grid(column=0, row=4 + x, sticky=tkinter.W)       # '電圧範囲'～'周波数'まで、4,5,6行に配置
 
-    for y, row in enumerate(piset_value_name, 0):
-        for x, col in enumerate(row):
-            col = 'psvname' + str(y) + str(x)
+    for y, row in enumerate(piset_value_name, 0):       # 0番目（x=0)からpiset_value_nameリストの要素を取り出す
+        for x, col in enumerate(row):                   # 上記で取り出した要素（これもリスト）からcolに要素を取り出す
+            col = 'psvname' + str(y) + str(x)           # しかし、上記colに要素を取り出してもここで、'psyname'+str(y)+str(x)で書き換えられる。ここはリストに追加したかったのか？
 
-    for y, row in enumerate(piset_value_array, 0):
-        for x, col in enumerate(row):
-            if y == 3:
-                piset_value_name[y][x] = tkinter.Entry(frameseq, width=8)
+    for y, row in enumerate(piset_value_array, 0):      # 0番目（x=0)からpiset_value_arrayリストの要素を取り出す
+        for x, col in enumerate(row):                   # 上記で取り出した要素（これもリスト）からcolに要素を取り出す
+            if y == 3:          # piset_value_aaray: [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
+                piset_value_name[y][x] = tkinter.Entry(frameseq, width=8)   # 下でgridがコメントアプトなので使用しない
                 piset_value_name[y][x].insert(tkinter.END, col)
                 # piset_value_name[y][x].grid(column=x+1,row=y+4,columnspan=2,sticky=tkinter.W)
-            else:
-                piset_value_name[y][x] = tkinter.Entry(frameseq, width=5)
-                piset_value_name[y][x].insert(tkinter.END, col)
-                piset_value_name[y][x].grid(column=x + 1, row=y + 4, columnspan=1, sticky=tkinter.W)
+            else:   # y=0~2
+                piset_value_name[y][x] = tkinter.Entry(frameseq, width=5)       # Entry作成　5文字分
+                piset_value_name[y][x].insert(tkinter.END, col)         # Entryに上記でcolに読み込んだpiset_value_arrayの要素を入力
+                piset_value_name[y][x].grid(column=x + 1, row=y + 4, columnspan=1, sticky=tkinter.W)    # Entryの表示設定
 
     piseq_chk2 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[2], text='フォトNGで停止', width=12, anchor='w')
     piseq_chk2.grid(row=4, column=4, columnspan=4, sticky=tkinter.NW)
-    seq_jdge_array[2].set(True)  # chekbox初期値セット
+    seq_jdge_array[2].set(True)  # chekbox初期値セット 'フォトNGで停止'のチェックをONする
 
     piseq_chk3 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[3], text='設定無効', width=12, anchor='w')
     piseq_chk3.grid(row=6, column=4, columnspan=4, sticky=tkinter.NW)
 
-    piseq_chk4 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[6], text='設定無効', width=12, anchor='w')
+    piseq_chk4 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[6], text='設定無効', width=12, anchor='w')   # 使用無し
     # piseq_chk4.grid(row=7,column=4,columnspan=4,sticky=tkinter.NW)
-    seq_jdge_array[6].set(True)  # chekbox初期値セット
+    seq_jdge_array[6].set(True)  # chekbox初期値セット 評価パルス設定のチェックボタンONする。しかし、表示していないので使用無し
 
-    pisec_section_name = ['A', 'B', 'C', 'D', 'E', 'F']
-    for x, col in enumerate(pisec_section_name):
-        col = tkinter.Checkbutton(frameseq, variable=piseq_section[x], text=col)
-        piseq_section[x].set(True)  # chekbox初期値セット
+    pisec_section_name = ['A', 'B', 'C', 'D', 'E', 'F']     # チェックボタンのtext表示をリストで作成
+    for x, col in enumerate(pisec_section_name):        # colに上記リストの要素’A’～’F’を取り出す
+        col = tkinter.Checkbutton(frameseq, variable=piseq_section[x], text=col)    # 上記読み込んだcolをtext表示し、さらにチェックボタンを作成
+        piseq_section[x].set(True)  # chekbox初期値セット ’A'～'F'の各チェックボタンをON
         ''' 
         if x <3:
             col.grid(row=5,column=4+x,columnspan=1,sticky=tkinter.W)
         else :
         '''
-        col.grid(row=5, column=4 + x, columnspan=1, sticky=tkinter.W)
-
+        col.grid(row=5, column=4 + x, columnspan=1, sticky=tkinter.W)       # チェックボタンの表示
+# 2022.9.30
     # 判定方法選択
     Labelseq_2 = tkinter.Label(frameseq, text='判定実施', width=10, anchor='w')
     Labelseq_2.grid(row=8, column=0, columnspan=1, sticky=tkinter.W)
