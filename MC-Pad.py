@@ -2256,51 +2256,53 @@ def sequence_window():
     seq_jdge_array[6].set(True)  # chekbox初期値セット 評価パルス設定のチェックボタンONする。しかし、表示していないので使用無し
 
     pisec_section_name = ['A', 'B', 'C', 'D', 'E', 'F']     # チェックボタンのtext表示をリストで作成
-    for x, col in enumerate(pisec_section_name):        # colに上記リストの要素’A’～’F’を取り出す
+    for x, col in enumerate(pisec_section_name):        # colに上記リストの要素’A’～’F’を取り出す　xは0～5
         col = tkinter.Checkbutton(frameseq, variable=piseq_section[x], text=col)    # 上記読み込んだcolをtext表示し、さらにチェックボタンを作成
-        piseq_section[x].set(True)  # chekbox初期値セット ’A'～'F'の各チェックボタンをON
+        piseq_section[x].set(True)  # chekbox初期値セット ’A'～'F'の各チェックボタンをすべてON
         ''' 
         if x <3:
             col.grid(row=5,column=4+x,columnspan=1,sticky=tkinter.W)
         else :
         '''
         col.grid(row=5, column=4 + x, columnspan=1, sticky=tkinter.W)       # チェックボタンの表示
-# 2022.9.30
+
+
     # 判定方法選択
-    Labelseq_2 = tkinter.Label(frameseq, text='判定実施', width=10, anchor='w')
-    Labelseq_2.grid(row=8, column=0, columnspan=1, sticky=tkinter.W)
-    seq_jdge_name = ['フォト検出', 'Vrs検出']
-    for x, col in enumerate(seq_jdge_name):
-        col = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[x], text=col)
-        seq_jdge_array[x].set(False)  # chekbox初期値セット
-        col.grid(row=8, column=2 * x + 1, columnspan=2, sticky=tkinter.W)
+    Labelseq_2 = tkinter.Label(frameseq, text='判定実施', width=10, anchor='w')     # フォト検出、Vrs検出のチェックボタンのグループ名称'判定実施'の設定 左寄せ
+    Labelseq_2.grid(row=8, column=0, columnspan=1, sticky=tkinter.W)        # 上記ラベルの表示　stickyオプションで左寄せ指定
+
+    seq_jdge_name = ['フォト検出', 'Vrs検出']      # 回転判定の方法のテキストをリストで用意
+    for x, col in enumerate(seq_jdge_name):     # colに上記テキストを読みだす。xは0～1
+        col = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[x], text=col)       # 上記読み込んだcolをテキスト表示し、チェックボタンを作成
+        seq_jdge_array[x].set(False)  # chekbox初期値セット　オール0で無選択
+        col.grid(row=8, column=2 * x + 1, columnspan=2, sticky=tkinter.W)       # 上記チェックボタンの表示　stickyオプションで左寄せ指定
 
     global Buttonpi2_1
-    Buttonpi2_1 = tkinter.Button(frameseq, text=u'スタート', width=8)
-    Buttonpi2_1.bind("<Button-1>", photo_seqtest_bot)
-    Buttonpi2_1.grid(row=10, column=0, columnspan=1, sticky=tkinter.W)
+    Buttonpi2_1 = tkinter.Button(frameseq, text=u'スタート', width=8)       # 'スタート'ボタンの作成
+    Buttonpi2_1.bind("<Button-1>", photo_seqtest_bot)       # <Button-1>:マウスの左クリックによりコールバック関数実施
+    Buttonpi2_1.grid(row=10, column=0, columnspan=1, sticky=tkinter.W)      # ボタンの表示　stickyオプションで左寄せ指定
 
     global Buttonpi2_2
-    Buttonpi2_2 = tkinter.Button(frameseq, text=u'ストップ', width=8)
+    Buttonpi2_2 = tkinter.Button(frameseq, text=u'ストップ', width=8)       # 'ストップ'ボタンの作成
     Buttonpi2_2.config(state="disable")  # ボタン無効化
-    Buttonpi2_2.bind("<Button-1>", photo_seqtest_stop_bot)
-    Buttonpi2_2.grid(row=10, column=1, columnspan=2, sticky=tkinter.W)
+    Buttonpi2_2.bind("<Button-1>", photo_seqtest_stop_bot)      # <Button-1>:マウスの左クリックによりコールバック関数実施
+    Buttonpi2_2.grid(row=10, column=1, columnspan=2, sticky=tkinter.W)      # ボタンの表示　stickyオプションで左寄せ指定
 
     global Combopi1
     Combopi1 = ttk.Combobox(frameseq, width=18, state='readonly')  # Combobox作成 書込み禁止設定
-    Combopi1["values"] = ("表示設定")
+    Combopi1["values"] = ("表示設定")       # コンボボックス内の表示を'表示設定'とタプルで指定
     Combopi1.current(0)  # 初期値
-    Combopi1.grid(row=10, column=3, columnspan=3, sticky=tkinter.W)
+    Combopi1.grid(row=10, column=3, columnspan=3, sticky=tkinter.W)  # コンボボックスの表示　stickyオプションで左寄せ指定
 
     global Buttonpi2_3
-    Buttonpi2_3 = tkinter.Button(frameseq, text=u'適用', width=8)
-    Buttonpi2_3.bind("<Button-1>", seq_reading)
-    Buttonpi2_3.grid(row=10, column=6, columnspan=2, sticky=tkinter.E)
+    Buttonpi2_3 = tkinter.Button(frameseq, text=u'適用', width=8)     # '適用'ボタンの作成
+    Buttonpi2_3.bind("<Button-1>", seq_reading)     # <Button-1>:マウスの左クリックによりコールバック関数実施
+    Buttonpi2_3.grid(row=10, column=6, columnspan=2, sticky=tkinter.E)      # ボタンの表示　stickyオプションで右寄せ指定
 
     # scrolledtextBox
-    frameseq2 = tkinter.Frame(seqWindow, pady=5, padx=10)
-    frameseq2.pack(anchor=tkinter.W)
-
+    frameseq2 = tkinter.Frame(seqWindow, pady=5, padx=10)       # スクロールテキストを配置するフレームの作成
+    frameseq2.pack(anchor=tkinter.W)        # 左寄せに表示
+# 2022.10.14
     global piseq_res
     piseq_res = tkinter.scrolledtext.ScrolledText(frameseq2, width=25, height=6)
     piseq_res.grid(row=9, column=0, rowspan=2, columnspan=4, sticky=tkinter.W)
