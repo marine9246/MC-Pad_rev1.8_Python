@@ -2302,25 +2302,25 @@ def sequence_window():
     # scrolledtextBox
     frameseq2 = tkinter.Frame(seqWindow, pady=5, padx=10)       # スクロールテキストを配置するフレームの作成
     frameseq2.pack(anchor=tkinter.W)        # 左寄せに表示
-# 2022.10.14
+
     global piseq_res
-    piseq_res = tkinter.scrolledtext.ScrolledText(frameseq2, width=25, height=6)
-    piseq_res.grid(row=9, column=0, rowspan=2, columnspan=4, sticky=tkinter.W)
+    piseq_res = tkinter.scrolledtext.ScrolledText(frameseq2, width=25, height=6)    # フレームframeseq2にスクロールtextボックスを設定
+    piseq_res.grid(row=9, column=0, rowspan=2, columnspan=4, sticky=tkinter.W)      # stickyで左側配置指定
 
-    piseq_chk1 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[4], text='保存', width=3, anchor='w')
-    piseq_chk1.grid(row=9, column=4, columnspan=1, sticky=tkinter.NW)
+    piseq_chk1 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[4], text='保存', width=3, anchor='w') # チェックボタン'保存'を左寄りに配置設定
+    piseq_chk1.grid(row=9, column=4, columnspan=1, sticky=tkinter.NW)   # gridで上記チェックボタンを配置
 
-    piseq_chk2 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[5], text='Vrs詳細保存', width=9, anchor='w')
-    piseq_chk2.grid(row=10, column=4, columnspan=2, sticky=tkinter.NW)
+    piseq_chk2 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[5], text='Vrs詳細保存', width=9, anchor='w')    # チェックボタン'Vrs詳細保存'を左寄りに配置設定
+    piseq_chk2.grid(row=10, column=4, columnspan=2, sticky=tkinter.NW)  # gridで上記チェックボタン配置
 
     global entrypi2_3
-    entrypi2_3 = tkinter.Entry(frameseq2, width=14)
-    entrypi2_3.insert(tkinter.END, 'file name')
-    entrypi2_3.grid(row=9, column=5, columnspan=4, sticky=tkinter.NW)
+    entrypi2_3 = tkinter.Entry(frameseq2, width=14)     # Entry'filename'をフレームframeseq2に作成
+    entrypi2_3.insert(tkinter.END, 'file name')     # Entryに'filename'とEntryの最後に追加入力
+    entrypi2_3.grid(row=9, column=5, columnspan=4, sticky=tkinter.NW)       # gridでEntryを上左側に配置
 
     frameseqpi = tkinter.LabelFrame(seqWindow, pady=2, padx=10, text='フォト検出パルス設定')
     frameseqpi.pack(anchor=tkinter.W, padx=10, )
-
+# 2022.10.25
     # ラベル配置
     labelpi_name = ['使用Pulse', '1周Step数', '周波数[Hz]', '使用電圧[V]', '検出mode', 'Offset']
     for x, row in enumerate(labelpi_name, 0):
