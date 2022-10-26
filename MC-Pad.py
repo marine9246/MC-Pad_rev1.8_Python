@@ -2318,88 +2318,88 @@ def sequence_window():
     entrypi2_3.insert(tkinter.END, 'file name')     # Entryに'filename'とEntryの最後に追加入力
     entrypi2_3.grid(row=9, column=5, columnspan=4, sticky=tkinter.NW)       # gridでEntryを上左側に配置
 
-    frameseqpi = tkinter.LabelFrame(seqWindow, pady=2, padx=10, text='フォト検出パルス設定')
-    frameseqpi.pack(anchor=tkinter.W, padx=10, )
-# 2022.10.25
+    frameseqpi = tkinter.LabelFrame(seqWindow, pady=2, padx=10, text='フォト検出パルス設定')  # ラベルフレームの作成
+    frameseqpi.pack(anchor=tkinter.W, padx=10, )    # ラベルフレームの配置
+
     # ラベル配置
-    labelpi_name = ['使用Pulse', '1周Step数', '周波数[Hz]', '使用電圧[V]', '検出mode', 'Offset']
-    for x, row in enumerate(labelpi_name, 0):
-        labelpi_N = tkinter.Label(frameseqpi, text=row, width=8)
-        labelpi_N.grid(column=x, row=0)
+    labelpi_name = ['使用Pulse', '1周Step数', '周波数[Hz]', '使用電圧[V]', '検出mode', 'Offset']  # ラベルをリストで用意
+    for x, row in enumerate(labelpi_name, 0):   # 上記リストからxにインデックスをrowに要素を代入
+        labelpi_N = tkinter.Label(frameseqpi, text=row, width=8)    # 上記のラベルフレームにrowの値（ラベル名）でラベルを作成
+        labelpi_N.grid(column=x, row=0)     # ラベルフレーム内のrow=0行、columnに上記リストのインデックスを渡して配置
 
     # 入力Box配置
-    for i, row in enumerate(piset_name, 0):  # i=行番号、row=行内容
-        row = 'psname' + str(i)
+    for i, row in enumerate(piset_name, 0):  # i=行番号、row=行内容 リストpiset_nameからインデックスをiに、要素をrowに代入
+        row = 'psname' + str(i)     # 'psname0','psname1',・・・
 
-    for i, row in enumerate(piset_array, 0):
-        if i == 0:
+    for i, row in enumerate(piset_array, 0):    # piset_array:photo検出のパルス条件設定値
+        if i == 0:  # 使用パルス　リストpiset_nameのインデックス0のウィジェットにcomboboxを設定
             piset_name[i] = ttk.Combobox(frameseqpi, width=6, state='readonly')  # Combobox作成 書込み禁止設定
-            piset_name[i]["values"] = ("0:CW-0", "1:CCW-1", "2:", "3:", "4:CW-4", "5:CCW-5")
-            piset_name[i].current(piset_array[i])  # 初期値
-        elif i == 4:
+            piset_name[i]["values"] = ("0:CW-0", "1:CCW-1", "2:", "3:", "4:CW-4", "5:CCW-5")    # comboboxのvaluesオプションにタプルで渡す
+            piset_name[i].current(piset_array[i])  # 初期値 piset_array[0]=0⇒"0:CW-0"設定
+        elif i == 4:    # 検出モード リストpiset_nameのインデックス4のウィジェットにcomboboxを設定
             piset_name[i] = ttk.Combobox(frameseqpi, width=6, state='readonly')  # Combobox作成 書込み禁止設定
-            piset_name[i]["values"] = ("0:通常", "1:最短移動", "2:逆極性chk")  # 秒針検出はnucleo側で自動判定
-            piset_name[i].current(piset_array[i])  # 初期値
-        elif i == 5:
-            piset_name[i] = tkinter.Entry(frameseqpi, width=12)
-            piset_name[i].insert(tkinter.END, row)
-            piset_name[i].grid(row=1, column=i)
-        else:
-            piset_name[i] = tkinter.Entry(frameseqpi, width=8)
-            piset_name[i].insert(tkinter.END, row)
-            piset_name[i].grid(row=1, column=i)
-        piset_name[i].grid(row=1, column=i)
+            piset_name[i]["values"] = ("0:通常", "1:最短移動", "2:逆極性chk")  # 秒針検出はnucleo側で自動判定、valuesオプションにタプルで渡す
+            piset_name[i].current(piset_array[i])  # 初期値 piset_array[4]=0⇒"0:通常"設定
+        elif i == 5:    # offset リストpiset_nameのインデックス5のウィジェットにEntryを設定
+            piset_name[i] = tkinter.Entry(frameseqpi, width=12)     # 入力Entry作成
+            piset_name[i].insert(tkinter.END, row)  # インデックスi=5：row=0 挿入する文字rowで示される値を入力欄の最後から入力
+            piset_name[i].grid(row=1, column=i)     # 上記Entryをgridで配置
+        else:   # 1周step数/周波数/電圧 リストpiset_nameのインデックス1,2,3のウィジェットにEntryを設定
+            piset_name[i] = tkinter.Entry(frameseqpi, width=8)  # 入力Entry作成
+            piset_name[i].insert(tkinter.END, row)  # i=1:row=360,i=2:row=200,i=3:row=3.0 挿入する文字rowで示される値を入力欄の最後から入力
+            piset_name[i].grid(row=1, column=i)     # リストpiset_nameのインデックスで示される要素（ウィジェット）をインデックスiで示されるcolumnに配置
+        piset_name[i].grid(row=1, column=i)     # リストpiset_nameのインデックスで示される要素（ウィジェット）をインデックスiで示されるcolumnに配置
 
-        Button7_4 = tkinter.Button(frameseqpi, text=u'PI 針位置単独', width=12, command=pi_window)
+        Button7_4 = tkinter.Button(frameseqpi, text=u'PI 針位置単独', width=12, command=pi_window)   # ボタン'PI 針位置単独'の設定
         # Button7_4.bind("<Button-1>",pi_window)
-        Button7_4.grid(row=2, column=0, columnspan=2, sticky=tkinter.NW)
+        Button7_4.grid(row=2, column=0, columnspan=2, sticky=tkinter.NW)    # 上記ボタンをフレームframeseqpiのrow=2に上左側に配置
 
-    frame6 = tkinter.Frame(seqWindow, pady=10, padx=10)
-    frame6.pack(anchor=tkinter.W)
+    frame6 = tkinter.Frame(seqWindow, pady=10, padx=10)     # フレームframe6の作成 下記の<動作設定>のウィジェット配置用フレーム
+    frame6.pack(anchor=tkinter.W)   # frame6を左寄りに配置
 
-    Label6_1 = tkinter.Label(frame6, text='<動作設定>', width=labewid_1, anchor='w')
-    Label6_1.grid(row=0, column=0, columnspan=3)
+    Label6_1 = tkinter.Label(frame6, text='<動作設定>', width=labewid_1, anchor='w')    # ラベル<動作設定>をframe6に作成 左寄りに作成
+    Label6_1.grid(row=0, column=0, columnspan=3)    # 上記ラベルを配置
 
     # ラベル配置
-    label6_name = [['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']]
-    for y, row in enumerate(label6_name, 0):
-        for x, col in enumerate(row):
-            if x < 3 or x == 9:
-                label6_N = tkinter.Label(frame6, text=col, width=6)
+    label6_name = [['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']]     # ラベル名をリストのリストで設定
+    for y, row in enumerate(label6_name, 0):    # 上記リストのインデックス0から要素を取り出す。この場合インデックスは0のみで要素は['Pulse', 'Step数', ・・・, 'Vm']
+        for x, col in enumerate(row):   #　上記row=['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']から各要素をcolに取り出す
+            if x < 3 or x == 9:     # 下記の入力box欄の大きさに応じてwidthを変えるためインデックス値で分ける
+                label6_N = tkinter.Label(frame6, text=col, width=6)     # 'Pulse', 'Step数', 'Freq', 'Vm'
             else:
-                label6_N = tkinter.Label(frame6, text=col, width=4)
+                label6_N = tkinter.Label(frame6, text=col, width=4)     # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'
             # if x != 6:#Pulse内 Vrs表示なし
-            label6_N.grid(column=x + 1, row=y + 1)
+            label6_N.grid(column=x + 1, row=y + 1)  # インデックスx,y=0　column=1~10,row=1に配置
 
     # 入力Box配置
-    for i, row in enumerate(sequence_array, 0):
-        for n, col in enumerate(row):
-            if n < 3 or n == 9:
-                sequence_name[i][n] = tkinter.Entry(frame6, width=6)
+    for i, row in enumerate(sequence_array, 0): # sequence_array[10×10]のリスト rowに各行を読込む
+        for n, col in enumerate(row):   # n:sequence_arrayの行rowの各要素をcolに読込む。各行の要素は、'Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm'の値
+            if n < 3 or n == 9: # Entry入力欄の大きさに応じてwidthを変えるためインデックス値で分ける
+                sequence_name[i][n] = tkinter.Entry(frame6, width=6)    # 'Pulse', 'Step数', 'Freq', 'Vm'の入力欄
             else:
-                sequence_name[i][n] = tkinter.Entry(frame6, width=3)
-            sequence_name[i][n].insert(tkinter.END, col)
+                sequence_name[i][n] = tkinter.Entry(frame6, width=3)    # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'の入力欄
+            sequence_name[i][n].insert(tkinter.END, col)    # 各入力欄にcolに読込まれた値を入力欄の最後に追加
             # if n != 6:#Pulse内 Vrs表示なし
-            sequence_name[i][n].grid(row=i + 2, column=n + 1)
+            sequence_name[i][n].grid(row=i + 2, column=n + 1)   # row=2~11,column=1~10に配置
 
-    global seq_run  # 実行中に表記変えるため変数定義
+    global seq_run  # ボタン押下時の関数実行中に表記変えるため変数定義
     global Button6_1
-    seq_run = tkinter.StringVar()
-    seq_run.set('単独実行')
-    Button6_1 = tkinter.Button(frame6, textvariable=seq_run, width=12)
-    Button6_1.bind("<Button-1>", pulse_seq_bot)
-    Button6_1.grid(row=i + 3, column=1, columnspan=2)
+    seq_run = tkinter.StringVar()   # widget変数を文字列変数とする
+    seq_run.set('単独実行')     # widget変数seq_runに初期文字列をセット
+    Button6_1 = tkinter.Button(frame6, textvariable=seq_run, width=12)  # ボタンをそのtextに変数seq_runを渡して表示する
+    Button6_1.bind("<Button-1>", pulse_seq_bot)     # マウスの右クリック操作で実行関数を呼ぶ。その中で、ボタンの表示変更
+    Button6_1.grid(row=i + 3, column=1, columnspan=2)   # このiは上記のfor文の最後のi=9を引き継いでいる　row=12、column=1に配置
     global Button6_2
-    Button6_2 = tkinter.Button(frame6, text=u'設定読込', width=12)
-    Button6_2.bind("<Button-1>", pulse_seqread_bot)
-    Button6_2.grid(row=i + 3, column=4, columnspan=4)
+    Button6_2 = tkinter.Button(frame6, text=u'設定読込', width=12)      # ボタン'設定読込'の作成
+    Button6_2.bind("<Button-1>", pulse_seqread_bot)     # マウスの左クリック操作で実行関数を呼ぶ
+    Button6_2.grid(row=i + 3, column=4, columnspan=4)   # このiは9なので、row=12,column=4に配置
 
     global seq_name
-    seq_name = tkinter.StringVar()
-    label5_21 = tkinter.Label(frame6, textvariable=seq_name, width=15)
-    label5_21.grid(row=i + 3, column=7, columnspan=5)
+    seq_name = tkinter.StringVar()  # widget変数を文字列変数とする
+    label5_21 = tkinter.Label(frame6, textvariable=seq_name, width=15)  #　フレームframe6にラベル（テキスト変数seq_name）を作成
+    label5_21.grid(row=i + 3, column=7, columnspan=5)   # i=9なのでrow=12,column=7に上記ラベルを配置
 
-
+# 2022.10.26
 # パルス列設定window作成-------------------------------------------
 def pulsetrain_window(event):
     """
