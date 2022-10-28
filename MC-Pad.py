@@ -2403,6 +2403,7 @@ def sequence_window():
 # パルス列設定window作成-------------------------------------------
 def pulsetrain_window(event):
     """
+    mainウインドウでパルス設定ボタンを押下した際に開くウィンドウの設定＆表示処理
 
     :param event:
     :return:
@@ -2410,61 +2411,61 @@ def pulsetrain_window(event):
     global trainWindow
 
     # 複数開かないようにする処理
-    if 'trainWindow' in globals():  # Windowが定義されているか？
-        if trainWindow.winfo_exists() == 1:  # windowが存在するか？
-            trainWindow.attributes('-topmost', 1)  # トップに固定表示
+    if 'trainWindow' in globals():  # Windowが定義されているか？ global名前空間にあるシンボルの中にtrainWindowが有れば、開かれている。
+        if trainWindow.winfo_exists() == 1:  # windowが存在するか？ ここでも開かれているか確認。開かれていればreturn
+            trainWindow.attributes('-topmost', 1)  # トップに固定表示 trainWindowを最前面に表示、次のコマンドで解除しないと常に最前面表示となる
             trainWindow.attributes('-topmost', 0)  # 固定解除
             return
 
-    get_winposition()  # メインwindow座標取得
-    trainWindow = tkinter.Toplevel(tk)
-    trainWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定
-    frame8 = tkinter.Frame(trainWindow, pady=10, padx=10)
-    frame8.pack(anchor=tkinter.W)
+    get_winposition()  # メインwindow座標取得（y座標は30だけ上　ウインドウのタイトル部分のyサイズを引いてある）
+    trainWindow = tkinter.Toplevel(tk)  # trainWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
+    trainWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定 メインウインドウの右横に表示する
+    frame8 = tkinter.Frame(trainWindow, pady=10, padx=10)   # <パルス列設定>の項目用にframe8を作成
+    frame8.pack(anchor=tkinter.W)   # フレームを配置表示 空きスペースの左寄せ指示
 
-    Label8_1 = tkinter.Label(frame8, text='<パルス列設定>', width=labewid_1, anchor='w')
-    Label8_1.grid(row=0, column=0, columnspan=2, sticky=tkinter.W)
+    Label8_1 = tkinter.Label(frame8, text='<パルス列設定>', width=labewid_1, anchor='w')  # frame8にラベル<パルス列設定>を作成
+    Label8_1.grid(row=0, column=0, columnspan=2, sticky=tkinter.W)  # <パルス列設定>ラベルの配置、左寄せ、column2つを結合
 
-    Label8_2 = tkinter.Label(frame8, text='区間', width=6, anchor='e')
-    Label8_2.grid(column=1, row=1, columnspan=1, sticky=tkinter.E)
+    Label8_2 = tkinter.Label(frame8, text='区間', width=6, anchor='e')    # frame8にラベル'区間'を作成
+    Label8_2.grid(column=1, row=1, columnspan=1, sticky=tkinter.E)  # 上記ラベルの作成
 
-    label8_Pname = [['A', 'B', 'C', 'D', 'E', 'F']]
-    for y, row in enumerate(label8_Pname, 0):
-        for x, char in enumerate(row):
-            label5_P = tkinter.Label(frame8, text=char, width=5)
-            label5_P.grid(column=x + 2, row=y + 1)
+    label8_Pname = [['A', 'B', 'C', 'D', 'E', 'F']]     # ラベルのテキストをリストで作成
+    for y, row in enumerate(label8_Pname, 0):   # 上記リストの値とインデクスを取り込む　y=0のみ、row=['A','B',...'F']
+        for x, char in enumerate(row):  # 上記で読み込んだrowからインデクスと、値を読み込む　x=0～5　char='A'～'F'
+            label5_P = tkinter.Label(frame8, text=char, width=5)    # frame8にラベルをテキストにcharを渡して作成
+            label5_P.grid(column=x + 2, row=y + 1)  # row= 1, column=2～7にラベルを配置
 
-    label8_Pnum = [['CW 　-0', 'CCW  -1', '補CW -2', '補CCW-3', 'Pulse-4', 'Pulse-5', 'Pr-6']]
-    for y, row in enumerate(label8_Pnum, 0):
-        for x, char in enumerate(row):
-            label8_P = tkinter.Label(frame8, text=char, width=6)
-            if x < pulse_disp_num or x == 6:
-                label8_P.grid(column=0, row=2 * x + 2)
+    label8_Pnum = [['CW 　-0', 'CCW  -1', '補CW -2', '補CCW-3', 'Pulse-4', 'Pulse-5', 'Pr-6']]     # ラベルのテキストをリストで作成
+    for y, row in enumerate(label8_Pnum, 0):    # 上記リストの値とインデクスを取り込む　y=0のみ、row=['CW 　-0', 'CCW  -1', ..., 'Pr-6']
+        for x, char in enumerate(row):  # 上記で読み込んだrowからインデクスと、値を読み込む　x=0～6　char='CW 　-0'～ 'Pr-6'
+            label8_P = tkinter.Label(frame8, text=char, width=6)    # frame8にラベルをテキストにcharを渡して作成
+            if x < pulse_disp_num or x == 6:    # x=0~6
+                label8_P.grid(column=0, row=2 * x + 2)  # row=2,4,6,...,14 2つおきにラベルを配置する
 
-    for y, row in enumerate(pulse_train_labename, 0):
-        pulse_train_labename[y] = tkinter.StringVar()
-        char = tkinter.Label(frame8, textvariable=pulse_train_labename[y], width=12, anchor=tkinter.W)
-        pulse_train_labename[y].set(pulse_train_name[y])
-        if y < pulse_disp_num or y == 6:
-            char.grid(column=1, row=2 * y + 2)
+    for y, row in enumerate(pulse_train_labename, 0):   # リストpulse_train_labenameからインデックスをyに値をrowに読み込む
+        pulse_train_labename[y] = tkinter.StringVar()   # リストpulse_train_labenameの各要素を文字列として扱うことの設定
+        char = tkinter.Label(frame8, textvariable=pulse_train_labename[y], width=12, anchor=tkinter.W)  # frame8にラベルを作成、表示テキストにpulse_train_labenameの各要素を渡して作成
+        pulse_train_labename[y].set(pulse_train_name[y])    # pulse_train_labenameの要素にpulse_train_name(関数train_readingで読み込んだ)の各要素を代入
+        if y < pulse_disp_num or y == 6:    # y=0～6
+            char.grid(column=1, row=2 * y + 2)  # 上記ラベルをcolumn=1, row=2,4,6...,14まで2つ置きに配置
 
-    for y, row in enumerate(pulse_train_array_name, 0):
-        for x, char in enumerate(row):
-            pulse_train_array_name[y][x] = tkinter.StringVar()
-            char = tkinter.Label(frame8, textvariable=pulse_train_array_name[y][x], width=5, anchor=tkinter.W)
-            pulse_train_array_name[y][x].set(pulse_train_array_str[y][x])
-            if y < pulse_disp_num or y == 6:
-                if x < 6:
-                    char.grid(column=x + 2, row=2 * y + 2)
-                elif x >= 6:
-                    char.grid(column=x + 2 - 6, row=2 * y + 3)
+    for y, row in enumerate(pulse_train_array_name, 0):     # リストpulse_train_array_name(7行×12列)からインデックスをyに値をrowに読み込むy=0～6
+        for x, char in enumerate(row):                      # 上記のrowからインデックスをx、値をcharに読み込む x=0～11
+            pulse_train_array_name[y][x] = tkinter.StringVar()      # リストpulse_train_array_nameの各要素を文字列として扱うことの設定
+            char = tkinter.Label(frame8, textvariable=pulse_train_array_name[y][x], width=5, anchor=tkinter.W)  # frame8にラベルを作成、表示テキストにpulse_train_array_nameの各要素を渡して作成
+            pulse_train_array_name[y][x].set(pulse_train_array_str[y][x])   # pulse_train_array_nameの要素にpulse_train_array_str(関数train_readingで読み込んだ)の各要素を代入
+            if y < pulse_disp_num or y == 6:    # y=0～6
+                if x < 6:       # X=0～5
+                    char.grid(column=x + 2, row=2 * y + 2)      # row=2,4,6,...14 column=2,3,4,...,7 A1,B1,C1,D1,E1,F1
+                elif x >= 6:    # x=6~11
+                    char.grid(column=x + 2 - 6, row=2 * y + 3)  # row=3,5,7,...15 column=2,3,4,...,7　A2,B2,C2,D2,E2,F2
 
     global Button8_1
-    Button8_1 = tkinter.Button(frame8, text=u'設定読込', width=12)
-    Button8_1.bind("<Button-1>", pulse_train_bot)
-    Button8_1.grid(row=20, column=0, columnspan=3, sticky=tkinter.W)
+    Button8_1 = tkinter.Button(frame8, text=u'設定読込', width=12)  # frame8にボタン’設定読込'をグローバルで作成
+    Button8_1.bind("<Button-1>", pulse_train_bot)       # マウスの左クリックによりpulse_train_bot実行
+    Button8_1.grid(row=20, column=0, columnspan=3, sticky=tkinter.W)    # 上記のボタンの配置
 
-
+# 2022.10.28
 # カメラウィンドウ作成---------------------------------
 def cam_window(event):
     """
