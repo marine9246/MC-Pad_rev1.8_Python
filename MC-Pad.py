@@ -320,7 +320,7 @@ def pulse_width_bot(event):  # パルス幅/本数をBoxから読み取り
 
 
 # ------------ ~ pulse_width_bot() ------------------------
-
+# 2022.10.31
 # ---------------- pulse_seq_bot() ------------------------
 def pulse_seq_bot(event):
     """
@@ -2552,176 +2552,176 @@ def pi_window():
     global piWindow
 
     # 複数開かないようにする処理
-    if 'piWindow' in globals():  # piWindowが定義されているか？
+    if 'piWindow' in globals():  # piWindowが定義されているか？ global名前空間にあるシンボルの中にpiwindowが有れば、開かれている。
         if piWindow.winfo_exists() == 1:  # windowが存在するか？
             piWindow.attributes('-topmost', 1)  # トップに固定表示
             piWindow.attributes('-topmost', 0)  # 固定解除
             return
 
     get_winposition()  # メインwindow座標取得
-    piWindow = tkinter.Toplevel(tk)
-    piWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定
-    framepi = tkinter.Frame(piWindow, pady=10, padx=10)
-    framepi.pack(anchor=tkinter.W)
+    piWindow = tkinter.Toplevel(tk)     # mainウィンドウに紐づくサブウインドウとして作成
+    piWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定　上記get_winposition()で取得した座標を指定 ディスプレー左上原点
+    framepi = tkinter.Frame(piWindow, pady=10, padx=10)     # piwindowにフレーム作成
+    framepi.pack(anchor=tkinter.W)  # フレームの配置
 
-    Labelpi_0 = tkinter.Label(framepi, text='<PI 初期設定>', width=labewid_1, anchor='w')
-    Labelpi_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)
+    Labelpi_0 = tkinter.Label(framepi, text='<PI 初期設定>', width=labewid_1, anchor='w')   # 上記フレームにラベル'<PI 初期設定>'作成
+    Labelpi_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)     # ラベルの配置
 
     global Buttonpi_1
-    Buttonpi_1 = tkinter.Button(framepi, text=u'検出初期設定', width=12)
-    Buttonpi_1.bind("<Button-1>", photo_init_bot)
-    Buttonpi_1.grid(row=4, column=0, columnspan=2, sticky=tkinter.W)
+    Buttonpi_1 = tkinter.Button(framepi, text=u'検出初期設定', width=12)      # フレームにボタン'検出初期設定'作成
+    Buttonpi_1.bind("<Button-1>", photo_init_bot)   # マウスの左クリックで　photo_init_bot関数実行
+    Buttonpi_1.grid(row=4, column=0, columnspan=2, sticky=tkinter.W)    # ボタンの配置
 
-    piresult[0] = tkinter.StringVar()
-    char = tkinter.Label(framepi, textvariable=piresult[0], width=8, anchor='w')
-    piresult[0].set('未実施')
-    char.grid(row=4, column=2, columnspan=1)
+    piresult[0] = tkinter.StringVar()   # リストのインデックス[0]に文字列変数設定
+    char = tkinter.Label(framepi, textvariable=piresult[0], width=8, anchor='w')    # テキスト変数に上記変数を渡してラベルの作成
+    piresult[0].set('未実施')  # リストの値に'未実施’指定
+    char.grid(row=4, column=2, columnspan=1)    # 上記ラベルの配置
 
-    Labelpi_2 = tkinter.Label(framepi, text='<PI 位置検出>', width=labewid_1, anchor='w')
-    Labelpi_2.grid(row=5, column=0, columnspan=3, sticky=tkinter.W)
+    Labelpi_2 = tkinter.Label(framepi, text='<PI 位置検出>', width=labewid_1, anchor='w')       # 上記フレームにラベル'<PI 位置検出>'作成
+    Labelpi_2.grid(row=5, column=0, columnspan=3, sticky=tkinter.W)     # ラベルの配置
 
     global Buttonpi_2
-    Buttonpi_2 = tkinter.Button(framepi, text=u'ゼロ位置セット', width=12)
-    Buttonpi_2.bind("<Button-1>", photo_posiset_bot)
-    Buttonpi_2.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)
+    Buttonpi_2 = tkinter.Button(framepi, text=u'ゼロ位置セット', width=12)  # 上記フレームにボタン'ゼロ位置セット'作成
+    Buttonpi_2.bind("<Button-1>", photo_posiset_bot)    # マウスの左クリックで　photo?position_bot関数実行
+    Buttonpi_2.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)    # ボタンの配置
 
-    piresult[1] = tkinter.StringVar()
-    char = tkinter.Label(framepi, textvariable=piresult[1], width=8, anchor='w')
-    piresult[1].set('未実施')
-    char.grid(row=6, column=2, columnspan=1)
+    piresult[1] = tkinter.StringVar()   # リストのインデックス[1]に文字列変数設定
+    char = tkinter.Label(framepi, textvariable=piresult[1], width=8, anchor='w')    # テキスト変数に上記変数を渡してラベルの作成
+    piresult[1].set('未実施')  # リストの値に'未実施’指定
+    char.grid(row=6, column=2, columnspan=1)    # ラベルの配置
 
     global Buttonpi_3
-    Buttonpi_3 = tkinter.Button(framepi, text=u'ゼロ位置確認', width=12)
-    Buttonpi_3.bind("<Button-1>", photo_posicheck_bot)
-    Buttonpi_3.grid(row=7, column=0, columnspan=2, sticky=tkinter.W)
+    Buttonpi_3 = tkinter.Button(framepi, text=u'ゼロ位置確認', width=12)  # 上記framepiにボタン'ゼロ位置確認'作成
+    Buttonpi_3.bind("<Button-1>", photo_posicheck_bot)      # マウスの左クリックで photo_posicheck_bot実行
+    Buttonpi_3.grid(row=7, column=0, columnspan=2, sticky=tkinter.W)    # ボタンの配置
 
-    piresult[2] = tkinter.StringVar()
-    char = tkinter.Label(framepi, textvariable=piresult[2], width=8, anchor='w')
-    piresult[2].set('-----')
-    char.grid(row=7, column=2, columnspan=1)
+    piresult[2] = tkinter.StringVar()   # リストのインデックス[2]に文字列変数設定
+    char = tkinter.Label(framepi, textvariable=piresult[2], width=8, anchor='w')    # テキスト変数に上記変数を渡してラベルの作成
+    piresult[2].set('-----')    # リストの値に'-----’指定
+    char.grid(row=7, column=2, columnspan=1)    # ラベルの配置
 
     global pitxt_res
-    pitxt_res = tkinter.scrolledtext.ScrolledText(framepi, width=25, height=6)
-    pitxt_res.grid(row=4, column=3, rowspan=4, columnspan=1, sticky=tkinter.W)
+    pitxt_res = tkinter.scrolledtext.ScrolledText(framepi, width=25, height=6)  # 上記framepiにスクロールドテキストボックス作成
+    pitxt_res.grid(row=4, column=3, rowspan=4, columnspan=1, sticky=tkinter.W)  # スクロールドテキストボックス配置
 
 
 # Vrsタイミング表示機能window作成
 def vrs_window():
     """
-
+    メインウインドウでVrs回転検出ボタンが押下されたときに開くウインドウの処理
     :return:
     """
     global vrsWindow
 
     # 複数開かないようにする処理
-    if 'vrsWindow' in globals():  # Windowが定義されているか？
-        if vrsWindow.winfo_exists() == 1:  # windowが存在するか？
+    if 'vrsWindow' in globals():  # Windowが定義されているか？ global名前空間にあるシンボルの中にvrswindowが有れば、開かれている。
+        if vrsWindow.winfo_exists() == 1:  # windowが存在するか？ 開かれていればreturn
             vrsWindow.attributes('-topmost', 1)  # トップに固定表示
             vrsWindow.attributes('-topmost', 0)  # 固定解除
             return
 
     get_winposition()  # メインwindow座標取得
-    vrsWindow = tkinter.Toplevel(tk)
-    vrsWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定
+    vrsWindow = tkinter.Toplevel(tk)    # mainウインドウに紐づくサブウインドウとして作成
+    vrsWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定 上記get_winposition()で取得した座標を指定 ディスプレー左上原点
 
-    framevrs = tkinter.Frame(vrsWindow, pady=10, padx=10)
-    framevrs.grid(row=0, column=0, sticky=tkinter.W, columnspan=2)
+    framevrs = tkinter.Frame(vrsWindow, pady=10, padx=10)   # 上記で作成したウインドウにフレームを作成
+    framevrs.grid(row=0, column=0, sticky=tkinter.W, columnspan=2)  # フレームの配置
 
-    Labelvrs_0 = tkinter.Label(framevrs, text='<Vrs 検出Timing>', anchor='w')
-    Labelvrs_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)
+    Labelvrs_0 = tkinter.Label(framevrs, text='<Vrs 検出Timing>', anchor='w')     # フレームframevrsにラベル'<Vrs 検出Timing>'作成
+    Labelvrs_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)    # ラベルの配置
 
     # ラベル配置
-    labelvr1_name = ['Dt区間1 [us]', 'Dt区間2 [us]', 'Dt区間3 [us]', 'Dt区間4 [us]']
-    for x, row in enumerate(labelvr1_name, 0):
-        labelpi_N = tkinter.Label(framevrs, text=row, width=10, anchor='w')
-        labelpi_N.grid(column=0, row=x + 1, sticky=tkinter.W)
+    labelvr1_name = ['Dt区間1 [us]', 'Dt区間2 [us]', 'Dt区間3 [us]', 'Dt区間4 [us]']    # ラベルに記載する内容をリストで作成
+    for x, row in enumerate(labelvr1_name, 0):  # 上記リストの各インデックスと各値を読み出す
+        labelpi_N = tkinter.Label(framevrs, text=row, width=10, anchor='w')     #　読込んだrow値をテキストに渡しラベルの作成
+        labelpi_N.grid(column=0, row=x + 1, sticky=tkinter.W)   # row(行番号)=1～4までラベルの配置
 
-    for x, col in enumerate(vrsdt_name, 0):
-        col = 'vrsdtname' + str(x)
-
-    for x, col in enumerate(vrsdt_array, 0):
-        vrsdt_name[x] = tkinter.Entry(framevrs, width=6)
-        vrsdt_name[x].insert(tkinter.END, col)
-        vrsdt_name[x].grid(column=1, row=x + 1, sticky=tkinter.W)
+    for x, col in enumerate(vrsdt_name, 0):     # リストvrsdt_nameのインデックス0から値をcolに読込む
+        col = 'vrsdtname' + str(x)      # せっかく読込んだcolにインデクスを文字列化し'vrsdtname'に加える
+                                        # 上記で設定したcolなのに以下でまた変更している
+    for x, col in enumerate(vrsdt_array, 0):    # initial_trainで書き換えられたvrsdt_arrayリストをcolに読込む
+        vrsdt_name[x] = tkinter.Entry(framevrs, width=6)    # インデックスx=0~3のEntryをframevrsに作成
+        vrsdt_name[x].insert(tkinter.END, col)  # 上記で作成したEntryにvrsdt_arrayの値を入力する
+        vrsdt_name[x].grid(column=1, row=x + 1, sticky=tkinter.W)   #　各Entry（4つ）を配置する
 
     # 検出パターン
-    framevrs1 = tkinter.LabelFrame(vrsWindow, pady=10, padx=10, text='パターン判定')
-    framevrs1.grid(row=0, column=2, columnspan=5, sticky=tkinter.W)
+    framevrs1 = tkinter.LabelFrame(vrsWindow, pady=10, padx=10, text='パターン判定')  # vrsWindowにラベルフレーム'パターン判定'作成
+    framevrs1.grid(row=0, column=2, columnspan=5, sticky=tkinter.W)     # ラベルフレームの配置
 
-    labelvr2_name = [0] * 16
-    for x, row in enumerate(labelvr2_name, 0):
+    labelvr2_name = [0] * 16    # 16個の値を持つリストを作成
+    for x, row in enumerate(labelvr2_name, 0):  # インデックス0～15まで、値をrowに読込む（この段階で値はオール0）
         labelpi_N = tkinter.Label(framevrs1, text=format(x, '04b'), width=4,
-                                  borderwidth=2, relief="ridge", )
-        if x < 4:
-            labelpi_N.grid(column=3 + 2 * x, row=1, sticky=tkinter.E)
-        elif x < 8:
-            labelpi_N.grid(column=3 + 2 * (x - 4), row=2, sticky=tkinter.E)
-        elif x < 12:
-            labelpi_N.grid(column=3 + 2 * (x - 8), row=3, sticky=tkinter.E)
-        else:
-            labelpi_N.grid(column=3 + 2 * (x - 12), row=4, sticky=tkinter.E)
+                                  borderwidth=2, relief="ridge", )      # フレームframevrs1にラベルのフォーマットを4桁のバイナリとして作成
+        if x < 4:   # インデックスx=0～3
+            labelpi_N.grid(column=3 + 2 * x, row=1, sticky=tkinter.E)   # row=1 column=3,5,7,9に上記のラベルを配置
+        elif x < 8:     # インデックスx=4～7
+            labelpi_N.grid(column=3 + 2 * (x - 4), row=2, sticky=tkinter.E)     # row=2 column=3,5,7,9に上記のラベルを配置
+        elif x < 12:    # インデックスx=7～11
+            labelpi_N.grid(column=3 + 2 * (x - 8), row=3, sticky=tkinter.E)     # row=3 column=3,5,7,9に上記のラベルを配置
+        else:   # インデックスx=8～15
+            labelpi_N.grid(column=3 + 2 * (x - 12), row=4, sticky=tkinter.E)    # row=4 column=3,5,7,9に上記のラベルを配置
 
-    for x, col in enumerate(vrsjdg_name, 0):
-        col = 'vrsjdgname' + str(x)
+    for x, col in enumerate(vrsjdg_name, 0):    # 16個の値を持つリストからインデックスと値を読込む
+        col = 'vrsjdgname' + str(x)     # 上記で読込んだcolだが、ここでインデクス番号を文字列化し'vrsjdgname'に追加して設定される。
 
-    for x, row in enumerate(vrsjdg_array, 0):
-        vrsjdg_name[x] = ttk.Combobox(framevrs1, width=4, state='readonly')  # Combobox作成 書込み禁止設定
-        vrsjdg_name[x]["values"] = ("OK", "NG")
-        vrsjdg_name[x].current(vrsjdg_array[x])  # 初期値
-        if x < 4:
-            vrsjdg_name[x].grid(column=4 + 2 * x, row=1, sticky=tkinter.W)
-        elif x < 8:
-            vrsjdg_name[x].grid(column=4 + 2 * (x - 4), row=2, sticky=tkinter.W)
-        elif x < 12:
-            vrsjdg_name[x].grid(column=4 + 2 * (x - 8), row=3, sticky=tkinter.W)
-        else:
-            vrsjdg_name[x].grid(column=4 + 2 * (x - 12), row=4, sticky=tkinter.W)
+    for x, row in enumerate(vrsjdg_array, 0):   # OK/NGを0/1で表したリストからインデックスと値を読込む
+        vrsjdg_name[x] = ttk.Combobox(framevrs1, width=4, state='readonly')  # Combobox作成 書込み禁止設定 vrsjdg_nameリストの各要素をコンボボックスとする
+        vrsjdg_name[x]["values"] = ("OK", "NG")     # コンボボックスのvaluesオプションにタプル("OK", "NG")を渡す
+        vrsjdg_name[x].current(vrsjdg_array[x])  # 初期値　コンボボックスの初期値としてvrsjdg_arrayの各インデクスに対応する値が設定される
+        if x < 4:   # インデックスx=0～3
+            vrsjdg_name[x].grid(column=4 + 2 * x, row=1, sticky=tkinter.W)      # row=1 column=4,6,8,10に上記のコンボボックスを配置
+        elif x < 8:     # インデックスx=4～7
+            vrsjdg_name[x].grid(column=4 + 2 * (x - 4), row=2, sticky=tkinter.W)    # row=2 column=4,6,8,10に上記のコンボボックスを配置
+        elif x < 12:    # インデックスx=8～11
+            vrsjdg_name[x].grid(column=4 + 2 * (x - 8), row=3, sticky=tkinter.W)    # row=3 column=4,6,8,10に上記のコンボボックスを配置
+        else:   # インデックスx=12～16
+            vrsjdg_name[x].grid(column=4 + 2 * (x - 12), row=4, sticky=tkinter.W)   # row=4 column=4,6,8,10に上記のコンボボックスを配置
 
     # 結果表示テキスト
-    framevrs2 = tkinter.Frame(vrsWindow, pady=10, padx=10)
-    framevrs2.grid(row=2, column=0, columnspan=10, sticky=tkinter.W)
+    framevrs2 = tkinter.Frame(vrsWindow, pady=10, padx=10)      # vrsWindowにフレームframevrs2を作成
+    framevrs2.grid(row=2, column=0, columnspan=10, sticky=tkinter.W)    # 上記フレームを配置
     global vrsres_name
-    vrsres_name = ['Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分', '判定']
-    for x, row in enumerate(vrsres_name, 0):
-        if x == 0 or x == 3 or x == 2:
+    vrsres_name = ['Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分', '判定']  # リストでラベル名を作成
+    for x, row in enumerate(vrsres_name, 0):    # インデクスx=0～3、rowは上記リストの各要素
+        if x == 0 or x == 3 or x == 2:  # 文字数違いでラベルを作成
             labelpi_N = tkinter.Label(framevrs2, text=row, width=10, anchor='w')
         elif x == 1:
             labelpi_N = tkinter.Label(framevrs2, text=row, width=35, anchor='w')
-        else:
+        else:   # この条件はない
             labelpi_N = tkinter.Label(framevrs2, text=row, width=6, anchor='w')
-        if x == 0 or x == 1 or x == 2:
+        if x == 0 or x == 1 or x == 2:  # 'Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分'のみ配置
             labelpi_N.grid(row=0, column=3 * x, columnspan=3, sticky=tkinter.W)
-    for x, row in enumerate(vrsres_name, 0):
-        if x == 0:
-            vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=25, height=15)
-        elif x == 1:
+
+    for x, row in enumerate(vrsres_name, 0):    # インデクスx=0～3、rowはリスト['Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分', '判定']の各要素
+        if x == 0:  # 'Total判定'
+            vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=25, height=15)  # 上記リストの各要素をスクロールドテキストに変更
+        elif x == 1:    # '判定| Pattern| Timing[us]'
             vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=35, height=15)
-        elif x == 3:
+        elif x == 3:    # '判定' これは作成されるが、配置されない
             vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=6, height=15)
-        else:
+        else:   # , 'NG位置| 差分',
             vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=10, height=15)
-        if x == 0 or x == 1 or x == 2:
+        if x == 0 or x == 1 or x == 2:      # 'Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分'のみ配置する
             vrsres_name[x].grid(row=1, column=3 * x, columnspan=3, sticky=tkinter.W)
 
-    Buttonvrs_1 = tkinter.Button(framevrs2, text=u'クリア', width=12, command=vrstext_clear)
-    Buttonvrs_1.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)
+    Buttonvrs_1 = tkinter.Button(framevrs2, text=u'クリア', width=12, command=vrstext_clear)   # フレームframevrs2にボタン'クリア'作成
+    Buttonvrs_1.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)   # 上記ボタンの配置
 
-    Buttonvrs_2 = tkinter.Button(framevrs2, text=u'詳細保存', width=10, command=vrstext_save_manu)
-    Buttonvrs_2.grid(row=6, column=3, columnspan=1, sticky=tkinter.E)
+    Buttonvrs_2 = tkinter.Button(framevrs2, text=u'詳細保存', width=10, command=vrstext_save_manu)  # フレームframevrs2にボタン'詳細保存'作成
+    Buttonvrs_2.grid(row=6, column=3, columnspan=1, sticky=tkinter.E)   # 上記ボタンの配置
 
     global entryvrs_1
-    entryvrs_1 = tkinter.Entry(framevrs2, width=14)
-    entryvrs_1.insert(tkinter.END, 'file name')
-    entryvrs_1.grid(row=6, column=4, columnspan=3, sticky=tkinter.W)
+    entryvrs_1 = tkinter.Entry(framevrs2, width=14)     # フレームframevrs2にEntry作成
+    entryvrs_1.insert(tkinter.END, 'file name')     # Entryの最後に'file name'追記
+    entryvrs_1.grid(row=6, column=4, columnspan=3, sticky=tkinter.W)    # Entryの配置
 
-    Buttonvrs_3 = tkinter.Button(framevrs2, text=u'offset送信', width=8, command=vrsng_phoffset)
-    Buttonvrs_3.grid(row=6, column=6, columnspan=1, sticky=tkinter.E)
+    Buttonvrs_3 = tkinter.Button(framevrs2, text=u'offset送信', width=8, command=vrsng_phoffset)  # フレームramevrs2にボタン'offset送信'作成
+    Buttonvrs_3.grid(row=6, column=6, columnspan=1, sticky=tkinter.E)   # ボタンの配置
 
     global entryvrs_2
-    entryvrs_2 = tkinter.Entry(framevrs2, width=4)
-    entryvrs_2.insert(tkinter.END, '-2')
-    entryvrs_2.grid(row=6, column=7, columnspan=1, sticky=tkinter.W)
-
+    entryvrs_2 = tkinter.Entry(framevrs2, width=4)  # フレームframevrs2にEntry作成
+    entryvrs_2.insert(tkinter.END, '-2')    # Entryの最後に-2を追記
+    entryvrs_2.grid(row=6, column=7, columnspan=1, sticky=tkinter.W)    # 上記Entryの配置
 
 # ---------------- ~ 関数定義 ---------------------------------
 #
