@@ -1510,19 +1510,19 @@ def get_handle():
 # カメラ関係サブルーチン##################
 def find_cam():
     """
-
+    システムに接続されているカメラの検出し、そのデバイスIDを決める
     :return:
     """
     global cam_list
     cam_list = []
-    for camera_number in range(0, 10):
-        capture = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)
-        ret, frame = capture.read()
+    for camera_number in range(0, 10):  # 1台のみだとカメラのデバイスIDは'0'
+        capture = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)    # Direct Showでカメラの設定変更を簡単にできるようになる
+        ret, frame = capture.read() # 画像取り込み、retには成功か失敗かが入り、frameに画像データが取り込まれる。
 
         if ret is True:
-            cam_list.append(camera_number)
+            cam_list.append(camera_number)  # 画像取り込みが成功したcamera_numberをリストに追加
     print(cam_list)
-    cam_no = int(max(cam_list))
+    cam_no = int(max(cam_list)) # リストの最大値のカメラデバイスIDをcam_noとする
 
 
 def disp_cam(event):
@@ -2399,7 +2399,7 @@ def sequence_window():
     label5_21 = tkinter.Label(frame6, textvariable=seq_name, width=15)  #　フレームframe6にラベル（テキスト変数seq_name）を作成
     label5_21.grid(row=i + 3, column=7, columnspan=5)   # i=9なのでrow=12,column=7に上記ラベルを配置
 
-# 2022.10.26
+
 # パルス列設定window作成-------------------------------------------
 def pulsetrain_window(event):
     """
@@ -2465,11 +2465,11 @@ def pulsetrain_window(event):
     Button8_1.bind("<Button-1>", pulse_train_bot)       # マウスの左クリックによりpulse_train_bot実行
     Button8_1.grid(row=20, column=0, columnspan=3, sticky=tkinter.W)    # 上記のボタンの配置
 
-# 2022.10.28
+
 # カメラウィンドウ作成---------------------------------
 def cam_window(event):
     """
-
+    メインウインドウで'カメラ機能'ボタンを押したときに表示されるカメラ機能用ウインドウの作成
     :param event:
     :return:
     """
@@ -2481,44 +2481,45 @@ def cam_window(event):
     global camwindow
 
     # 複数開かないようにする処理
-    if 'camwindow' in globals():  # Windowが定義されているか？
-        if camwindow.winfo_exists() == 1:  # windowが存在するか？
-            camwindow.attributes('-topmost', 1)  # トップに固定表示
+    if 'camwindow' in globals():  # Windowが定義されているか？ global名前空間にあるシンボルの中にcamWindowが有れば、開かれている。
+        if camwindow.winfo_exists() == 1:  # windowが存在するか？ ここで、存在すれば以下を実行してreturn
+            camwindow.attributes('-topmost', 1)  # トップに固定表示　camwindowをTOPに表示。つぎで解除しないと常に最前面表示となる
             camwindow.attributes('-topmost', 0)  # 固定解除
             return
 
-    get_winposition()  # メインwindow座標取得
-    find_cam()
+    get_winposition()  # メインwindow座標取得（y座標は30だけ上　ウインドウのタイトル部分のyサイズを引いてある）
+    find_cam()  # システムに接続されているカメラのデバイスIDを検出
 
-    camwindow = tkinter.Toplevel(tk)
-    camwindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定
-    framecam = tkinter.Frame(camwindow, pady=10, padx=10)
-    framecam.pack(anchor=tkinter.W)
+    camwindow = tkinter.Toplevel(tk)    # mainウィンドウに紐づくサブウインドウとして作成
+    camwindow.geometry('+' + str(xposi) + '+' + str(yposi))  # 上部get_winposition()で取得した座標を指定 ディスプレー左上原点
+    framecam = tkinter.Frame(camwindow, pady=10, padx=10)   # 上記camwindowにフレーム作成
+    framecam.pack(anchor=tkinter.W) # フレームの配置 空きスペース左寄りに配置指定
 
     # Buttoncam_1= tkinter.Button(framecam, text=u'撮影開始', width=12)
     # Buttoncam_1.bind("<Button-1>",disp_cam)
 
-    Buttoncam_2 = tkinter.Button(framecam, text=u'カメラ接続', width=12)
-    Buttoncam_2.bind("<Button-1>", disp_cam)
+    Buttoncam_2 = tkinter.Button(framecam, text=u'カメラ接続', width=12) # ’カメラ接続'のボタン作成
+    Buttoncam_2.bind("<Button-1>", disp_cam)    # マウスの左クリックでdisp_com関数実行指定
 
-    Labelcam_1 = tkinter.Label(framecam, text='Camera No', width=10, anchor='e')
+    Labelcam_1 = tkinter.Label(framecam, text='Camera No', width=10, anchor='e')    # 上記フレームに'Camera No'のラベル作成
     cbcam = ttk.Combobox(framecam, width=2, state='readonly')  # Combobox作成 書込み禁止設定
-    cbcam["values"] = cam_list
-    cbcam.current(cam_no)  # 初期値
+    cbcam["values"] = cam_list  #　上記のコンボボックスの'values'にfind_cam()で検出したカメラリストを渡す。
+    cbcam.current(cam_no)  # 初期値にcam_noを渡す
 
-    Labelcam_4 = tkinter.Label(framecam, text='撮影Delay[ms]:', width=12, anchor='e')
+    Labelcam_4 = tkinter.Label(framecam, text='撮影Delay[ms]:', width=12, anchor='e') # 上記フレームにラベル'撮影Delay[ms]:'作成
     Boxcam_4 = ttk.Combobox(framecam, width=4, state='readonly')  # Combobox作成 書込み禁止設定
-    Boxcam_4["values"] = cam_delaylist
-    Boxcam_4.current(1)  # 初期値
+    Boxcam_4["values"] = cam_delaylist  # 上記のコンボボックスの'values'に[100, 300, 500, 700, 1000]を渡す
+    Boxcam_4.current(1)  # 初期値　300を初期値として設定
 
-    Labelcam_5 = tkinter.Label(framecam, text='撮影step数:', width=10, anchor='e')
-    Boxcam_5 = tkinter.Entry(framecam, width=3)
-    Boxcam_5.insert(tkinter.END, 12)
+    Labelcam_5 = tkinter.Label(framecam, text='撮影step数:', width=10, anchor='e') # 上記フレームに'撮影step数:'ラベル作成
+    Boxcam_5 = tkinter.Entry(framecam, width=3) # Entryを作成
+    Boxcam_5.insert(tkinter.END, 12)    # 上記Entryに12を入力欄の最後に追加
 
-    Labelcam_6 = tkinter.Label(framecam, text='保存名+No(Auto):', width=16, anchor='e')
-    Boxcam_6 = tkinter.Entry(framecam, width=16)
-    Boxcam_6.insert(tkinter.END, 'test')
+    Labelcam_6 = tkinter.Label(framecam, text='保存名+No(Auto):', width=16, anchor='e')    # 上記フレームに'保存名+No(Auto):'ラベル作成
+    Boxcam_6 = tkinter.Entry(framecam, width=16)    # Entryを作成
+    Boxcam_6.insert(tkinter.END, 'test')    # 'test'を入力欄の最後に追加
 
+    # 説明を文字列変数で設定し、ラベルのtextに渡すことで表示
     explain1 = '使い方 [0]key :撮影開始(Pulse出力 Anystep同じ)'
     explain2 = '       [q]key：停止 or Window閉じる　※設定変更はWindow閉じる'
     explain3 = '       [f]or[n]key:Fix Focus 位置変更 far or near　[A]key:Auto Focus機能有効　※対応カメラのみ'
@@ -2526,6 +2527,7 @@ def cam_window(event):
     Expcam_2 = tkinter.Label(framecam, text=explain2, width=96, anchor='w')
     Expcam_3 = tkinter.Label(framecam, text=explain3, width=96, anchor='w')
 
+    # 上記で作成した各ウィジェットの配置指定
     Buttoncam_2.grid(row=0, column=0, columnspan=1)
     Labelcam_1.grid(row=0, column=1, columnspan=1)
     cbcam.grid(row=0, column=2, columnspan=1)
@@ -2544,7 +2546,7 @@ def cam_window(event):
 # フォトインタラプタ機能window作成
 def pi_window():
     """
-
+    シーケンス機能ウィンドウ　フォト検出パルス設定欄の'PI針位置単独'ボタンが押された際のウィンドウ設定処理
     :return:
     """
     global piWindow
