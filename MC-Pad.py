@@ -320,11 +320,13 @@ def pulse_width_bot(event):  # パルス幅/本数をBoxから読み取り
 
 
 # ------------ ~ pulse_width_bot() ------------------------
-# 2022.10.31
+
 # ---------------- pulse_seq_bot() ------------------------
 def pulse_seq_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウの単独実行ボタンを押下で実行される。
+    <単独実行>を<実行中>の表示に変更し、ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_seq、実行処理はpulse_seq_run）を生成し、startさせる
     :param event:
     :return:
     """
@@ -336,7 +338,9 @@ def pulse_seq_bot(event):
 
 def pulse_seqread_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウの設定読込ボタンを押下で実行される。
+    ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_seqread、実行処理はseq_setting）を生成し、startさせる
     :param event:
     :return:
     """
@@ -347,7 +351,9 @@ def pulse_seqread_bot(event):
 
 def pulse_train_bot(event):
     """
-
+    mainウインドウのパルス列設定ボタン押下で表示されるパルス列設定ウインドウの設定読込ボタンを押下で実行される。
+    ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_tr、実行処理はtrain_setting）を生成し、startさせる
     :param event:
     :return:
     """
@@ -358,7 +364,10 @@ def pulse_train_bot(event):
 
 def photo_init_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウのPI針位置単独ボタンを押下で表示される<PI初期設定>ウインドウの
+    検出初期設定ボタンの押下で実行される。
+    ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_phini、実行処理はphoto_init）を生成し、startさせる
     :param event:
     :return:
     """
@@ -369,7 +378,10 @@ def photo_init_bot(event):
 
 def photo_posiset_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウのPI針位置単独ボタンを押下で表示される<PI初期設定>ウインドウの
+    ゼロ位置セットボタンの押下で実行される。
+    ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_phset、実行処理はphoto_posiset_manu）を生成し、startさせる
     :param event:
     :return:
     """
@@ -380,7 +392,10 @@ def photo_posiset_bot(event):
 
 def photo_posicheck_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウのPI針位置単独ボタンを押下で表示される<PI初期設定>ウインドウの
+    ゼロ位置確認ボタンの押下で実行される。
+    ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_phche、実行処理はphoto_posicheck）を生成し、startさせる
     :param event:
     :return:
     """
@@ -391,19 +406,23 @@ def photo_posicheck_bot(event):
 
 def photo_seqtest_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウのスタートボタンの押下で実行される。
+    ボタンを無効化し、ストップボタンを有効化する
+    この関数は、スレッド処理するオブジェクト（=thread_phche、実行処理はseqrun_repeat）を生成し、startさせる
     :param event:
     :return:
     """
     thread_phche = threading.Thread(target=seqrun_repeat)
     Buttonpi2_1.config(state="disable")  # ボタン無効化
-    Buttonpi2_2.config(state="normal")  # ボタン無効化
+    Buttonpi2_2.config(state="normal")  # ボタン有効化
     thread_phche.start()  # スレッド(並列)処理
 
 
 def photo_seqtest_stop_bot(event):
     """
-
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウのストップボタンの押下で実行される。
+    ボタンを無効化する
+    この関数は、スレッド処理するオブジェクト（=thread_phche、実行処理はphoto_seqtest_stop）を生成し、startさせる
     :param event:
     :return:
     """
@@ -411,7 +430,7 @@ def photo_seqtest_stop_bot(event):
     Buttonpi2_2.config(state="disable")  # ボタン無効化
     thread_phche.start()  # スレッド(並列)処理
 
-
+# この関数は使用していない
 def vrs_winset(event):
     """
 
@@ -592,14 +611,14 @@ def vm_write():
 
 def insert_vm(vm_disp):  # UI表示更新
     """
-
+    mainウインドウの<Pulse出力>のVm設定[V]にvm_dispで渡される値を表示する
     :param vm_disp:
     :return:
     """
-    Box4_4.delete(0, tkinter.END)
-    Box4_4.insert(tkinter.END, vm_disp)
+    Box4_4.delete(0, tkinter.END)       # 入力欄の表示すべてクリア
+    Box4_4.insert(tkinter.END, vm_disp)     # vm_dispで渡される値を入力欄の最後に追加
 
-
+# 2022.11.04
 def vm_set():
     """
 
@@ -2387,7 +2406,7 @@ def sequence_window():
     seq_run = tkinter.StringVar()   # widget変数を文字列変数とする
     seq_run.set('単独実行')     # widget変数seq_runに初期文字列をセット
     Button6_1 = tkinter.Button(frame6, textvariable=seq_run, width=12)  # ボタンをそのtextに変数seq_runを渡して表示する
-    Button6_1.bind("<Button-1>", pulse_seq_bot)     # マウスの右クリック操作で実行関数を呼ぶ。その中で、ボタンの表示変更
+    Button6_1.bind("<Button-1>", pulse_seq_bot)     # マウスの左クリック操作で実行関数を呼ぶ。その中で、ボタンの表示変更
     Button6_1.grid(row=i + 3, column=1, columnspan=2)   # このiは上記のfor文の最後のi=9を引き継いでいる　row=12、column=1に配置
     global Button6_2
     Button6_2 = tkinter.Button(frame6, text=u'設定読込', width=12)      # ボタン'設定読込'の作成
@@ -2403,7 +2422,7 @@ def sequence_window():
 # パルス列設定window作成-------------------------------------------
 def pulsetrain_window(event):
     """
-    mainウインドウでパルス設定ボタンを押下した際に開くウィンドウの設定＆表示処理
+    mainウインドウでパルス列設定ボタンを押下した際に開くウィンドウの設定＆表示処理
 
     :param event:
     :return:
