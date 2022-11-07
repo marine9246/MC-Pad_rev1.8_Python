@@ -618,14 +618,14 @@ def insert_vm(vm_disp):  # UI表示更新
     Box4_4.delete(0, tkinter.END)       # 入力欄の表示すべてクリア
     Box4_4.insert(tkinter.END, vm_disp)     # vm_dispで渡される値を入力欄の最後に追加
 
-# 2022.11.04
 def vm_set():
     """
-
+    pulse_set_array[0][Vm_set_n=7]からVmの値をvm_valueに読み込み
+    GUI上のVm設定Entryボックスの値と違えば、Vm設定Entryボックスを書き換える。（min,max制限有り）
     :return:
     """
     global vm_value
-    vm_value = pulse_set_array[0][Vm_set_n]  # pulse_set_arrayに書き込まれたvm値を読み込む
+    vm_value = pulse_set_array[0][Vm_set_n]  # pulse_set_arrayに書き込まれたvm値を読み込む Vm_set_n=7は変？ vm_value=""となっている
     if vm_value != Box4_4.get():  # Vm設定Boxに入力されたVm値と保存されているVm値が異なる場合に処理する。
         if float(Box4_4.get()) < vm_minmum:  # vm最小値未満の場合の処理
             tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_minmum) + 'V以上としてください')
@@ -633,61 +633,63 @@ def vm_set():
         elif float(Box4_4.get()) > vm_maximum:  # vm最大値より大きい場合の処理
             tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_maximum) + 'V以上としてください')  # ここは'以下’の間違い
             insert_vm(vm_maximum)  # vm最大値で書き換える
-        vm_write()
+        vm_write()      # Vm設定Entryボックスの値を読み込み、pulse_set_arrayリストに保存して、Nucleoに送信する
 
 
 def vm_up(step):
     """
-
+    mainウインドウのVm設定stepのEntryボックス内に表示されたステップをVm設定のEntryボックスに表示されているvm_value値に加算し
+    小数点2桁にまるめ、新たにEntyrボックスに表示し、値を更新する
     :param step:
     :return:
     """
     global vm_value
     vm_value = str(round(float(vm_value) + float(step), 2))  # 小数点2桁にしてStr
-    insert_vm(vm_value)
-    vm_set()
+    insert_vm(vm_value)     # 新たにVm設定のEntryボックスに入力する
+    vm_set()    # 新たなvm値に更新
 
 
 # -----------------------------------------------------------------------------------
 # 任意stepパルス出力
 def manual_pulse_out(dire, step):
     """
-
-    :param dire:
-    :param step:
+    mainウインドウ内で<Pulse出力>欄でマニュアルでパルス出力する。
+    関数の引数により、正逆、ステップ数を判断し、nucleoにコマンドとしてシリアル通信する。
+    :param dire:    駆動方向
+    :param step:    駆動ステップ
     :return:
     """
     vm_set()
-    if dire == 0:
-        if step == 1:
+    if dire == 0:   # CW-0 正転
+        if step == 1:   # 1step駆動
             ser.write(b'z')  # シリアル通信:送信 文字の場合はバイト型に変換して送信する　b'文字'
-        elif step == 0:
+        elif step == 0:     # 0であるが、anystepで示されたstep数を実行
             ser.write(b'b')  # シリアル通信:送信
-        elif step == 360:
+        elif step == 360:   # 360step駆動
             ser.write(b'a')  # シリアル通信:送信
-    if dire == 1:
-        if step == 1:
+    if dire == 1:   # CCW-1 逆転
+        if step == 1:   # 1step駆動
             ser.write(b'x')  # シリアル通信:送信
-        elif step == 0:
+        elif step == 0:     # 0であるが、anystepで示されたstep数を実行
             ser.write(b'n')  # シリアル通信:送信
-        elif step == 360:
+        elif step == 360:   # 360step駆動
             ser.write(b's')  # シリアル通信:送信
-    if dire == 2:
+    if dire == 2:   # Pr駆動
         ser.write(b'q')  # シリアル通信:送信
-    if dire == 3:  # CW→CCW往復
-        ser.write(b'n')  # シリアル通信:送信
-        read_serial()
-        ser.write(b'b')  # シリアル通信:送信
+    if dire == 3:  # CCW→CW往復
+        ser.write(b'n')  # シリアル通信:送信 CCW
+        read_serial()   # End!受信
+        ser.write(b'b')  # シリアル通信:送信 CW
     # read_serial()
-    vrstime_print()
-    if stepvm_en.get() == 1:
-        vm_up(Box4_5.get())
+    vrstime_print()     # vrstimeのprint
+    if stepvm_en.get() == 1:    # mainウインドウのVm設定のstepチェックボックスがONなら
+        vm_up(Box4_5.get())     # Vm step　Entry欄のstep値を読み込みVmに増加減する
 
 
 # シーケンス動作実行---------------------------------------
 def pulse_seq_run():
     """
-
+    シーケンス設定ウインドウの<単独実行>ボタンを押下でスレッド処理される
     :return:
     """
     wait_seq = 0.0005
