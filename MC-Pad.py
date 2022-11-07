@@ -685,7 +685,7 @@ def manual_pulse_out(dire, step):
     if stepvm_en.get() == 1:    # mainウインドウのVm設定のstepチェックボックスがONなら
         vm_up(Box4_5.get())     # Vm step　Entry欄のstep値を読み込みVmに増加減する
 
-
+# 2022.11.7
 # シーケンス動作実行---------------------------------------
 def pulse_seq_run():
     """
@@ -693,13 +693,15 @@ def pulse_seq_run():
     :return:
     """
     wait_seq = 0.0005
-    if seq_runopt == 0:
-        read_entry(sequence_name, sequence_array)  # entry値読み出し
-    ser.write(b'5')  # シリアル通信:送信
+    if seq_runopt == 0:     # ???????????????????? 0,1,2があるが内容は不明 ???????????????????????????????????????
+        # sequence_arrayリストの値は、プログラム開始初期に初期値設定されている
+        # sequence_name（入力Entryボックス）はシーケンス設定ウインドウを作成した際に、sequence_arrayから読み込み入力されている
+        read_entry(sequence_name, sequence_array)  # entry値読み出し 　シーケンス設定ウインドウの<動作設定>の各Entryボックス内の値を読込む(sequence_nameボックスの値をsequence_arrayに書き出す)
+    ser.write(b'5')  # シリアル通信:送信 シーケンスセットコマンドをnucleoに送信
     # ser.flush()#コマンド送信完了するまで待機
-    time.sleep(wait_uart)
-    seqset_err = 0
-    for i, row in enumerate(sequence_name, 0):  # 設定書き込み
+    time.sleep(wait_uart)   # 0.5msecウエイト
+    seqset_err = 0  # 0/2 0:OK、2:エラー
+    for i, row in enumerate(sequence_name, 0):  # 設定書き込み i:リストの行番号、row:リストの行の内容
         # read_serial()
         for n in range(3):
             ser.write(bytes(sequence_array[i][n], 'utf-8'))
@@ -2393,9 +2395,9 @@ def sequence_window():
             label6_N.grid(column=x + 1, row=y + 1)  # インデックスx,y=0　column=1~10,row=1に配置
 
     # 入力Box配置
-    for i, row in enumerate(sequence_array, 0): # sequence_array[10×10]のリスト rowに各行を読込む
+    for i, row in enumerate(sequence_array, 0):  # sequence_array[10×10]のリスト rowに各行を読込む
         for n, col in enumerate(row):   # n:sequence_arrayの行rowの各要素をcolに読込む。各行の要素は、'Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm'の値
-            if n < 3 or n == 9: # Entry入力欄の大きさに応じてwidthを変えるためインデックス値で分ける
+            if n < 3 or n == 9:     # Entry入力欄の大きさに応じてwidthを変えるためインデックス値で分ける
                 sequence_name[i][n] = tkinter.Entry(frame6, width=6)    # 'Pulse', 'Step数', 'Freq', 'Vm'の入力欄
             else:
                 sequence_name[i][n] = tkinter.Entry(frame6, width=3)    # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'の入力欄
