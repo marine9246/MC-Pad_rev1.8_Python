@@ -48,7 +48,7 @@ ports = list_ports.comports()  # 接続されているcomポートのリスト�
 # 取得できたportsリストの中から、デバイス名に"STLink"があるデバイスのみを取り出す
 device = [info for info in ports if "STLink" in info.description]  # .descriptionでデバイスの名前を取得出来る
 if not len(device) == 0:  # 上記条件に合う場合、device !=0なので以下の式に入る
-    ser = serial.Serial(device[0].device)  # 名前に"STlink"があるcomポートの設定値を読み込む device[0].deviceはSTlinkがるcomポート番号
+    ser = serial.Serial(device[0].device)  # 名前に"STlink"があるcomポートの設定値を読み込む device[0].deviceはSTlinkがあるcomポート番号
     Com_No = str(device[0])  # リストdeviceの[0]はListPortInfo: COM*-STMicroelectronicsSTLink Virtual COM Port(COM*)
     print(Com_No + ' open')
     ser.baudrate = 921600  # 通信速度の設定変更
@@ -685,7 +685,7 @@ def manual_pulse_out(dire, step):
     if stepvm_en.get() == 1:    # mainウインドウのVm設定のstepチェックボックスがONなら
         vm_up(Box4_5.get())     # Vm step　Entry欄のstep値を読み込みVmに増加減する
 
-# 2022.11.7
+
 # シーケンス動作実行---------------------------------------
 def pulse_seq_run():
     """
@@ -699,12 +699,12 @@ def pulse_seq_run():
         read_entry(sequence_name, sequence_array)  # entry値読み出し 　シーケンス設定ウインドウの<動作設定>の各Entryボックス内の値を読込む(sequence_nameボックスの値をsequence_arrayに書き出す)
     ser.write(b'5')  # シリアル通信:送信 シーケンスセットコマンドをnucleoに送信
     # ser.flush()#コマンド送信完了するまで待機
-    time.sleep(wait_uart)   # 0.5msecウエイト
+    time.sleep(wait_uart)   # 5msecウエイト
     seqset_err = 0  # 0/2 0:OK、2:エラー
-    for i, row in enumerate(sequence_name, 0):  # 設定書き込み i:リストの行番号、row:リストの行の内容
+    for i, row in enumerate(sequence_name, 0):  # 設定書き込み i:リストの行番号、row:リストの行の内容 ここまでで、sequence_nameの値とsequence_arrayの値は同じ
         # read_serial()
         for n in range(3):
-            ser.write(bytes(sequence_array[i][n], 'utf-8'))
+            ser.write(bytes(sequence_array[i][n], 'utf-8')) # ST_Linkのシリアル通信でpulse、step数、Freqまでを送信
             ser.write(b'\r')
             # read_serial()
             time.sleep(wait_seq)
