@@ -704,55 +704,55 @@ def pulse_seq_run():
     for i, row in enumerate(sequence_name, 0):  # 設定書き込み i:リストの行番号、row:リストの行の内容 ここまでで、sequence_nameの値とsequence_arrayの値は同じ
         # read_serial()
         for n in range(3):
-            ser.write(bytes(sequence_array[i][n], 'utf-8')) # ST_Linkのシリアル通信でpulse、step数、Freqまでを送信
-            ser.write(b'\r')
+            ser.write(bytes(sequence_array[i][n], 'utf-8'))  # ST_Linkのシリアル通信でn=0～2（pulse、step数、Freq)までを送信
+            ser.write(b'\r')    # return送信
             # read_serial()
-            time.sleep(wait_seq)
-            if n < 2:
-                ser.write(b'0\r')  # M1設定は0
+            time.sleep(wait_seq)    # 0.5msecウエイト
+            if n < 2:       # pulse,step数までなら
+                ser.write(b'0\r')  # M1設定は0 MC_PadはM0のみなので、Nucleoにpulseとstep数のM1分を0として送信する
                 # read_serial()
                 time.sleep(wait_seq)
         mode = 0b000000
         for n in range(6):  # option書込み
             # print(sequence_array[i][n+3])
-            if sequence_array[i][n + 3] == '1':
-                mode = mode | (2 ** n)
-                # print(mode)
-        ser.write(bytes(str(mode), 'utf-8'))
-        ser.write(b'\r')
+            if sequence_array[i][n + 3] == '1':     # n+3=3～8 Trig,逆極,Vrs,補正P,Pe,50msのモードビットに'1'セット
+                mode = mode | (2 ** n)      # 2^nでLSBからモードビットを立てる この場合、上記と各モードビットの並びは逆LSBがTrig
+                 # print(mode)
+        ser.write(bytes(str(mode), 'utf-8'))    # 上記までで、pulse,step数,Freq,を送っているので続けてmode(6bit分)を送る
+        ser.write(b'\r')    # return送信
         # read_serial()
         time.sleep(wait_seq)
         # 電圧設定書込み
-        if float(sequence_array[i][9]) < 0.8:  # 電圧下限チェック
-            sequence_array[i][9] = 0.8
+        if float(sequence_array[i][9]) < 0.8:  # sequence_array[i][9]=Vm：電圧下限チェック
+            sequence_array[i][9] = 0.8      # 強制的に0.8設定
             if int(sequence_array[i][1]) != 0:  # step設定が0stepならエラーにしない
-                seqset_err = 2
+                seqset_err = 2                  # step設定が0step以外なら、エラーにする
         elif float(sequence_array[i][9]) > 4.0:  # 電圧上限チェック
-            sequence_array[i][9] = 4.0
+            sequence_array[i][9] = 4.0          # 強制的に4.0にする
             if int(sequence_array[i][1]) != 0:  # step設定が0stepならエラーにしない
-                seqset_err = 2
+                seqset_err = 2                  # step設定が0step以外なら、エラーにする
         # print(seqset_err)
-        ser.write(bytes(str(sequence_array[i][9]), 'utf-8'))
-        ser.write(b'\r')
-        read_serial()
+        ser.write(bytes(str(sequence_array[i][9]), 'utf-8'))    # 上記までで、modeまで送っているから続けて電圧Vmを送る
+        ser.write(b'\r')        # return送信
+        read_serial()       # 送信したデータをNucleoから読込む
     while 1:
-        resp_str = read_serial2()
-        if (resp_str == 'End!'):
+        resp_str = read_serial2()       # 警告処理付きの読み込み処理を行って
+        if (resp_str == 'End!'):        # 'End!'が帰れば正常なので処理を抜ける
             break
-    if seqset_err == 0:
+    if seqset_err == 0:     # エラー無しの処理
         ser.write(b'9')  # シリアル通信　シーケンススタート
         # read_serial()
         vrstime_print()
-    elif seqset_err == 2:
+    elif seqset_err == 2:   # 電圧設定でエラーのある場合の処理
         tkinter.messagebox.showerror('エラー', '電圧設定は0.8~4Vにしてください')
 
-    if seq_runopt == 0:
-        manual_pulse_set()
-        vm_write()
+    if seq_runopt == 0:     # この変数の内容は不明、シーケンスrunオプション 0:通常？,1:Photo位置検出用シーケンス,2：？
+        manual_pulse_set()  # mainウインドウ内の<Pulse設定>の値をNucleoに送信
+        vm_write()          # mainウインドウ内のVm設定値をNucleoに送信
     Button6_1.config(state="normal")  # ボタン有効化
     seq_run.set('単独実行')  # ボタン表示変更
 
-
+# 2022.11.14
 def seqrange_output(cnt, test_cnt, save):
     """
 
