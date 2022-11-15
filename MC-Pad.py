@@ -708,8 +708,8 @@ def pulse_seq_run():
             ser.write(b'\r')    # return送信
             # read_serial()
             time.sleep(wait_seq)    # 0.5msecウエイト
-            if n < 2:       # pulse,step数までなら
-                ser.write(b'0\r')  # M1設定は0 MC_PadはM0のみなので、Nucleoにpulseとstep数のM1分を0として送信する
+            if n < 2:       # Nucleo側は、パルス（M0,M1）、step数（M0,M1）、Freq（これはwait[us]とし定義されている）、パルスオプションの順で受け付ける
+                ser.write(b'0\r')  # MC_PadはM0のみなので、Nucleoにpulseとstep数のM1分を0として送信する
                 # read_serial()
                 time.sleep(wait_seq)
         mode = 0b000000
@@ -732,7 +732,7 @@ def pulse_seq_run():
             if int(sequence_array[i][1]) != 0:  # step設定が0stepならエラーにしない
                 seqset_err = 2                  # step設定が0step以外なら、エラーにする
         # print(seqset_err)
-        ser.write(bytes(str(sequence_array[i][9]), 'utf-8'))    # 上記までで、modeまで送っているから続けて電圧Vmを送る
+        ser.write(bytes(str(sequence_array[i][9]), 'utf-8'))    # 上記までで、modeまで送っているから続けて電圧Vmを送る（Nucleoのsequence_set関数ではVmまで入力する）
         ser.write(b'\r')        # return送信
         read_serial()       # 送信したデータをNucleoから読込む
     while 1:
@@ -752,7 +752,7 @@ def pulse_seq_run():
     Button6_1.config(state="normal")  # ボタン有効化
     seq_run.set('単独実行')  # ボタン表示変更
 
-# 2022.11.14
+# 2022.11.15
 def seqrange_output(cnt, test_cnt, save):
     """
 
