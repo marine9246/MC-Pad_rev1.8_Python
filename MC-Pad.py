@@ -1021,7 +1021,7 @@ def seqrange_run():
     Buttonpi2_1.config(state="normal")  # ボタン有効化
     Buttonpi2_2.config(state="disable")  # ボタン無効化
 
-
+# 2022.11.16
 def seq_run_vm(test_cnt):
     """
     電圧可変テスト？
@@ -1030,32 +1030,32 @@ def seq_run_vm(test_cnt):
     """
     global seq_runopt
     global vm_test
-
-    vm_test = round(piset_value_array[0][0], 2)
+                                                    # [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
+    vm_test = round(piset_value_array[0][0], 2)     # 小数点2桁以下を四捨五入 電圧範囲のStart電圧
 
     cnt = 0
     posiset_flag = 1
-    if seq_jdge_array[0].get() == 1:  # フォト判定が有効だったら
+    if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
         posiset_flag = 0
     while 1:
-        for i, col in enumerate(sequence_array, 0):
-            sequence_array[i][9] = vm_test
-        piseq_res.insert('end', str('{:.2f}'.format(vm_test)) + "V")  # 小数点以下3桁で表示
-        insert_vm(str('{:.2f}'.format(vm_test)))
+        for i, col in enumerate(sequence_array, 0):     # シーケンス設定配列データの読み込み
+            sequence_array[i][9] = vm_test      # [i][9]は、Vm　これに上記のStart電圧を代入
+        piseq_res.insert('end', str('{:.2f}'.format(vm_test)) + "V")  # 小数点以下2桁で表示　<シーケンス設定>のスクロールテキストBoxに挿入
+        insert_vm(str('{:.2f}'.format(vm_test)))    # mainウインドウ<Pulse出力>のVm入力欄にvm_test値を小数点以下2桁で入力表示させる
 
         # フォト判定　基準位置検出
-        if seq_jdge_array[0].get() == 1:  # フォト判定が有効だったら
-            if 'OK' in piresult[2].get():
+        if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
+            if 'OK' in piresult[2].get():   # piresult[2]に'OK'が有れば
                 # if piresult[2].get() == 'OK':
                 posiset_flag = 1
-            else:
+            else:   # piresult[2]に'OK'が無ければ
                 posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット position_flag=1,cnt=0~,test_cnt=0
 
         if posiset_flag == 1:
             pulse_seq_run()  # シーケンス動作実行
 
         if posiset_flag == 1:
-            if seq_jdge_array[0].get() == 1:  # フォト判定が有効だったら
+            if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
                 posiset_flag = photo_seq_check(cnt, test_cnt)  # 位置確認
             seqrange_output(cnt, test_cnt, 0)  # 結果保存用リスト作成 cnt=0~, test_cnt=0
             if posiset_flag == 2:
