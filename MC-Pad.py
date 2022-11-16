@@ -752,13 +752,13 @@ def pulse_seq_run():
     Button6_1.config(state="normal")  # ボタン有効化
     seq_run.set('単独実行')  # ボタン表示変更
 
-# 2022.11.15
+
 def seqrange_output(cnt, test_cnt, save):
     """
 
     :param cnt:
     :param test_cnt:
-    :param save:
+    :param save: 0：結果保存用リスト作成,1：動作MAPファイル保存,2：Vrs詳細ファイル保存,3：同じ時の実行結果を保存
     :return:
     """
     global result_data
@@ -996,8 +996,8 @@ def seqrange_run():
                     result_data[0][test_cnt+1]=wid_test#ファイル書込み用
                     result_data[1][test_cnt+1]=freq_test#ファイル書込み用          
                     '''
-                    seq_run_vm(test_cnt)  # 電圧可変テスト
-                    test_cnt += 1
+                    seq_run_vm(test_cnt)  # 電圧可変テスト　test_cnt=0でコール
+                    test_cnt += 1       # test_cnt=1
 
                     freq_test = freq_test + int(piset_value_array[2][2])
                     if seq_runopt == 2 or piset_value_array[2][2] == str(0) or seq_jdge_array[3].get() == 1:
@@ -1006,9 +1006,9 @@ def seqrange_run():
                 if seq_runopt == 2 or piset_value_array[1][2] == str(0):
                     wid_test = float(piset_value_array[1][1]) + 1
 
-        seqrange_output(0, test_cnt, 1)  # 動作MAPファイル保存
+        seqrange_output(0, test_cnt, 1)  # 動作MAPファイル保存 test_cnt=1
 
-    seqrange_output(0, test_cnt, 2)  # Vrs詳細ファイル保存(Rename)
+    seqrange_output(0, test_cnt, 2)  # Vrs詳細ファイル保存(Rename) test_cnt=1
     for i, col in enumerate(sequence_array, 0):  # 電圧を初期値に
         sequence_array[i][9] = round(piset_value_array[0][0], 2)
     insert_entry(sequence_name, sequence_array)
@@ -1024,8 +1024,8 @@ def seqrange_run():
 
 def seq_run_vm(test_cnt):
     """
-
-    :param test_cnt:
+    電圧可変テスト？
+    :param test_cnt: 0のみでコール
     :return:
     """
     global seq_runopt
@@ -1049,7 +1049,7 @@ def seq_run_vm(test_cnt):
                 # if piresult[2].get() == 'OK':
                 posiset_flag = 1
             else:
-                posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット
+                posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット position_flag=1,cnt=0~,test_cnt=0
 
         if posiset_flag == 1:
             pulse_seq_run()  # シーケンス動作実行
@@ -1057,7 +1057,7 @@ def seq_run_vm(test_cnt):
         if posiset_flag == 1:
             if seq_jdge_array[0].get() == 1:  # フォト判定が有効だったら
                 posiset_flag = photo_seq_check(cnt, test_cnt)  # 位置確認
-            seqrange_output(cnt, test_cnt, 0)  # 結果保存用リスト作成
+            seqrange_output(cnt, test_cnt, 0)  # 結果保存用リスト作成 cnt=0~, test_cnt=0
             if posiset_flag == 2:
                 piseq_res.insert('end', "\n")
                 break
