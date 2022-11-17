@@ -1021,38 +1021,43 @@ def seqrange_run():
     Buttonpi2_1.config(state="normal")  # ボタン有効化
     Buttonpi2_2.config(state="disable")  # ボタン無効化
 
-# 2022.11.16
+
 def seq_run_vm(test_cnt):
     """
-    電圧可変テスト？
+    電圧可変テスト？ seqrange_run関数からのみコールされる
+    ・mainウインドウからシーケンス機能ボタン押下で表示されるシーケンスウインドウの<シーケンス設定>欄の電圧範囲Start電圧値を読みとり、
+    スクロールドtextBoxの表示
+    ・
+
     :param test_cnt: 0のみでコール
     :return:
     """
     global seq_runopt
     global vm_test
-                                                    # [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
-    vm_test = round(piset_value_array[0][0], 2)     # 小数点2桁以下を四捨五入 電圧範囲のStart電圧
+                                                    # piset_value_array [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
+    vm_test = round(piset_value_array[0][0], 2)     # 電圧範囲のStart電圧 小数点2桁以下を四捨五入
 
     cnt = 0
-    posiset_flag = 1
-    if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
-        posiset_flag = 0
+    posiset_flag = 1                    # 位置セットフラグON
+    if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト検出判定が有効だったら
+        posiset_flag = 0                # フォト検出判定有効なら、位置セットフラグOFFする(フォト検出でOKが出たら、位置セットフラグをONする)
+
     while 1:
-        for i, col in enumerate(sequence_array, 0):     # シーケンス設定配列データの読み込み
+        for i, col in enumerate(sequence_array, 0):     # シーケンス設定ウインドウの<動作設定>欄のシーケンス設定配列データの読み込み
             sequence_array[i][9] = vm_test      # [i][9]は、Vm　これに上記のStart電圧を代入
-        piseq_res.insert('end', str('{:.2f}'.format(vm_test)) + "V")  # 小数点以下2桁で表示　<シーケンス設定>のスクロールテキストBoxに挿入
+        piseq_res.insert('end', str('{:.2f}'.format(vm_test)) + "V")  # <シーケンス設定>のスクロールテキストBox（piseq_res)に挿入、小数点以下2桁で表示　
         insert_vm(str('{:.2f}'.format(vm_test)))    # mainウインドウ<Pulse出力>のVm入力欄にvm_test値を小数点以下2桁で入力表示させる
 
         # フォト判定　基準位置検出
         if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
-            if 'OK' in piresult[2].get():   # piresult[2]に'OK'が有れば
+            if 'OK' in piresult[2].get():   # piresult[2](ゼロ位置確認）に'OK'が有れば
                 # if piresult[2].get() == 'OK':
-                posiset_flag = 1
-            else:   # piresult[2]に'OK'が無ければ
+                posiset_flag = 1        # 位置セットフラグをONする。
+            else:   # piresult[2](ゼロ位置確認）に'OK'が無ければ
                 posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット position_flag=1,cnt=0~,test_cnt=0
 
-        if posiset_flag == 1:
-            pulse_seq_run()  # シーケンス動作実行
+        if posiset_flag == 1:   # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
+            pulse_seq_run()  # フォトインタプラ準備OKならシーケンス動作実行
 
         if posiset_flag == 1:
             if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
