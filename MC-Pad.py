@@ -1058,7 +1058,7 @@ def seq_run_vm(test_cnt):
 
         if posiset_flag == 1:   # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
             pulse_seq_run()  # フォトインタプラ準備OKならシーケンス動作実行
-
+# 2022.11.17
         if posiset_flag == 1:
             if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
                 posiset_flag = photo_seq_check(cnt, test_cnt)  # 位置確認
