@@ -1054,35 +1054,35 @@ def seq_run_vm(test_cnt):
                 # if piresult[2].get() == 'OK':
                 posiset_flag = 1        # 位置セットフラグをONする。
             else:   # piresult[2](ゼロ位置確認）に'OK'が無ければ
-                posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット position_flag=1,cnt=0~,test_cnt=0
+                posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット position_flag=0,cnt=0~,test_cnt=0
 
         if posiset_flag == 1:   # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
             pulse_seq_run()  # フォトインタプラ準備OKならシーケンス動作実行
-# 2022.11.17
-        if posiset_flag == 1:
+
+        if posiset_flag == 1:   # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
             if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
                 posiset_flag = photo_seq_check(cnt, test_cnt)  # 位置確認
             seqrange_output(cnt, test_cnt, 0)  # 結果保存用リスト作成 cnt=0~, test_cnt=0
-            if posiset_flag == 2:
-                piseq_res.insert('end', "\n")
+            if posiset_flag == 2:   # このフラグは0～2まであるが、不明 (2:フォトNGで停止のチェックボックスが有効で、フォト検出NGの場合セット？)
+                piseq_res.insert('end', "\n")   # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
                 break
-        piseq_res.insert('end', "\n")
-        piseq_res.see("end")
-        vm_test = round(vm_test + piset_value_array[0][2], 2)
-        if piset_value_array[0][2] > 0:
-            if piset_value_array[0][1] < vm_test:
+        piseq_res.insert('end', "\n")   # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
+        piseq_res.see("end")    # <シーケンス設定>のスクロールテキストBoxを末尾までスクロールして表示させる
+        vm_test = round(vm_test + piset_value_array[0][2], 2)   # 読込んだ初期電圧+Step電圧 小数点2桁以下を四捨五入
+        if piset_value_array[0][2] > 0:     # Step電圧が正なら
+            if piset_value_array[0][1] < vm_test:   # Stop電圧が新たなvm_testより小なら
                 break
-        if piset_value_array[0][2] < 0:
-            if piset_value_array[0][1] > vm_test:
+        if piset_value_array[0][2] < 0:     # step電圧が負なら
+            if piset_value_array[0][1] > vm_test:   # Stop電圧が新たなvm_testより大なら
                 break
 
-        if seq_runopt == 2:
-            piseq_res.insert('end', "途中終了\n")
-            piseq_res.see("end")
+        if seq_runopt == 2:     # この変数は0～2だが内容不明　
+            piseq_res.insert('end', "途中終了\n")   # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
+            piseq_res.see("end")    # <シーケンス設定>のスクロールテキストBoxを末尾までスクロールして表示させる
             break
         cnt += 1
 
-
+# 2022.11.25
 # エントリーBoxに書込み--------------------------------------------
 def insert_entry(name, array):
     """
