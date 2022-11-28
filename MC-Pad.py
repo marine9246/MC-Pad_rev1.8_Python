@@ -93,7 +93,7 @@ vm_maximum = 4.0  # 電圧設定上限
 focus = 500
 
 pulse_type = 7  # パルス種
-pulse_wid_name = [  # パルス幅Entry配置名前
+pulse_wid_name = [  # パルス幅Entry配置名前 この要素がEntryボックス
     ['wid0_A', 'wid0_B', 'wid0_C', 'wid0_D', 'wid0_E', 'wid0_F'],
     ['wid1_A', 'wid1_B', 'wid1_C', 'wid1_D', 'wid1_E', 'wid1_F'],
     ['wid2_A', 'wid2_B', 'wid2_C', 'wid2_D', 'wid2_E', 'wid2_F'],
@@ -102,7 +102,7 @@ pulse_wid_name = [  # パルス幅Entry配置名前
     ['wid5_A', 'wid5_B', 'wid5_C', 'wid5_D', 'wid5_E', 'wid5_F'],
     ['wid6_A', 'wid6_B', 'wid6_C', 'wid6_D', 'wid6_E', 'wid6_F'], ]
 
-pulse_num_name = [  # パルス本数Entry配置名前
+pulse_num_name = [  # パルス本数Entry配置名前　この要素がEntryボックス
     ['num0_A', 'num0_B', 'num0_C', 'num0_D', 'num0_E', 'num0_F'],
     ['num1_A', 'num1_B', 'num1_C', 'num1_D', 'num1_E', 'num1_F'],
     ['num2_A', 'num2_B', 'num2_C', 'num2_D', 'num2_E', 'num2_F'],
@@ -129,7 +129,7 @@ pulse_train_array_name = [["","","","","","","","","","","",""], 行番号0
                           ["","","","","","","","","","","",""], 行番号1
                           .-------- row 行内容 ----------------
                           .
-                          ["","","","","","","","","","","",""]] 行番号7
+                          ["","","","","","","","","","","",""]] 行番号6
 """
 for i, row in enumerate(pulse_train_array_name, 0):  # i=行番号、row=行内容 上記リストのインデックスがi、値がrow
     for n, col in enumerate(row):  # n=列番号、col=列内容 上記rowのインデックスがn、値がcol
@@ -1082,21 +1082,22 @@ def seq_run_vm(test_cnt):
             break
         cnt += 1
 
-# 2022.11.25
+
 # エントリーBoxに書込み--------------------------------------------
 def insert_entry(name, array):
     """
-
-    :param name:
-    :param array:
+    ・mainウインドウの<Pulse幅[us]/本数>欄のEntryボックスに値を書き込む
+    ・シーケンス設定ウインドウの<シーケンス設定>欄および<動作設定>欄のEntryボックスに値を書き込む
+    :param name:　書き込むEntryボックスの指定 pulse_wid_name/pulse_num_name/sequence_name/piset_value_name[:3]
+    :param array:　書き込むデータの指定 pulse_width_array/pulse_num_array/sequence_array/piset_value_array
     :return:
     """
-    for i, row in enumerate(name, 0):
-        for n, col in enumerate(row):
-            col.delete(0, tkinter.END)
-            col.insert(tkinter.END, array[i][n])
+    for i, row in enumerate(name, 0):   # i=0～、row：各Entryボックスの配列の行データ（Entry1、Entry2、・・・Entryn)
+        for n, col in enumerate(row):   # n=0～、col:各EntryボックスEntry1、Entry2
+            col.delete(0, tkinter.END)  # 各Entryボックス内の表示されているデータのクリア
+            col.insert(tkinter.END, array[i][n])    # i,nで示す書き込みデータをEntryボックスに挿入する
 
-
+# 2022.11.28
 def insert_train():
     """
 
