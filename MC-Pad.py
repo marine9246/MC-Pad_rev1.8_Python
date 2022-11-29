@@ -1127,48 +1127,50 @@ def set_checkbox(name, array):
     :return:
     """
     for x, col in enumerate(array, 0):
-        name[x].set(array[x])       # colにarrayの要素を読み込むが、直接チェックボックスのBooleanVar()にセットする
+        name[x].set(array[x])       # colにarrayの要素を読み込むが、直接name[x]=チェックボックスのBooleanVar()にセットする
 
     # ファイル書込み-------------------
 
 
 def csv_write(array, folder, fname, mode):  # mode:w=新規、a=追記
     """
+    folder、fnameで指定されたファイルへarray（listデータ）の値を書き込んで保存する
 
-    :param array:
-    :param folder:
-    :param fname:
-    :param mode:
+    :param array: ファイルへ書き込むlistデータ
+    :param folder:  ファイルのあるフォルダ
+    :param fname: ファイルname
+    :param mode: 書き込みモード　新規/追記
     :return:
     """
     # now = datetime.datetime.now()
-    with open(os.getcwd() + '/' + folder + '/' + fname + '.csv', mode, newline="") as f:
-        writer = csv.writer(f)
-        writer.writerows(array)
+    with open(os.getcwd() + '/' + folder + '/' + fname + '.csv', mode, newline="") as f:    # カレントDIRの指定フォルダにcsvファイルをOPEN　windowsではnewline=""必要
+        writer = csv.writer(f)  # 上記OPENしたファイルオブジェクトを作成
+        writer.writerows(array)     # ファイルオブジェクトにarrayで示されるデータlistを1行毎に書き込む
 
 
 # ファイル読み込み-----------------------------------------------
 def filepath_get(name, setting):  # setting 0:1ファイル、1:複数ファイル
     """
+    nameを含むファイル（複数も含む）のパスを取得する
 
-    :param name:
-    :param setting:
-    :return:
+    :param name:    ファイルネームに含まれる名前
+    :param setting: 複数ファイルか単数か指定
+    :return:    ファイル（複数含む）のパス
     """
     # global  filepath
     # 選択候補を拡張子jpgに絞る（絞らない場合は *.jpg → *）
-    filetype = [("", "*" + name + "*.xlsx")]
-    dirpath = os.getcwd()  # os.path.dirname(__file__)#''
+    filetype = [("", "*" + name + "*.xlsx")]    # ファイル拡張子およびファイルのフィルタリング指定
+    dirpath = os.getcwd()  # os.path.dirname(__file__)#''   # カレントDIRの取得
     # print(dirpath)
 
     # 選択したファイルのパスを取得
-    if setting == 1:
+    if setting == 1:    # 複数ファイルの場合
         filepath = tkinter.filedialog.askopenfilenames(filetypes=filetype, initialdir=dirpath)
-    else:
+    else:               # 単一ファイルの場合
         filepath = tkinter.filedialog.askopenfilename(filetypes=filetype, initialdir=dirpath)
-    return filepath
+    return filepath     # ファイルパスをreturn
 
-
+# 2022.11.29
 def pulse_reading(event):
     """
 
