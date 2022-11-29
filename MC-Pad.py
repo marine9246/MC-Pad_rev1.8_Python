@@ -430,6 +430,7 @@ def photo_seqtest_stop_bot(event):
     Buttonpi2_2.config(state="disable")  # ボタン無効化
     thread_phche.start()  # スレッド(並列)処理
 
+
 # この関数は使用していない
 def vrs_winset(event):
     """
@@ -615,8 +616,9 @@ def insert_vm(vm_disp):  # UI表示更新
     :param vm_disp:
     :return:
     """
-    Box4_4.delete(0, tkinter.END)       # 入力欄の表示すべてクリア
-    Box4_4.insert(tkinter.END, vm_disp)     # vm_dispで渡される値を入力欄の最後に追加
+    Box4_4.delete(0, tkinter.END)  # 入力欄の表示すべてクリア
+    Box4_4.insert(tkinter.END, vm_disp)  # vm_dispで渡される値を入力欄の最後に追加
+
 
 def vm_set():
     """
@@ -633,7 +635,7 @@ def vm_set():
         elif float(Box4_4.get()) > vm_maximum:  # vm最大値より大きい場合の処理
             tkinter.messagebox.showerror('エラー', 'Vmは' + str(vm_maximum) + 'V以上としてください')  # ここは'以下’の間違い
             insert_vm(vm_maximum)  # vm最大値で書き換える
-        vm_write()      # Vm設定Entryボックスの値を読み込み、pulse_set_arrayリストに保存して、Nucleoに送信する
+        vm_write()  # Vm設定Entryボックスの値を読み込み、pulse_set_arrayリストに保存して、Nucleoに送信する
 
 
 def vm_up(step):
@@ -645,8 +647,8 @@ def vm_up(step):
     """
     global vm_value
     vm_value = str(round(float(vm_value) + float(step), 2))  # 小数点2桁にしてStr
-    insert_vm(vm_value)     # 新たにVm設定のEntryボックスに入力する
-    vm_set()    # 新たなvm値に更新
+    insert_vm(vm_value)  # 新たにVm設定のEntryボックスに入力する
+    vm_set()  # 新たなvm値に更新
 
 
 # -----------------------------------------------------------------------------------
@@ -660,30 +662,30 @@ def manual_pulse_out(dire, step):
     :return:
     """
     vm_set()
-    if dire == 0:   # CW-0 正転
-        if step == 1:   # 1step駆動
+    if dire == 0:  # CW-0 正転
+        if step == 1:  # 1step駆動
             ser.write(b'z')  # シリアル通信:送信 文字の場合はバイト型に変換して送信する　b'文字'
-        elif step == 0:     # 0であるが、anystepで示されたstep数を実行
+        elif step == 0:  # 0であるが、anystepで示されたstep数を実行
             ser.write(b'b')  # シリアル通信:送信
-        elif step == 360:   # 360step駆動
+        elif step == 360:  # 360step駆動
             ser.write(b'a')  # シリアル通信:送信
-    if dire == 1:   # CCW-1 逆転
-        if step == 1:   # 1step駆動
+    if dire == 1:  # CCW-1 逆転
+        if step == 1:  # 1step駆動
             ser.write(b'x')  # シリアル通信:送信
-        elif step == 0:     # 0であるが、anystepで示されたstep数を実行
+        elif step == 0:  # 0であるが、anystepで示されたstep数を実行
             ser.write(b'n')  # シリアル通信:送信
-        elif step == 360:   # 360step駆動
+        elif step == 360:  # 360step駆動
             ser.write(b's')  # シリアル通信:送信
-    if dire == 2:   # Pr駆動
+    if dire == 2:  # Pr駆動
         ser.write(b'q')  # シリアル通信:送信
     if dire == 3:  # CCW→CW往復
         ser.write(b'n')  # シリアル通信:送信 CCW
-        read_serial()   # End!受信
+        read_serial()  # End!受信
         ser.write(b'b')  # シリアル通信:送信 CW
     # read_serial()
-    vrstime_print()     # vrstimeのprint
-    if stepvm_en.get() == 1:    # mainウインドウのVm設定のstepチェックボックスがONなら
-        vm_up(Box4_5.get())     # Vm step　Entry欄のstep値を読み込みVmに増加減する
+    vrstime_print()  # vrstimeのprint
+    if stepvm_en.get() == 1:  # mainウインドウのVm設定のstepチェックボックスがONなら
+        vm_up(Box4_5.get())  # Vm step　Entry欄のstep値を読み込みVmに増加減する
 
 
 # シーケンス動作実行---------------------------------------
@@ -693,62 +695,65 @@ def pulse_seq_run():
     :return:
     """
     wait_seq = 0.0005
-    if seq_runopt == 0:     # ???????????????????? 0,1,2があるが内容は不明 ???????????????????????????????????????
+    if seq_runopt == 0:  # ???????????????????? 0,1,2があるが内容は不明 ???????????????????????????????????????
         # sequence_arrayリストの値は、プログラム開始初期に初期値設定されている
         # sequence_name（入力Entryボックス）はシーケンス設定ウインドウを作成した際に、sequence_arrayから読み込み入力されている
-        read_entry(sequence_name, sequence_array)  # entry値読み出し 　シーケンス設定ウインドウの<動作設定>の各Entryボックス内の値を読込む(sequence_nameボックスの値をsequence_arrayに書き出す)
+        read_entry(sequence_name,
+                   sequence_array)  # entry値読み出し 　シーケンス設定ウインドウの<動作設定>の各Entryボックス内の値を読込む(sequence_nameボックスの値をsequence_arrayに書き出す)
     ser.write(b'5')  # シリアル通信:送信 シーケンスセットコマンドをnucleoに送信
     # ser.flush()#コマンド送信完了するまで待機
-    time.sleep(wait_uart)   # 5msecウエイト
+    time.sleep(wait_uart)  # 5msecウエイト
     seqset_err = 0  # 0/2 0:OK、2:エラー
-    for i, row in enumerate(sequence_name, 0):  # 設定書き込み i:リストの行番号、row:リストの行の内容 ここまでで、sequence_nameの値とsequence_arrayの値は同じ
+    for i, row in enumerate(sequence_name,
+                            0):  # 設定書き込み i:リストの行番号、row:リストの行の内容 ここまでで、sequence_nameの値とsequence_arrayの値は同じ
         # read_serial()
         for n in range(3):
             ser.write(bytes(sequence_array[i][n], 'utf-8'))  # ST_Linkのシリアル通信でn=0～2（pulse、step数、Freq)までを送信
-            ser.write(b'\r')    # return送信
+            ser.write(b'\r')  # return送信
             # read_serial()
-            time.sleep(wait_seq)    # 0.5msecウエイト
-            if n < 2:       # Nucleo側は、パルス（M0,M1）、step数（M0,M1）、Freq（これはwait[us]とし定義されている）、パルスオプションの順で受け付ける
+            time.sleep(wait_seq)  # 0.5msecウエイト
+            if n < 2:  # Nucleo側は、パルス（M0,M1）、step数（M0,M1）、Freq（これはwait[us]とし定義されている）、パルスオプションの順で受け付ける
                 ser.write(b'0\r')  # MC_PadはM0のみなので、Nucleoにpulseとstep数のM1分を0として送信する
                 # read_serial()
                 time.sleep(wait_seq)
         mode = 0b000000
         for n in range(6):  # option書込み
             # print(sequence_array[i][n+3])
-            if sequence_array[i][n + 3] == '1':     # n+3=3～8 Trig,逆極,Vrs,補正P,Pe,50msのモードビットに'1'セット
-                mode = mode | (2 ** n)      # 2^nでLSBからモードビットを立てる この場合、上記と各モードビットの並びは逆LSBがTrig
-                 # print(mode)
-        ser.write(bytes(str(mode), 'utf-8'))    # 上記までで、pulse,step数,Freq,を送っているので続けてmode(6bit分)を送る
-        ser.write(b'\r')    # return送信
+            if sequence_array[i][n + 3] == '1':  # n+3=3～8 Trig,逆極,Vrs,補正P,Pe,50msのモードビットに'1'セット
+                mode = mode | (2 ** n)  # 2^nでLSBからモードビットを立てる この場合、上記と各モードビットの並びは逆LSBがTrig
+                # print(mode)
+        ser.write(bytes(str(mode), 'utf-8'))  # 上記までで、pulse,step数,Freq,を送っているので続けてmode(6bit分)を送る
+        ser.write(b'\r')  # return送信
         # read_serial()
         time.sleep(wait_seq)
         # 電圧設定書込み
         if float(sequence_array[i][9]) < 0.8:  # sequence_array[i][9]=Vm：電圧下限チェック
-            sequence_array[i][9] = 0.8      # 強制的に0.8設定
+            sequence_array[i][9] = 0.8  # 強制的に0.8設定
             if int(sequence_array[i][1]) != 0:  # step設定が0stepならエラーにしない
-                seqset_err = 2                  # step設定が0step以外なら、エラーにする
+                seqset_err = 2  # step設定が0step以外なら、エラーにする
         elif float(sequence_array[i][9]) > 4.0:  # 電圧上限チェック
-            sequence_array[i][9] = 4.0          # 強制的に4.0にする
+            sequence_array[i][9] = 4.0  # 強制的に4.0にする
             if int(sequence_array[i][1]) != 0:  # step設定が0stepならエラーにしない
-                seqset_err = 2                  # step設定が0step以外なら、エラーにする
+                seqset_err = 2  # step設定が0step以外なら、エラーにする
         # print(seqset_err)
-        ser.write(bytes(str(sequence_array[i][9]), 'utf-8'))    # 上記までで、modeまで送っているから続けて電圧Vmを送る（Nucleoのsequence_set関数ではVmまで入力する）
-        ser.write(b'\r')        # return送信
-        read_serial()       # 送信したデータをNucleoから読込む
+        ser.write(
+            bytes(str(sequence_array[i][9]), 'utf-8'))  # 上記までで、modeまで送っているから続けて電圧Vmを送る（Nucleoのsequence_set関数ではVmまで入力する）
+        ser.write(b'\r')  # return送信
+        read_serial()  # 送信したデータをNucleoから読込む
     while 1:
-        resp_str = read_serial2()       # 警告処理付きの読み込み処理を行って
-        if (resp_str == 'End!'):        # 'End!'が帰れば正常なので処理を抜ける
+        resp_str = read_serial2()  # 警告処理付きの読み込み処理を行って
+        if (resp_str == 'End!'):  # 'End!'が帰れば正常なので処理を抜ける
             break
-    if seqset_err == 0:     # エラー無しの処理
+    if seqset_err == 0:  # エラー無しの処理
         ser.write(b'9')  # シリアル通信　シーケンススタート
         # read_serial()
         vrstime_print()
-    elif seqset_err == 2:   # 電圧設定でエラーのある場合の処理
+    elif seqset_err == 2:  # 電圧設定でエラーのある場合の処理
         tkinter.messagebox.showerror('エラー', '電圧設定は0.8~4Vにしてください')
 
-    if seq_runopt == 0:     # この変数の内容は不明、シーケンスrunオプション 0:通常？,1:Photo位置検出用シーケンス,2：？
+    if seq_runopt == 0:  # この変数の内容は不明、シーケンスrunオプション 0:通常？,1:Photo位置検出用シーケンス,2：？
         manual_pulse_set()  # mainウインドウ内の<Pulse設定>の値をNucleoに送信
-        vm_write()          # mainウインドウ内のVm設定値をNucleoに送信
+        vm_write()  # mainウインドウ内のVm設定値をNucleoに送信
     Button6_1.config(state="normal")  # ボタン有効化
     seq_run.set('単独実行')  # ボタン表示変更
 
@@ -997,7 +1002,7 @@ def seqrange_run():
                     result_data[1][test_cnt+1]=freq_test#ファイル書込み用          
                     '''
                     seq_run_vm(test_cnt)  # 電圧可変テスト　test_cnt=0でコール
-                    test_cnt += 1       # test_cnt=1
+                    test_cnt += 1  # test_cnt=1
 
                     freq_test = freq_test + int(piset_value_array[2][2])
                     if seq_runopt == 2 or piset_value_array[2][2] == str(0) or seq_jdge_array[3].get() == 1:
@@ -1034,51 +1039,51 @@ def seq_run_vm(test_cnt):
     """
     global seq_runopt
     global vm_test
-                                                    # piset_value_array [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
-    vm_test = round(piset_value_array[0][0], 2)     # 電圧範囲のStart電圧 小数点2桁以下を四捨五入
+    # piset_value_array [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
+    vm_test = round(piset_value_array[0][0], 2)  # 電圧範囲のStart電圧 小数点2桁以下を四捨五入
 
     cnt = 0
-    posiset_flag = 1                    # 位置セットフラグON
+    posiset_flag = 1  # 位置セットフラグON
     if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト検出判定が有効だったら
-        posiset_flag = 0                # フォト検出判定有効なら、位置セットフラグOFFする(フォト検出でOKが出たら、位置セットフラグをONする)
+        posiset_flag = 0  # フォト検出判定有効なら、位置セットフラグOFFする(フォト検出でOKが出たら、位置セットフラグをONする)
 
     while 1:
-        for i, col in enumerate(sequence_array, 0):     # シーケンス設定ウインドウの<動作設定>欄のシーケンス設定配列データの読み込み
-            sequence_array[i][9] = vm_test      # [i][9]は、Vm　これに上記のStart電圧を代入
+        for i, col in enumerate(sequence_array, 0):  # シーケンス設定ウインドウの<動作設定>欄のシーケンス設定配列データの読み込み
+            sequence_array[i][9] = vm_test  # [i][9]は、Vm　これに上記のStart電圧を代入
         piseq_res.insert('end', str('{:.2f}'.format(vm_test)) + "V")  # <シーケンス設定>のスクロールテキストBox（piseq_res)に挿入、小数点以下2桁で表示　
-        insert_vm(str('{:.2f}'.format(vm_test)))    # mainウインドウ<Pulse出力>のVm入力欄にvm_test値を小数点以下2桁で入力表示させる
+        insert_vm(str('{:.2f}'.format(vm_test)))  # mainウインドウ<Pulse出力>のVm入力欄にvm_test値を小数点以下2桁で入力表示させる
 
         # フォト判定　基準位置検出
         if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
-            if 'OK' in piresult[2].get():   # piresult[2](ゼロ位置確認）に'OK'が有れば
+            if 'OK' in piresult[2].get():  # piresult[2](ゼロ位置確認）に'OK'が有れば
                 # if piresult[2].get() == 'OK':
-                posiset_flag = 1        # 位置セットフラグをONする。
-            else:   # piresult[2](ゼロ位置確認）に'OK'が無ければ
+                posiset_flag = 1  # 位置セットフラグをONする。
+            else:  # piresult[2](ゼロ位置確認）に'OK'が無ければ
                 posiset_flag = photo_seq_set(posiset_flag, cnt, test_cnt)  # 初期位置セット position_flag=0,cnt=0~,test_cnt=0
 
-        if posiset_flag == 1:   # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
+        if posiset_flag == 1:  # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
             pulse_seq_run()  # フォトインタプラ準備OKならシーケンス動作実行
 
-        if posiset_flag == 1:   # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
+        if posiset_flag == 1:  # 位置セットフラグON（多分、検出初期設定、ゼロ位置セット、ゼロ位置確認までOKならこのフラグがONする？）
             if seq_jdge_array[0].get() == 1:  # チェックボタン"フォト検出"の値を取得、フォト判定が有効だったら
                 posiset_flag = photo_seq_check(cnt, test_cnt)  # 位置確認
             seqrange_output(cnt, test_cnt, 0)  # 結果保存用リスト作成 cnt=0~, test_cnt=0
-            if posiset_flag == 2:   # このフラグは0～2まであるが、不明 (2:フォトNGで停止のチェックボックスが有効で、フォト検出NGの場合セット？)
-                piseq_res.insert('end', "\n")   # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
+            if posiset_flag == 2:  # このフラグは0～2まであるが、不明 (2:フォトNGで停止のチェックボックスが有効で、フォト検出NGの場合セット？)
+                piseq_res.insert('end', "\n")  # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
                 break
-        piseq_res.insert('end', "\n")   # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
-        piseq_res.see("end")    # <シーケンス設定>のスクロールテキストBoxを末尾までスクロールして表示させる
-        vm_test = round(vm_test + piset_value_array[0][2], 2)   # 読込んだ初期電圧+Step電圧 小数点2桁以下を四捨五入
-        if piset_value_array[0][2] > 0:     # Step電圧が正なら
-            if piset_value_array[0][1] < vm_test:   # Stop電圧が新たなvm_testより小なら
+        piseq_res.insert('end', "\n")  # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
+        piseq_res.see("end")  # <シーケンス設定>のスクロールテキストBoxを末尾までスクロールして表示させる
+        vm_test = round(vm_test + piset_value_array[0][2], 2)  # 読込んだ初期電圧+Step電圧 小数点2桁以下を四捨五入
+        if piset_value_array[0][2] > 0:  # Step電圧が正なら
+            if piset_value_array[0][1] < vm_test:  # Stop電圧が新たなvm_testより小なら
                 break
-        if piset_value_array[0][2] < 0:     # step電圧が負なら
-            if piset_value_array[0][1] > vm_test:   # Stop電圧が新たなvm_testより大なら
+        if piset_value_array[0][2] < 0:  # step電圧が負なら
+            if piset_value_array[0][1] > vm_test:  # Stop電圧が新たなvm_testより大なら
                 break
 
-        if seq_runopt == 2:     # この変数は0～2だが内容不明　
-            piseq_res.insert('end', "途中終了\n")   # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
-            piseq_res.see("end")    # <シーケンス設定>のスクロールテキストBoxを末尾までスクロールして表示させる
+        if seq_runopt == 2:  # この変数は0～2だが内容不明　
+            piseq_res.insert('end', "途中終了\n")  # <シーケンス設定>のスクロールテキストBoxに'end'を挿入
+            piseq_res.see("end")  # <シーケンス設定>のスクロールテキストBoxを末尾までスクロールして表示させる
             break
         cnt += 1
 
@@ -1092,14 +1097,17 @@ def insert_entry(name, array):
     :param array:　書き込むデータの指定 pulse_width_array/pulse_num_array/sequence_array/piset_value_array
     :return:
     """
-    for i, row in enumerate(name, 0):   # i=0～、row：各Entryボックスの配列の行データ（Entry1、Entry2、・・・Entryn)
-        for n, col in enumerate(row):   # n=0～、col:各EntryボックスEntry1、Entry2
+    for i, row in enumerate(name, 0):  # i=0～、row：各Entryボックスの配列の行データ（Entry1、Entry2、・・・Entryn)
+        for n, col in enumerate(row):  # n=0～、col:各EntryボックスEntry1、Entry2
             col.delete(0, tkinter.END)  # 各Entryボックス内の表示されているデータのクリア
-            col.insert(tkinter.END, array[i][n])    # i,nで示す書き込みデータをEntryボックスに挿入する
+            col.insert(tkinter.END, array[i][n])  # i,nで示す書き込みデータをEntryボックスに挿入する
 
-# 2022.11.28
+
 def insert_train():
     """
+    関数train_setting()より唯一呼ばれる。
+    パルス列設定ウインドウのラベル表示　NP/--　NP/NP・・・等を動的に変えるためにラベルのtextvaliable＝pulse_train_array_name[y][x]としてある。
+    pulse_train_array_nameはtkinter.StringVar()であるので、charもtkinter.StringVar()でそれにpulse_train_array_str[y][x]で読み込んだラベルをセットすることで、ラベル表示を動的に変更する
 
     :return:
     """
@@ -1112,13 +1120,14 @@ def insert_train():
 # チェックボックス書込み-------------------------------
 def set_checkbox(name, array):
     """
+    シーケンス設定ウインドウのチェックボックスにtrue/falseの書き込み
 
-    :param name:
-    :param array:
+    :param name:　BooleanVar()型の変数でシーケンス設定ウインドウのA:Fのチェックボックスとフォト検出/Vrs検出/保存・・等のチェックボックス変数
+    :param array:　チェックボックスに設定する値true/false
     :return:
     """
     for x, col in enumerate(array, 0):
-        name[x].set(array[x])
+        name[x].set(array[x])       # colにarrayの要素を読み込むが、直接チェックボックスのBooleanVar()にセットする
 
     # ファイル書込み-------------------
 
@@ -1545,13 +1554,13 @@ def find_cam():
     global cam_list
     cam_list = []
     for camera_number in range(0, 10):  # 1台のみだとカメラのデバイスIDは'0'
-        capture = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)    # Direct Showでカメラの設定変更を簡単にできるようになる
-        ret, frame = capture.read() # 画像取り込み、retには成功か失敗かが入り、frameに画像データが取り込まれる。
+        capture = cv2.VideoCapture(camera_number, cv2.CAP_DSHOW)  # Direct Showでカメラの設定変更を簡単にできるようになる
+        ret, frame = capture.read()  # 画像取り込み、retには成功か失敗かが入り、frameに画像データが取り込まれる。
 
         if ret is True:
             cam_list.append(camera_number)  # 画像取り込みが成功したcamera_numberをリストに追加
     print(cam_list)
-    cam_no = int(max(cam_list)) # リストの最大値のカメラデバイスIDをcam_noとする
+    cam_no = int(max(cam_list))  # リストの最大値のカメラデバイスIDをcam_noとする
 
 
 def disp_cam(event):
@@ -2159,6 +2168,7 @@ def read_serial2():
     print(line)
     return line
 
+
 def get_winposition():
     """
     メインウインドウの座標を取得し,ｘ座標：メインウィンドウの右横、ｙ座標：メインウインドウより上に30
@@ -2167,8 +2177,9 @@ def get_winposition():
     """
     global xposi
     global yposi
-    xposi = tk.winfo_rootx() + tk.winfo_width()     # メインウインドウのディスプレー左上原点のx座標+メインウィンドウの幅
-    yposi = tk.winfo_rooty() - 30       # メインウインドウのディスプレー左上原点のy座標-30 30:ウインドウのタイトル部のyサイズ
+    xposi = tk.winfo_rootx() + tk.winfo_width()  # メインウインドウのディスプレー左上原点のx座標+メインウィンドウの幅
+    yposi = tk.winfo_rooty() - 30  # メインウインドウのディスプレー左上原点のy座標-30 30:ウインドウのタイトル部のyサイズ
+
 
 def read_alert(str_al):
     """
@@ -2236,42 +2247,43 @@ def sequence_window():
     main_handle = get_handle()  # 最前面のウィンドウ(main_window)のHandle取得
 
     get_winposition()  # メインwindowの右横位置の座標取得（y座標は30だけ上　ウインドウのタイトル部分のyサイズを引いてある）
-    seqWindow = tkinter.Toplevel(tk)        # seqWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
+    seqWindow = tkinter.Toplevel(tk)  # seqWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
     seqWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # seqWindowの座標指定 メインウインドウの右横に表示する
 
-    frameseq = tkinter.Frame(seqWindow, pady=10, padx=10)   # <シーケンス設定>の項目用にframeをseqWindowに作成
-    frameseq.pack(anchor=tkinter.W)                         # フレームを配置表示 左寄せ指示
+    frameseq = tkinter.Frame(seqWindow, pady=10, padx=10)  # <シーケンス設定>の項目用にframeをseqWindowに作成
+    frameseq.pack(anchor=tkinter.W)  # フレームを配置表示 左寄せ指示
 
     Labelseq_1 = tkinter.Label(frameseq, text='<シーケンス設定>', width=labewid_1, anchor='w')  # <シーケンス設定>ラベルの作成
-    Labelseq_1.grid(row=0, column=0, columnspan=4, sticky=tkinter.W)    # <シーケンス設定>ラベルの配置、左寄せ、column４つを結合
+    Labelseq_1.grid(row=0, column=0, columnspan=4, sticky=tkinter.W)  # <シーケンス設定>ラベルの配置、左寄せ、column４つを結合
 
     # ラベル配置
-    labelpi2_name = ['Start', 'Stop', 'step']       # ラベルnameをリストで作成
-    for x, row in enumerate(labelpi2_name, 0):      # 0番目(x=0)からリストの要素を取り出す
-        labelpi_N = tkinter.Label(frameseq, text=row, width=5, anchor='w')      # ラベル作成
-        labelpi_N.grid(column=x + 1, row=2, columnspan=1, sticky=tkinter.W)     # ラベルの配置 インデックスを使い、columnを移動
+    labelpi2_name = ['Start', 'Stop', 'step']  # ラベルnameをリストで作成
+    for x, row in enumerate(labelpi2_name, 0):  # 0番目(x=0)からリストの要素を取り出す
+        labelpi_N = tkinter.Label(frameseq, text=row, width=5, anchor='w')  # ラベル作成
+        labelpi_N.grid(column=x + 1, row=2, columnspan=1, sticky=tkinter.W)  # ラベルの配置 インデックスを使い、columnを移動
 
     # ラベル配置
-    labelpi3_name = ['電圧範囲[V]', 'Pulse幅比率', '周波数[Hz]', '評価パルス']     # ラベルnameをリストで作成
-    for x, row in enumerate(labelpi3_name, 0):      # 0番目（x=0)からリストの要素を取り出す
-        labelpi_N = tkinter.Label(frameseq, text=row, width=10, anchor='w')     # ラベル作成 左に配置
+    labelpi3_name = ['電圧範囲[V]', 'Pulse幅比率', '周波数[Hz]', '評価パルス']  # ラベルnameをリストで作成
+    for x, row in enumerate(labelpi3_name, 0):  # 0番目（x=0)からリストの要素を取り出す
+        labelpi_N = tkinter.Label(frameseq, text=row, width=10, anchor='w')  # ラベル作成 左に配置
         if x < 3:
-            labelpi_N.grid(column=0, row=4 + x, sticky=tkinter.W)       # '電圧範囲'～'周波数'まで、4,5,6行に配置
+            labelpi_N.grid(column=0, row=4 + x, sticky=tkinter.W)  # '電圧範囲'～'周波数'まで、4,5,6行に配置
 
-    for y, row in enumerate(piset_value_name, 0):       # 0番目（x=0)からpiset_value_nameリストの要素を取り出す
-        for x, col in enumerate(row):                   # 上記で取り出した要素（これもリスト）からcolに要素を取り出す
-            col = 'psvname' + str(y) + str(x)           # しかし、上記colに要素を取り出してもここで、'psyname'+str(y)+str(x)で書き換えられる。ここはリストに追加したかったのか？
+    for y, row in enumerate(piset_value_name, 0):  # 0番目（x=0)からpiset_value_nameリストの要素を取り出す
+        for x, col in enumerate(row):  # 上記で取り出した要素（これもリスト）からcolに要素を取り出す
+            col = 'psvname' + str(y) + str(
+                x)  # しかし、上記colに要素を取り出してもここで、'psyname'+str(y)+str(x)で書き換えられる。ここはリストに追加したかったのか？
 
-    for y, row in enumerate(piset_value_array, 0):      # 0番目（x=0)からpiset_value_arrayリストの要素を取り出す
-        for x, col in enumerate(row):                   # 上記で取り出した要素（これもリスト）からcolに要素を取り出す
-            if y == 3:          # piset_value_aaray: [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
-                piset_value_name[y][x] = tkinter.Entry(frameseq, width=8)   # 下でgridがコメントアプトなので使用しない
+    for y, row in enumerate(piset_value_array, 0):  # 0番目（x=0)からpiset_value_arrayリストの要素を取り出す
+        for x, col in enumerate(row):  # 上記で取り出した要素（これもリスト）からcolに要素を取り出す
+            if y == 3:  # piset_value_aaray: [[2.4, 1.2, 0.1], [1.0, 1.0, 0.1], [200, 200, 20], ['1']]
+                piset_value_name[y][x] = tkinter.Entry(frameseq, width=8)  # 下でgridがコメントアプトなので使用しない
                 piset_value_name[y][x].insert(tkinter.END, col)
                 # piset_value_name[y][x].grid(column=x+1,row=y+4,columnspan=2,sticky=tkinter.W)
-            else:   # y=0~2
-                piset_value_name[y][x] = tkinter.Entry(frameseq, width=5)       # Entry作成　5文字分
-                piset_value_name[y][x].insert(tkinter.END, col)         # Entryに上記でcolに読み込んだpiset_value_arrayの要素を入力
-                piset_value_name[y][x].grid(column=x + 1, row=y + 4, columnspan=1, sticky=tkinter.W)    # Entryの表示設定
+            else:  # y=0~2
+                piset_value_name[y][x] = tkinter.Entry(frameseq, width=5)  # Entry作成　5文字分
+                piset_value_name[y][x].insert(tkinter.END, col)  # Entryに上記でcolに読み込んだpiset_value_arrayの要素を入力
+                piset_value_name[y][x].grid(column=x + 1, row=y + 4, columnspan=1, sticky=tkinter.W)  # Entryの表示設定
 
     piseq_chk2 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[2], text='フォトNGで停止', width=12, anchor='w')
     piseq_chk2.grid(row=4, column=4, columnspan=4, sticky=tkinter.NW)
@@ -2280,153 +2292,159 @@ def sequence_window():
     piseq_chk3 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[3], text='設定無効', width=12, anchor='w')
     piseq_chk3.grid(row=6, column=4, columnspan=4, sticky=tkinter.NW)
 
-    piseq_chk4 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[6], text='設定無効', width=12, anchor='w')   # 使用無し
+    piseq_chk4 = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[6], text='設定無効', width=12,
+                                     anchor='w')  # 使用無し
     # piseq_chk4.grid(row=7,column=4,columnspan=4,sticky=tkinter.NW)
     seq_jdge_array[6].set(True)  # chekbox初期値セット 評価パルス設定のチェックボタンONする。しかし、表示していないので使用無し
 
-    pisec_section_name = ['A', 'B', 'C', 'D', 'E', 'F']     # チェックボタンのtext表示をリストで作成
-    for x, col in enumerate(pisec_section_name):        # colに上記リストの要素’A’～’F’を取り出す　xは0～5
-        col = tkinter.Checkbutton(frameseq, variable=piseq_section[x], text=col)    # 上記読み込んだcolをtext表示し、さらにチェックボタンを作成
+    pisec_section_name = ['A', 'B', 'C', 'D', 'E', 'F']  # チェックボタンのtext表示をリストで作成
+    for x, col in enumerate(pisec_section_name):  # colに上記リストの要素’A’～’F’を取り出す　xは0～5
+        col = tkinter.Checkbutton(frameseq, variable=piseq_section[x], text=col)  # 上記読み込んだcolをtext表示し、さらにチェックボタンを作成
         piseq_section[x].set(True)  # chekbox初期値セット ’A'～'F'の各チェックボタンをすべてON
         ''' 
         if x <3:
             col.grid(row=5,column=4+x,columnspan=1,sticky=tkinter.W)
         else :
         '''
-        col.grid(row=5, column=4 + x, columnspan=1, sticky=tkinter.W)       # チェックボタンの表示
-
+        col.grid(row=5, column=4 + x, columnspan=1, sticky=tkinter.W)  # チェックボタンの表示
 
     # 判定方法選択
-    Labelseq_2 = tkinter.Label(frameseq, text='判定実施', width=10, anchor='w')     # フォト検出、Vrs検出のチェックボタンのグループ名称'判定実施'の設定 左寄せ
-    Labelseq_2.grid(row=8, column=0, columnspan=1, sticky=tkinter.W)        # 上記ラベルの表示　stickyオプションで左寄せ指定
+    Labelseq_2 = tkinter.Label(frameseq, text='判定実施', width=10,
+                               anchor='w')  # フォト検出、Vrs検出のチェックボタンのグループ名称'判定実施'の設定 左寄せ
+    Labelseq_2.grid(row=8, column=0, columnspan=1, sticky=tkinter.W)  # 上記ラベルの表示　stickyオプションで左寄せ指定
 
-    seq_jdge_name = ['フォト検出', 'Vrs検出']      # 回転判定の方法のテキストをリストで用意
-    for x, col in enumerate(seq_jdge_name):     # colに上記テキストを読みだす。xは0～1
-        col = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[x], text=col)       # 上記読み込んだcolをテキスト表示し、チェックボタンを作成
+    seq_jdge_name = ['フォト検出', 'Vrs検出']  # 回転判定の方法のテキストをリストで用意
+    for x, col in enumerate(seq_jdge_name):  # colに上記テキストを読みだす。xは0～1
+        col = tkinter.Checkbutton(frameseq, variable=seq_jdge_array[x], text=col)  # 上記読み込んだcolをテキスト表示し、チェックボタンを作成
         seq_jdge_array[x].set(False)  # chekbox初期値セット　オール0で無選択
-        col.grid(row=8, column=2 * x + 1, columnspan=2, sticky=tkinter.W)       # 上記チェックボタンの表示　stickyオプションで左寄せ指定
+        col.grid(row=8, column=2 * x + 1, columnspan=2, sticky=tkinter.W)  # 上記チェックボタンの表示　stickyオプションで左寄せ指定
 
     global Buttonpi2_1
-    Buttonpi2_1 = tkinter.Button(frameseq, text=u'スタート', width=8)       # 'スタート'ボタンの作成
-    Buttonpi2_1.bind("<Button-1>", photo_seqtest_bot)       # <Button-1>:マウスの左クリックによりコールバック関数実施
-    Buttonpi2_1.grid(row=10, column=0, columnspan=1, sticky=tkinter.W)      # ボタンの表示　stickyオプションで左寄せ指定
+    Buttonpi2_1 = tkinter.Button(frameseq, text=u'スタート', width=8)  # 'スタート'ボタンの作成
+    Buttonpi2_1.bind("<Button-1>", photo_seqtest_bot)  # <Button-1>:マウスの左クリックによりコールバック関数実施
+    Buttonpi2_1.grid(row=10, column=0, columnspan=1, sticky=tkinter.W)  # ボタンの表示　stickyオプションで左寄せ指定
 
     global Buttonpi2_2
-    Buttonpi2_2 = tkinter.Button(frameseq, text=u'ストップ', width=8)       # 'ストップ'ボタンの作成
+    Buttonpi2_2 = tkinter.Button(frameseq, text=u'ストップ', width=8)  # 'ストップ'ボタンの作成
     Buttonpi2_2.config(state="disable")  # ボタン無効化
-    Buttonpi2_2.bind("<Button-1>", photo_seqtest_stop_bot)      # <Button-1>:マウスの左クリックによりコールバック関数実施
-    Buttonpi2_2.grid(row=10, column=1, columnspan=2, sticky=tkinter.W)      # ボタンの表示　stickyオプションで左寄せ指定
+    Buttonpi2_2.bind("<Button-1>", photo_seqtest_stop_bot)  # <Button-1>:マウスの左クリックによりコールバック関数実施
+    Buttonpi2_2.grid(row=10, column=1, columnspan=2, sticky=tkinter.W)  # ボタンの表示　stickyオプションで左寄せ指定
 
     global Combopi1
     Combopi1 = ttk.Combobox(frameseq, width=18, state='readonly')  # Combobox作成 書込み禁止設定
-    Combopi1["values"] = ("表示設定")       # コンボボックス内の表示を'表示設定'とタプルで指定
+    Combopi1["values"] = ("表示設定")  # コンボボックス内の表示を'表示設定'とタプルで指定
     Combopi1.current(0)  # 初期値
     Combopi1.grid(row=10, column=3, columnspan=3, sticky=tkinter.W)  # コンボボックスの表示　stickyオプションで左寄せ指定
 
     global Buttonpi2_3
-    Buttonpi2_3 = tkinter.Button(frameseq, text=u'適用', width=8)     # '適用'ボタンの作成
-    Buttonpi2_3.bind("<Button-1>", seq_reading)     # <Button-1>:マウスの左クリックによりコールバック関数実施
-    Buttonpi2_3.grid(row=10, column=6, columnspan=2, sticky=tkinter.E)      # ボタンの表示　stickyオプションで右寄せ指定
+    Buttonpi2_3 = tkinter.Button(frameseq, text=u'適用', width=8)  # '適用'ボタンの作成
+    Buttonpi2_3.bind("<Button-1>", seq_reading)  # <Button-1>:マウスの左クリックによりコールバック関数実施
+    Buttonpi2_3.grid(row=10, column=6, columnspan=2, sticky=tkinter.E)  # ボタンの表示　stickyオプションで右寄せ指定
 
     # scrolledtextBox
-    frameseq2 = tkinter.Frame(seqWindow, pady=5, padx=10)       # スクロールテキストを配置するフレームの作成
-    frameseq2.pack(anchor=tkinter.W)        # 左寄せに表示
+    frameseq2 = tkinter.Frame(seqWindow, pady=5, padx=10)  # スクロールテキストを配置するフレームの作成
+    frameseq2.pack(anchor=tkinter.W)  # 左寄せに表示
 
     global piseq_res
-    piseq_res = tkinter.scrolledtext.ScrolledText(frameseq2, width=25, height=6)    # フレームframeseq2にスクロールtextボックスを設定
-    piseq_res.grid(row=9, column=0, rowspan=2, columnspan=4, sticky=tkinter.W)      # stickyで左側配置指定
+    piseq_res = tkinter.scrolledtext.ScrolledText(frameseq2, width=25, height=6)  # フレームframeseq2にスクロールtextボックスを設定
+    piseq_res.grid(row=9, column=0, rowspan=2, columnspan=4, sticky=tkinter.W)  # stickyで左側配置指定
 
-    piseq_chk1 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[4], text='保存', width=3, anchor='w') # チェックボタン'保存'を左寄りに配置設定
-    piseq_chk1.grid(row=9, column=4, columnspan=1, sticky=tkinter.NW)   # gridで上記チェックボタンを配置
+    piseq_chk1 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[4], text='保存', width=3,
+                                     anchor='w')  # チェックボタン'保存'を左寄りに配置設定
+    piseq_chk1.grid(row=9, column=4, columnspan=1, sticky=tkinter.NW)  # gridで上記チェックボタンを配置
 
-    piseq_chk2 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[5], text='Vrs詳細保存', width=9, anchor='w')    # チェックボタン'Vrs詳細保存'を左寄りに配置設定
+    piseq_chk2 = tkinter.Checkbutton(frameseq2, variable=seq_jdge_array[5], text='Vrs詳細保存', width=9,
+                                     anchor='w')  # チェックボタン'Vrs詳細保存'を左寄りに配置設定
     piseq_chk2.grid(row=10, column=4, columnspan=2, sticky=tkinter.NW)  # gridで上記チェックボタン配置
 
     global entrypi2_3
-    entrypi2_3 = tkinter.Entry(frameseq2, width=14)     # Entry'filename'をフレームframeseq2に作成
-    entrypi2_3.insert(tkinter.END, 'file name')     # Entryに'filename'とEntryの最後に追加入力
-    entrypi2_3.grid(row=9, column=5, columnspan=4, sticky=tkinter.NW)       # gridでEntryを上左側に配置
+    entrypi2_3 = tkinter.Entry(frameseq2, width=14)  # Entry'filename'をフレームframeseq2に作成
+    entrypi2_3.insert(tkinter.END, 'file name')  # Entryに'filename'とEntryの最後に追加入力
+    entrypi2_3.grid(row=9, column=5, columnspan=4, sticky=tkinter.NW)  # gridでEntryを上左側に配置
 
     frameseqpi = tkinter.LabelFrame(seqWindow, pady=2, padx=10, text='フォト検出パルス設定')  # ラベルフレームの作成
-    frameseqpi.pack(anchor=tkinter.W, padx=10, )    # ラベルフレームの配置
+    frameseqpi.pack(anchor=tkinter.W, padx=10, )  # ラベルフレームの配置
 
     # ラベル配置
     labelpi_name = ['使用Pulse', '1周Step数', '周波数[Hz]', '使用電圧[V]', '検出mode', 'Offset']  # ラベルをリストで用意
-    for x, row in enumerate(labelpi_name, 0):   # 上記リストからxにインデックスをrowに要素を代入
-        labelpi_N = tkinter.Label(frameseqpi, text=row, width=8)    # 上記のラベルフレームにrowの値（ラベル名）でラベルを作成
-        labelpi_N.grid(column=x, row=0)     # ラベルフレーム内のrow=0行、columnに上記リストのインデックスを渡して配置
+    for x, row in enumerate(labelpi_name, 0):  # 上記リストからxにインデックスをrowに要素を代入
+        labelpi_N = tkinter.Label(frameseqpi, text=row, width=8)  # 上記のラベルフレームにrowの値（ラベル名）でラベルを作成
+        labelpi_N.grid(column=x, row=0)  # ラベルフレーム内のrow=0行、columnに上記リストのインデックスを渡して配置
 
     # 入力Box配置
     for i, row in enumerate(piset_name, 0):  # i=行番号、row=行内容 リストpiset_nameからインデックスをiに、要素をrowに代入
-        row = 'psname' + str(i)     # 'psname0','psname1',・・・
+        row = 'psname' + str(i)  # 'psname0','psname1',・・・
 
-    for i, row in enumerate(piset_array, 0):    # piset_array:photo検出のパルス条件設定値
+    for i, row in enumerate(piset_array, 0):  # piset_array:photo検出のパルス条件設定値
         if i == 0:  # 使用パルス　リストpiset_nameのインデックス0のウィジェットにcomboboxを設定
             piset_name[i] = ttk.Combobox(frameseqpi, width=6, state='readonly')  # Combobox作成 書込み禁止設定
-            piset_name[i]["values"] = ("0:CW-0", "1:CCW-1", "2:", "3:", "4:CW-4", "5:CCW-5")    # comboboxのvaluesオプションにタプルで渡す
+            piset_name[i]["values"] = (
+            "0:CW-0", "1:CCW-1", "2:", "3:", "4:CW-4", "5:CCW-5")  # comboboxのvaluesオプションにタプルで渡す
             piset_name[i].current(piset_array[i])  # 初期値 piset_array[0]=0⇒"0:CW-0"設定
-        elif i == 4:    # 検出モード リストpiset_nameのインデックス4のウィジェットにcomboboxを設定
+        elif i == 4:  # 検出モード リストpiset_nameのインデックス4のウィジェットにcomboboxを設定
             piset_name[i] = ttk.Combobox(frameseqpi, width=6, state='readonly')  # Combobox作成 書込み禁止設定
             piset_name[i]["values"] = ("0:通常", "1:最短移動", "2:逆極性chk")  # 秒針検出はnucleo側で自動判定、valuesオプションにタプルで渡す
             piset_name[i].current(piset_array[i])  # 初期値 piset_array[4]=0⇒"0:通常"設定
-        elif i == 5:    # offset リストpiset_nameのインデックス5のウィジェットにEntryを設定
-            piset_name[i] = tkinter.Entry(frameseqpi, width=12)     # 入力Entry作成
+        elif i == 5:  # offset リストpiset_nameのインデックス5のウィジェットにEntryを設定
+            piset_name[i] = tkinter.Entry(frameseqpi, width=12)  # 入力Entry作成
             piset_name[i].insert(tkinter.END, row)  # インデックスi=5：row=0 挿入する文字rowで示される値を入力欄の最後から入力
-            piset_name[i].grid(row=1, column=i)     # 上記Entryをgridで配置
-        else:   # 1周step数/周波数/電圧 リストpiset_nameのインデックス1,2,3のウィジェットにEntryを設定
+            piset_name[i].grid(row=1, column=i)  # 上記Entryをgridで配置
+        else:  # 1周step数/周波数/電圧 リストpiset_nameのインデックス1,2,3のウィジェットにEntryを設定
             piset_name[i] = tkinter.Entry(frameseqpi, width=8)  # 入力Entry作成
             piset_name[i].insert(tkinter.END, row)  # i=1:row=360,i=2:row=200,i=3:row=3.0 挿入する文字rowで示される値を入力欄の最後から入力
-            piset_name[i].grid(row=1, column=i)     # リストpiset_nameのインデックスで示される要素（ウィジェット）をインデックスiで示されるcolumnに配置
-        piset_name[i].grid(row=1, column=i)     # リストpiset_nameのインデックスで示される要素（ウィジェット）をインデックスiで示されるcolumnに配置
+            piset_name[i].grid(row=1, column=i)  # リストpiset_nameのインデックスで示される要素（ウィジェット）をインデックスiで示されるcolumnに配置
+        piset_name[i].grid(row=1, column=i)  # リストpiset_nameのインデックスで示される要素（ウィジェット）をインデックスiで示されるcolumnに配置
 
-        Button7_4 = tkinter.Button(frameseqpi, text=u'PI 針位置単独', width=12, command=pi_window)   # ボタン'PI 針位置単独'の設定
+        Button7_4 = tkinter.Button(frameseqpi, text=u'PI 針位置単独', width=12, command=pi_window)  # ボタン'PI 針位置単独'の設定
         # Button7_4.bind("<Button-1>",pi_window)
-        Button7_4.grid(row=2, column=0, columnspan=2, sticky=tkinter.NW)    # 上記ボタンをフレームframeseqpiのrow=2に上左側に配置
+        Button7_4.grid(row=2, column=0, columnspan=2, sticky=tkinter.NW)  # 上記ボタンをフレームframeseqpiのrow=2に上左側に配置
 
-    frame6 = tkinter.Frame(seqWindow, pady=10, padx=10)     # フレームframe6の作成 下記の<動作設定>のウィジェット配置用フレーム
-    frame6.pack(anchor=tkinter.W)   # frame6を左寄りに配置
+    frame6 = tkinter.Frame(seqWindow, pady=10, padx=10)  # フレームframe6の作成 下記の<動作設定>のウィジェット配置用フレーム
+    frame6.pack(anchor=tkinter.W)  # frame6を左寄りに配置
 
-    Label6_1 = tkinter.Label(frame6, text='<動作設定>', width=labewid_1, anchor='w')    # ラベル<動作設定>をframe6に作成 左寄りに作成
-    Label6_1.grid(row=0, column=0, columnspan=3)    # 上記ラベルを配置
+    Label6_1 = tkinter.Label(frame6, text='<動作設定>', width=labewid_1, anchor='w')  # ラベル<動作設定>をframe6に作成 左寄りに作成
+    Label6_1.grid(row=0, column=0, columnspan=3)  # 上記ラベルを配置
 
     # ラベル配置
-    label6_name = [['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']]     # ラベル名をリストのリストで設定
-    for y, row in enumerate(label6_name, 0):    # 上記リストのインデックス0から要素を取り出す。この場合インデックスは0のみで要素は['Pulse', 'Step数', ・・・, 'Vm']
-        for x, col in enumerate(row):   #　上記row=['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']から各要素をcolに取り出す
-            if x < 3 or x == 9:     # 下記の入力box欄の大きさに応じてwidthを変えるためインデックス値で分ける
-                label6_N = tkinter.Label(frame6, text=col, width=6)     # 'Pulse', 'Step数', 'Freq', 'Vm'
+    label6_name = [['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']]  # ラベル名をリストのリストで設定
+    for y, row in enumerate(label6_name, 0):  # 上記リストのインデックス0から要素を取り出す。この場合インデックスは0のみで要素は['Pulse', 'Step数', ・・・, 'Vm']
+        for x, col in enumerate(
+                row):  # 上記row=['Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm']から各要素をcolに取り出す
+            if x < 3 or x == 9:  # 下記の入力box欄の大きさに応じてwidthを変えるためインデックス値で分ける
+                label6_N = tkinter.Label(frame6, text=col, width=6)  # 'Pulse', 'Step数', 'Freq', 'Vm'
             else:
-                label6_N = tkinter.Label(frame6, text=col, width=4)     # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'
+                label6_N = tkinter.Label(frame6, text=col, width=4)  # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'
             # if x != 6:#Pulse内 Vrs表示なし
             label6_N.grid(column=x + 1, row=y + 1)  # インデックスx,y=0　column=1~10,row=1に配置
 
     # 入力Box配置
     for i, row in enumerate(sequence_array, 0):  # sequence_array[10×10]のリスト rowに各行を読込む
-        for n, col in enumerate(row):   # n:sequence_arrayの行rowの各要素をcolに読込む。各行の要素は、'Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm'の値
-            if n < 3 or n == 9:     # Entry入力欄の大きさに応じてwidthを変えるためインデックス値で分ける
-                sequence_name[i][n] = tkinter.Entry(frame6, width=6)    # 'Pulse', 'Step数', 'Freq', 'Vm'の入力欄
+        for n, col in enumerate(
+                row):  # n:sequence_arrayの行rowの各要素をcolに読込む。各行の要素は、'Pulse', 'Step数', 'Freq', 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms', 'Vm'の値
+            if n < 3 or n == 9:  # Entry入力欄の大きさに応じてwidthを変えるためインデックス値で分ける
+                sequence_name[i][n] = tkinter.Entry(frame6, width=6)  # 'Pulse', 'Step数', 'Freq', 'Vm'の入力欄
             else:
-                sequence_name[i][n] = tkinter.Entry(frame6, width=3)    # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'の入力欄
-            sequence_name[i][n].insert(tkinter.END, col)    # 各入力欄にcolに読込まれた値を入力欄の最後に追加
+                sequence_name[i][n] = tkinter.Entry(frame6, width=3)  # 'Trig', '逆極', 'Vrs', '補正P', 'Pe', '+50ms'の入力欄
+            sequence_name[i][n].insert(tkinter.END, col)  # 各入力欄にcolに読込まれた値を入力欄の最後に追加
             # if n != 6:#Pulse内 Vrs表示なし
-            sequence_name[i][n].grid(row=i + 2, column=n + 1)   # row=2~11,column=1~10に配置
+            sequence_name[i][n].grid(row=i + 2, column=n + 1)  # row=2~11,column=1~10に配置
 
     global seq_run  # ボタン押下時の関数実行中に表記変えるため変数定義
     global Button6_1
-    seq_run = tkinter.StringVar()   # widget変数を文字列変数とする
-    seq_run.set('単独実行')     # widget変数seq_runに初期文字列をセット
+    seq_run = tkinter.StringVar()  # widget変数を文字列変数とする
+    seq_run.set('単独実行')  # widget変数seq_runに初期文字列をセット
     Button6_1 = tkinter.Button(frame6, textvariable=seq_run, width=12)  # ボタンをそのtextに変数seq_runを渡して表示する
-    Button6_1.bind("<Button-1>", pulse_seq_bot)     # マウスの左クリック操作で実行関数を呼ぶ。その中で、ボタンの表示変更
-    Button6_1.grid(row=i + 3, column=1, columnspan=2)   # このiは上記のfor文の最後のi=9を引き継いでいる　row=12、column=1に配置
+    Button6_1.bind("<Button-1>", pulse_seq_bot)  # マウスの左クリック操作で実行関数を呼ぶ。その中で、ボタンの表示変更
+    Button6_1.grid(row=i + 3, column=1, columnspan=2)  # このiは上記のfor文の最後のi=9を引き継いでいる　row=12、column=1に配置
     global Button6_2
-    Button6_2 = tkinter.Button(frame6, text=u'設定読込', width=12)      # ボタン'設定読込'の作成
-    Button6_2.bind("<Button-1>", pulse_seqread_bot)     # マウスの左クリック操作で実行関数を呼ぶ
-    Button6_2.grid(row=i + 3, column=4, columnspan=4)   # このiは9なので、row=12,column=4に配置
+    Button6_2 = tkinter.Button(frame6, text=u'設定読込', width=12)  # ボタン'設定読込'の作成
+    Button6_2.bind("<Button-1>", pulse_seqread_bot)  # マウスの左クリック操作で実行関数を呼ぶ
+    Button6_2.grid(row=i + 3, column=4, columnspan=4)  # このiは9なので、row=12,column=4に配置
 
     global seq_name
     seq_name = tkinter.StringVar()  # widget変数を文字列変数とする
-    label5_21 = tkinter.Label(frame6, textvariable=seq_name, width=15)  #　フレームframe6にラベル（テキスト変数seq_name）を作成
-    label5_21.grid(row=i + 3, column=7, columnspan=5)   # i=9なのでrow=12,column=7に上記ラベルを配置
+    label5_21 = tkinter.Label(frame6, textvariable=seq_name, width=15)  # フレームframe6にラベル（テキスト変数seq_name）を作成
+    label5_21.grid(row=i + 3, column=7, columnspan=5)  # i=9なのでrow=12,column=7に上記ラベルを配置
 
 
 # パルス列設定window作成-------------------------------------------
@@ -2449,50 +2467,54 @@ def pulsetrain_window(event):
     get_winposition()  # メインwindow座標取得（y座標は30だけ上　ウインドウのタイトル部分のyサイズを引いてある）
     trainWindow = tkinter.Toplevel(tk)  # trainWindowをメインウインドウのサブウインドウとして作成（メインウインドウを閉じるとサブも閉じる)
     trainWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定 メインウインドウの右横に表示する
-    frame8 = tkinter.Frame(trainWindow, pady=10, padx=10)   # <パルス列設定>の項目用にframe8を作成
-    frame8.pack(anchor=tkinter.W)   # フレームを配置表示 空きスペースの左寄せ指示
+    frame8 = tkinter.Frame(trainWindow, pady=10, padx=10)  # <パルス列設定>の項目用にframe8を作成
+    frame8.pack(anchor=tkinter.W)  # フレームを配置表示 空きスペースの左寄せ指示
 
     Label8_1 = tkinter.Label(frame8, text='<パルス列設定>', width=labewid_1, anchor='w')  # frame8にラベル<パルス列設定>を作成
     Label8_1.grid(row=0, column=0, columnspan=2, sticky=tkinter.W)  # <パルス列設定>ラベルの配置、左寄せ、column2つを結合
 
-    Label8_2 = tkinter.Label(frame8, text='区間', width=6, anchor='e')    # frame8にラベル'区間'を作成
+    Label8_2 = tkinter.Label(frame8, text='区間', width=6, anchor='e')  # frame8にラベル'区間'を作成
     Label8_2.grid(column=1, row=1, columnspan=1, sticky=tkinter.E)  # 上記ラベルの作成
 
-    label8_Pname = [['A', 'B', 'C', 'D', 'E', 'F']]     # ラベルのテキストをリストで作成
-    for y, row in enumerate(label8_Pname, 0):   # 上記リストの値とインデクスを取り込む　y=0のみ、row=['A','B',...'F']
+    label8_Pname = [['A', 'B', 'C', 'D', 'E', 'F']]  # ラベルのテキストをリストで作成
+    for y, row in enumerate(label8_Pname, 0):  # 上記リストの値とインデクスを取り込む　y=0のみ、row=['A','B',...'F']
         for x, char in enumerate(row):  # 上記で読み込んだrowからインデクスと、値を読み込む　x=0～5　char='A'～'F'
-            label5_P = tkinter.Label(frame8, text=char, width=5)    # frame8にラベルをテキストにcharを渡して作成
+            label5_P = tkinter.Label(frame8, text=char, width=5)  # frame8にラベルをテキストにcharを渡して作成
             label5_P.grid(column=x + 2, row=y + 1)  # row= 1, column=2～7にラベルを配置
 
-    label8_Pnum = [['CW 　-0', 'CCW  -1', '補CW -2', '補CCW-3', 'Pulse-4', 'Pulse-5', 'Pr-6']]     # ラベルのテキストをリストで作成
-    for y, row in enumerate(label8_Pnum, 0):    # 上記リストの値とインデクスを取り込む　y=0のみ、row=['CW 　-0', 'CCW  -1', ..., 'Pr-6']
+    label8_Pnum = [['CW 　-0', 'CCW  -1', '補CW -2', '補CCW-3', 'Pulse-4', 'Pulse-5', 'Pr-6']]  # ラベルのテキストをリストで作成
+    for y, row in enumerate(label8_Pnum, 0):  # 上記リストの値とインデクスを取り込む　y=0のみ、row=['CW 　-0', 'CCW  -1', ..., 'Pr-6']
         for x, char in enumerate(row):  # 上記で読み込んだrowからインデクスと、値を読み込む　x=0～6　char='CW 　-0'～ 'Pr-6'
-            label8_P = tkinter.Label(frame8, text=char, width=6)    # frame8にラベルをテキストにcharを渡して作成
-            if x < pulse_disp_num or x == 6:    # x=0~6
+            label8_P = tkinter.Label(frame8, text=char, width=6)  # frame8にラベルをテキストにcharを渡して作成
+            if x < pulse_disp_num or x == 6:  # x=0~6
                 label8_P.grid(column=0, row=2 * x + 2)  # row=2,4,6,...,14 2つおきにラベルを配置する
 
-    for y, row in enumerate(pulse_train_labename, 0):   # リストpulse_train_labenameからインデックスをyに値をrowに読み込む
-        pulse_train_labename[y] = tkinter.StringVar()   # リストpulse_train_labenameの各要素を文字列として扱うことの設定
-        char = tkinter.Label(frame8, textvariable=pulse_train_labename[y], width=12, anchor=tkinter.W)  # frame8にラベルを作成、表示テキストにpulse_train_labenameの各要素を渡して作成
-        pulse_train_labename[y].set(pulse_train_name[y])    # pulse_train_labenameの要素にpulse_train_name(関数train_readingで読み込んだ)の各要素を代入
-        if y < pulse_disp_num or y == 6:    # y=0～6
+    for y, row in enumerate(pulse_train_labename, 0):  # リストpulse_train_labenameからインデックスをyに値をrowに読み込む
+        pulse_train_labename[y] = tkinter.StringVar()  # リストpulse_train_labenameの各要素を文字列として扱うことの設定
+        char = tkinter.Label(frame8, textvariable=pulse_train_labename[y], width=12,
+                             anchor=tkinter.W)  # frame8にラベルを作成、表示テキストにpulse_train_labenameの各要素を渡して作成
+        pulse_train_labename[y].set(
+            pulse_train_name[y])  # pulse_train_labenameの要素にpulse_train_name(関数train_readingで読み込んだ)の各要素を代入
+        if y < pulse_disp_num or y == 6:  # y=0～6
             char.grid(column=1, row=2 * y + 2)  # 上記ラベルをcolumn=1, row=2,4,6...,14まで2つ置きに配置
 
-    for y, row in enumerate(pulse_train_array_name, 0):     # リストpulse_train_array_name(7行×12列)からインデックスをyに値をrowに読み込むy=0～6
-        for x, char in enumerate(row):                      # 上記のrowからインデックスをx、値をcharに読み込む x=0～11
-            pulse_train_array_name[y][x] = tkinter.StringVar()      # リストpulse_train_array_nameの各要素を文字列として扱うことの設定
-            char = tkinter.Label(frame8, textvariable=pulse_train_array_name[y][x], width=5, anchor=tkinter.W)  # frame8にラベルを作成、表示テキストにpulse_train_array_nameの各要素を渡して作成
-            pulse_train_array_name[y][x].set(pulse_train_array_str[y][x])   # pulse_train_array_nameの要素にpulse_train_array_str(関数train_readingで読み込んだ)の各要素を代入
-            if y < pulse_disp_num or y == 6:    # y=0～6
-                if x < 6:       # X=0～5
-                    char.grid(column=x + 2, row=2 * y + 2)      # row=2,4,6,...14 column=2,3,4,...,7 A1,B1,C1,D1,E1,F1
-                elif x >= 6:    # x=6~11
+    for y, row in enumerate(pulse_train_array_name, 0):  # リストpulse_train_array_name(7行×12列)からインデックスをyに値をrowに読み込むy=0～6
+        for x, char in enumerate(row):  # 上記のrowからインデックスをx、値をcharに読み込む x=0～11
+            pulse_train_array_name[y][x] = tkinter.StringVar()  # リストpulse_train_array_nameの各要素を文字列として扱うことの設定
+            char = tkinter.Label(frame8, textvariable=pulse_train_array_name[y][x], width=5,
+                                 anchor=tkinter.W)  # frame8にラベルを作成、表示テキストにpulse_train_array_nameの各要素を渡して作成
+            pulse_train_array_name[y][x].set(pulse_train_array_str[y][
+                                                 x])  # pulse_train_array_nameの要素にpulse_train_array_str(関数train_readingで読み込んだ)の各要素を代入
+            if y < pulse_disp_num or y == 6:  # y=0～6
+                if x < 6:  # X=0～5
+                    char.grid(column=x + 2, row=2 * y + 2)  # row=2,4,6,...14 column=2,3,4,...,7 A1,B1,C1,D1,E1,F1
+                elif x >= 6:  # x=6~11
                     char.grid(column=x + 2 - 6, row=2 * y + 3)  # row=3,5,7,...15 column=2,3,4,...,7　A2,B2,C2,D2,E2,F2
 
     global Button8_1
     Button8_1 = tkinter.Button(frame8, text=u'設定読込', width=12)  # frame8にボタン’設定読込'をグローバルで作成
-    Button8_1.bind("<Button-1>", pulse_train_bot)       # マウスの左クリックによりpulse_train_bot実行
-    Button8_1.grid(row=20, column=0, columnspan=3, sticky=tkinter.W)    # 上記のボタンの配置
+    Button8_1.bind("<Button-1>", pulse_train_bot)  # マウスの左クリックによりpulse_train_bot実行
+    Button8_1.grid(row=20, column=0, columnspan=3, sticky=tkinter.W)  # 上記のボタンの配置
 
 
 # カメラウィンドウ作成---------------------------------
@@ -2519,34 +2541,34 @@ def cam_window(event):
     get_winposition()  # メインwindow座標取得（y座標は30だけ上　ウインドウのタイトル部分のyサイズを引いてある）
     find_cam()  # システムに接続されているカメラのデバイスIDを検出
 
-    camwindow = tkinter.Toplevel(tk)    # mainウィンドウに紐づくサブウインドウとして作成
+    camwindow = tkinter.Toplevel(tk)  # mainウィンドウに紐づくサブウインドウとして作成
     camwindow.geometry('+' + str(xposi) + '+' + str(yposi))  # 上部get_winposition()で取得した座標を指定 ディスプレー左上原点
-    framecam = tkinter.Frame(camwindow, pady=10, padx=10)   # 上記camwindowにフレーム作成
-    framecam.pack(anchor=tkinter.W) # フレームの配置 空きスペース左寄りに配置指定
+    framecam = tkinter.Frame(camwindow, pady=10, padx=10)  # 上記camwindowにフレーム作成
+    framecam.pack(anchor=tkinter.W)  # フレームの配置 空きスペース左寄りに配置指定
 
     # Buttoncam_1= tkinter.Button(framecam, text=u'撮影開始', width=12)
     # Buttoncam_1.bind("<Button-1>",disp_cam)
 
-    Buttoncam_2 = tkinter.Button(framecam, text=u'カメラ接続', width=12) # ’カメラ接続'のボタン作成
-    Buttoncam_2.bind("<Button-1>", disp_cam)    # マウスの左クリックでdisp_com関数実行指定
+    Buttoncam_2 = tkinter.Button(framecam, text=u'カメラ接続', width=12)  # ’カメラ接続'のボタン作成
+    Buttoncam_2.bind("<Button-1>", disp_cam)  # マウスの左クリックでdisp_com関数実行指定
 
-    Labelcam_1 = tkinter.Label(framecam, text='Camera No', width=10, anchor='e')    # 上記フレームに'Camera No'のラベル作成
+    Labelcam_1 = tkinter.Label(framecam, text='Camera No', width=10, anchor='e')  # 上記フレームに'Camera No'のラベル作成
     cbcam = ttk.Combobox(framecam, width=2, state='readonly')  # Combobox作成 書込み禁止設定
-    cbcam["values"] = cam_list  #　上記のコンボボックスの'values'にfind_cam()で検出したカメラリストを渡す。
+    cbcam["values"] = cam_list  # 上記のコンボボックスの'values'にfind_cam()で検出したカメラリストを渡す。
     cbcam.current(cam_no)  # 初期値にcam_noを渡す
 
-    Labelcam_4 = tkinter.Label(framecam, text='撮影Delay[ms]:', width=12, anchor='e') # 上記フレームにラベル'撮影Delay[ms]:'作成
+    Labelcam_4 = tkinter.Label(framecam, text='撮影Delay[ms]:', width=12, anchor='e')  # 上記フレームにラベル'撮影Delay[ms]:'作成
     Boxcam_4 = ttk.Combobox(framecam, width=4, state='readonly')  # Combobox作成 書込み禁止設定
     Boxcam_4["values"] = cam_delaylist  # 上記のコンボボックスの'values'に[100, 300, 500, 700, 1000]を渡す
     Boxcam_4.current(1)  # 初期値　300を初期値として設定
 
-    Labelcam_5 = tkinter.Label(framecam, text='撮影step数:', width=10, anchor='e') # 上記フレームに'撮影step数:'ラベル作成
-    Boxcam_5 = tkinter.Entry(framecam, width=3) # Entryを作成
-    Boxcam_5.insert(tkinter.END, 12)    # 上記Entryに12を入力欄の最後に追加
+    Labelcam_5 = tkinter.Label(framecam, text='撮影step数:', width=10, anchor='e')  # 上記フレームに'撮影step数:'ラベル作成
+    Boxcam_5 = tkinter.Entry(framecam, width=3)  # Entryを作成
+    Boxcam_5.insert(tkinter.END, 12)  # 上記Entryに12を入力欄の最後に追加
 
-    Labelcam_6 = tkinter.Label(framecam, text='保存名+No(Auto):', width=16, anchor='e')    # 上記フレームに'保存名+No(Auto):'ラベル作成
-    Boxcam_6 = tkinter.Entry(framecam, width=16)    # Entryを作成
-    Boxcam_6.insert(tkinter.END, 'test')    # 'test'を入力欄の最後に追加
+    Labelcam_6 = tkinter.Label(framecam, text='保存名+No(Auto):', width=16, anchor='e')  # 上記フレームに'保存名+No(Auto):'ラベル作成
+    Boxcam_6 = tkinter.Entry(framecam, width=16)  # Entryを作成
+    Boxcam_6.insert(tkinter.END, 'test')  # 'test'を入力欄の最後に追加
 
     # 説明を文字列変数で設定し、ラベルのtextに渡すことで表示
     explain1 = '使い方 [0]key :撮影開始(Pulse出力 Anystep同じ)'
@@ -2588,46 +2610,46 @@ def pi_window():
             return
 
     get_winposition()  # メインwindow座標取得
-    piWindow = tkinter.Toplevel(tk)     # mainウィンドウに紐づくサブウインドウとして作成
+    piWindow = tkinter.Toplevel(tk)  # mainウィンドウに紐づくサブウインドウとして作成
     piWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定　上記get_winposition()で取得した座標を指定 ディスプレー左上原点
-    framepi = tkinter.Frame(piWindow, pady=10, padx=10)     # piwindowにフレーム作成
+    framepi = tkinter.Frame(piWindow, pady=10, padx=10)  # piwindowにフレーム作成
     framepi.pack(anchor=tkinter.W)  # フレームの配置
 
-    Labelpi_0 = tkinter.Label(framepi, text='<PI 初期設定>', width=labewid_1, anchor='w')   # 上記フレームにラベル'<PI 初期設定>'作成
-    Labelpi_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)     # ラベルの配置
+    Labelpi_0 = tkinter.Label(framepi, text='<PI 初期設定>', width=labewid_1, anchor='w')  # 上記フレームにラベル'<PI 初期設定>'作成
+    Labelpi_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)  # ラベルの配置
 
     global Buttonpi_1
-    Buttonpi_1 = tkinter.Button(framepi, text=u'検出初期設定', width=12)      # フレームにボタン'検出初期設定'作成
-    Buttonpi_1.bind("<Button-1>", photo_init_bot)   # マウスの左クリックで　photo_init_bot関数実行
-    Buttonpi_1.grid(row=4, column=0, columnspan=2, sticky=tkinter.W)    # ボタンの配置
+    Buttonpi_1 = tkinter.Button(framepi, text=u'検出初期設定', width=12)  # フレームにボタン'検出初期設定'作成
+    Buttonpi_1.bind("<Button-1>", photo_init_bot)  # マウスの左クリックで　photo_init_bot関数実行
+    Buttonpi_1.grid(row=4, column=0, columnspan=2, sticky=tkinter.W)  # ボタンの配置
 
-    piresult[0] = tkinter.StringVar()   # リストのインデックス[0]に文字列変数設定
-    char = tkinter.Label(framepi, textvariable=piresult[0], width=8, anchor='w')    # テキスト変数に上記変数を渡してラベルの作成
+    piresult[0] = tkinter.StringVar()  # リストのインデックス[0]に文字列変数設定
+    char = tkinter.Label(framepi, textvariable=piresult[0], width=8, anchor='w')  # テキスト変数に上記変数を渡してラベルの作成
     piresult[0].set('未実施')  # リストの値に'未実施’指定
-    char.grid(row=4, column=2, columnspan=1)    # 上記ラベルの配置
+    char.grid(row=4, column=2, columnspan=1)  # 上記ラベルの配置
 
-    Labelpi_2 = tkinter.Label(framepi, text='<PI 位置検出>', width=labewid_1, anchor='w')       # 上記フレームにラベル'<PI 位置検出>'作成
-    Labelpi_2.grid(row=5, column=0, columnspan=3, sticky=tkinter.W)     # ラベルの配置
+    Labelpi_2 = tkinter.Label(framepi, text='<PI 位置検出>', width=labewid_1, anchor='w')  # 上記フレームにラベル'<PI 位置検出>'作成
+    Labelpi_2.grid(row=5, column=0, columnspan=3, sticky=tkinter.W)  # ラベルの配置
 
     global Buttonpi_2
     Buttonpi_2 = tkinter.Button(framepi, text=u'ゼロ位置セット', width=12)  # 上記フレームにボタン'ゼロ位置セット'作成
-    Buttonpi_2.bind("<Button-1>", photo_posiset_bot)    # マウスの左クリックで　photo?position_bot関数実行
-    Buttonpi_2.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)    # ボタンの配置
+    Buttonpi_2.bind("<Button-1>", photo_posiset_bot)  # マウスの左クリックで　photo?position_bot関数実行
+    Buttonpi_2.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)  # ボタンの配置
 
-    piresult[1] = tkinter.StringVar()   # リストのインデックス[1]に文字列変数設定
-    char = tkinter.Label(framepi, textvariable=piresult[1], width=8, anchor='w')    # テキスト変数に上記変数を渡してラベルの作成
+    piresult[1] = tkinter.StringVar()  # リストのインデックス[1]に文字列変数設定
+    char = tkinter.Label(framepi, textvariable=piresult[1], width=8, anchor='w')  # テキスト変数に上記変数を渡してラベルの作成
     piresult[1].set('未実施')  # リストの値に'未実施’指定
-    char.grid(row=6, column=2, columnspan=1)    # ラベルの配置
+    char.grid(row=6, column=2, columnspan=1)  # ラベルの配置
 
     global Buttonpi_3
     Buttonpi_3 = tkinter.Button(framepi, text=u'ゼロ位置確認', width=12)  # 上記framepiにボタン'ゼロ位置確認'作成
-    Buttonpi_3.bind("<Button-1>", photo_posicheck_bot)      # マウスの左クリックで photo_posicheck_bot実行
-    Buttonpi_3.grid(row=7, column=0, columnspan=2, sticky=tkinter.W)    # ボタンの配置
+    Buttonpi_3.bind("<Button-1>", photo_posicheck_bot)  # マウスの左クリックで photo_posicheck_bot実行
+    Buttonpi_3.grid(row=7, column=0, columnspan=2, sticky=tkinter.W)  # ボタンの配置
 
-    piresult[2] = tkinter.StringVar()   # リストのインデックス[2]に文字列変数設定
-    char = tkinter.Label(framepi, textvariable=piresult[2], width=8, anchor='w')    # テキスト変数に上記変数を渡してラベルの作成
-    piresult[2].set('-----')    # リストの値に'-----’指定
-    char.grid(row=7, column=2, columnspan=1)    # ラベルの配置
+    piresult[2] = tkinter.StringVar()  # リストのインデックス[2]に文字列変数設定
+    char = tkinter.Label(framepi, textvariable=piresult[2], width=8, anchor='w')  # テキスト変数に上記変数を渡してラベルの作成
+    piresult[2].set('-----')  # リストの値に'-----’指定
+    char.grid(row=7, column=2, columnspan=1)  # ラベルの配置
 
     global pitxt_res
     pitxt_res = tkinter.scrolledtext.ScrolledText(framepi, width=25, height=6)  # 上記framepiにスクロールドテキストボックス作成
@@ -2650,107 +2672,113 @@ def vrs_window():
             return
 
     get_winposition()  # メインwindow座標取得
-    vrsWindow = tkinter.Toplevel(tk)    # mainウインドウに紐づくサブウインドウとして作成
+    vrsWindow = tkinter.Toplevel(tk)  # mainウインドウに紐づくサブウインドウとして作成
     vrsWindow.geometry('+' + str(xposi) + '+' + str(yposi))  # window座標指定 上記get_winposition()で取得した座標を指定 ディスプレー左上原点
 
-    framevrs = tkinter.Frame(vrsWindow, pady=10, padx=10)   # 上記で作成したウインドウにフレームを作成
+    framevrs = tkinter.Frame(vrsWindow, pady=10, padx=10)  # 上記で作成したウインドウにフレームを作成
     framevrs.grid(row=0, column=0, sticky=tkinter.W, columnspan=2)  # フレームの配置
 
-    Labelvrs_0 = tkinter.Label(framevrs, text='<Vrs 検出Timing>', anchor='w')     # フレームframevrsにラベル'<Vrs 検出Timing>'作成
-    Labelvrs_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)    # ラベルの配置
+    Labelvrs_0 = tkinter.Label(framevrs, text='<Vrs 検出Timing>', anchor='w')  # フレームframevrsにラベル'<Vrs 検出Timing>'作成
+    Labelvrs_0.grid(row=0, column=0, columnspan=3, sticky=tkinter.W)  # ラベルの配置
 
     # ラベル配置
-    labelvr1_name = ['Dt区間1 [us]', 'Dt区間2 [us]', 'Dt区間3 [us]', 'Dt区間4 [us]']    # ラベルに記載する内容をリストで作成
+    labelvr1_name = ['Dt区間1 [us]', 'Dt区間2 [us]', 'Dt区間3 [us]', 'Dt区間4 [us]']  # ラベルに記載する内容をリストで作成
     for x, row in enumerate(labelvr1_name, 0):  # 上記リストの各インデックスと各値を読み出す
-        labelpi_N = tkinter.Label(framevrs, text=row, width=10, anchor='w')     #　読込んだrow値をテキストに渡しラベルの作成
-        labelpi_N.grid(column=0, row=x + 1, sticky=tkinter.W)   # row(行番号)=1～4までラベルの配置
+        labelpi_N = tkinter.Label(framevrs, text=row, width=10, anchor='w')  # 読込んだrow値をテキストに渡しラベルの作成
+        labelpi_N.grid(column=0, row=x + 1, sticky=tkinter.W)  # row(行番号)=1～4までラベルの配置
 
-    for x, col in enumerate(vrsdt_name, 0):     # リストvrsdt_nameのインデックス0から値をcolに読込む
-        col = 'vrsdtname' + str(x)      # せっかく読込んだcolにインデクスを文字列化し'vrsdtname'に加える
-                                        # 上記で設定したcolなのに以下でまた変更している
-    for x, col in enumerate(vrsdt_array, 0):    # initial_trainで書き換えられたvrsdt_arrayリストをcolに読込む
-        vrsdt_name[x] = tkinter.Entry(framevrs, width=6)    # インデックスx=0~3のEntryをframevrsに作成
+    for x, col in enumerate(vrsdt_name, 0):  # リストvrsdt_nameのインデックス0から値をcolに読込む
+        col = 'vrsdtname' + str(x)  # せっかく読込んだcolにインデクスを文字列化し'vrsdtname'に加える
+        # 上記で設定したcolなのに以下でまた変更している
+    for x, col in enumerate(vrsdt_array, 0):  # initial_trainで書き換えられたvrsdt_arrayリストをcolに読込む
+        vrsdt_name[x] = tkinter.Entry(framevrs, width=6)  # インデックスx=0~3のEntryをframevrsに作成
         vrsdt_name[x].insert(tkinter.END, col)  # 上記で作成したEntryにvrsdt_arrayの値を入力する
-        vrsdt_name[x].grid(column=1, row=x + 1, sticky=tkinter.W)   #　各Entry（4つ）を配置する
+        vrsdt_name[x].grid(column=1, row=x + 1, sticky=tkinter.W)  # 各Entry（4つ）を配置する
 
     # 検出パターン
     framevrs1 = tkinter.LabelFrame(vrsWindow, pady=10, padx=10, text='パターン判定')  # vrsWindowにラベルフレーム'パターン判定'作成
-    framevrs1.grid(row=0, column=2, columnspan=5, sticky=tkinter.W)     # ラベルフレームの配置
+    framevrs1.grid(row=0, column=2, columnspan=5, sticky=tkinter.W)  # ラベルフレームの配置
 
-    labelvr2_name = [0] * 16    # 16個の値を持つリストを作成
+    labelvr2_name = [0] * 16  # 16個の値を持つリストを作成
     for x, row in enumerate(labelvr2_name, 0):  # インデックス0～15まで、値をrowに読込む（この段階で値はオール0）
         labelpi_N = tkinter.Label(framevrs1, text=format(x, '04b'), width=4,
-                                  borderwidth=2, relief="ridge", )      # フレームframevrs1にラベルのフォーマットを4桁のバイナリとして作成
-        if x < 4:   # インデックスx=0～3
-            labelpi_N.grid(column=3 + 2 * x, row=1, sticky=tkinter.E)   # row=1 column=3,5,7,9に上記のラベルを配置
-        elif x < 8:     # インデックスx=4～7
-            labelpi_N.grid(column=3 + 2 * (x - 4), row=2, sticky=tkinter.E)     # row=2 column=3,5,7,9に上記のラベルを配置
-        elif x < 12:    # インデックスx=7～11
-            labelpi_N.grid(column=3 + 2 * (x - 8), row=3, sticky=tkinter.E)     # row=3 column=3,5,7,9に上記のラベルを配置
-        else:   # インデックスx=8～15
-            labelpi_N.grid(column=3 + 2 * (x - 12), row=4, sticky=tkinter.E)    # row=4 column=3,5,7,9に上記のラベルを配置
+                                  borderwidth=2, relief="ridge", )  # フレームframevrs1にラベルのフォーマットを4桁のバイナリとして作成
+        if x < 4:  # インデックスx=0～3
+            labelpi_N.grid(column=3 + 2 * x, row=1, sticky=tkinter.E)  # row=1 column=3,5,7,9に上記のラベルを配置
+        elif x < 8:  # インデックスx=4～7
+            labelpi_N.grid(column=3 + 2 * (x - 4), row=2, sticky=tkinter.E)  # row=2 column=3,5,7,9に上記のラベルを配置
+        elif x < 12:  # インデックスx=7～11
+            labelpi_N.grid(column=3 + 2 * (x - 8), row=3, sticky=tkinter.E)  # row=3 column=3,5,7,9に上記のラベルを配置
+        else:  # インデックスx=8～15
+            labelpi_N.grid(column=3 + 2 * (x - 12), row=4, sticky=tkinter.E)  # row=4 column=3,5,7,9に上記のラベルを配置
 
-    for x, col in enumerate(vrsjdg_name, 0):    # 16個の値を持つリストからインデックスと値を読込む
-        col = 'vrsjdgname' + str(x)     # 上記で読込んだcolだが、ここでインデクス番号を文字列化し'vrsjdgname'に追加して設定される。
+    for x, col in enumerate(vrsjdg_name, 0):  # 16個の値を持つリストからインデックスと値を読込む
+        col = 'vrsjdgname' + str(x)  # 上記で読込んだcolだが、ここでインデクス番号を文字列化し'vrsjdgname'に追加して設定される。
 
-    for x, row in enumerate(vrsjdg_array, 0):   # OK/NGを0/1で表したリストからインデックスと値を読込む
-        vrsjdg_name[x] = ttk.Combobox(framevrs1, width=4, state='readonly')  # Combobox作成 書込み禁止設定 vrsjdg_nameリストの各要素をコンボボックスとする
-        vrsjdg_name[x]["values"] = ("OK", "NG")     # コンボボックスのvaluesオプションにタプル("OK", "NG")を渡す
+    for x, row in enumerate(vrsjdg_array, 0):  # OK/NGを0/1で表したリストからインデックスと値を読込む
+        vrsjdg_name[x] = ttk.Combobox(framevrs1, width=4,
+                                      state='readonly')  # Combobox作成 書込み禁止設定 vrsjdg_nameリストの各要素をコンボボックスとする
+        vrsjdg_name[x]["values"] = ("OK", "NG")  # コンボボックスのvaluesオプションにタプル("OK", "NG")を渡す
         vrsjdg_name[x].current(vrsjdg_array[x])  # 初期値　コンボボックスの初期値としてvrsjdg_arrayの各インデクスに対応する値が設定される
-        if x < 4:   # インデックスx=0～3
-            vrsjdg_name[x].grid(column=4 + 2 * x, row=1, sticky=tkinter.W)      # row=1 column=4,6,8,10に上記のコンボボックスを配置
-        elif x < 8:     # インデックスx=4～7
-            vrsjdg_name[x].grid(column=4 + 2 * (x - 4), row=2, sticky=tkinter.W)    # row=2 column=4,6,8,10に上記のコンボボックスを配置
-        elif x < 12:    # インデックスx=8～11
-            vrsjdg_name[x].grid(column=4 + 2 * (x - 8), row=3, sticky=tkinter.W)    # row=3 column=4,6,8,10に上記のコンボボックスを配置
-        else:   # インデックスx=12～16
-            vrsjdg_name[x].grid(column=4 + 2 * (x - 12), row=4, sticky=tkinter.W)   # row=4 column=4,6,8,10に上記のコンボボックスを配置
+        if x < 4:  # インデックスx=0～3
+            vrsjdg_name[x].grid(column=4 + 2 * x, row=1, sticky=tkinter.W)  # row=1 column=4,6,8,10に上記のコンボボックスを配置
+        elif x < 8:  # インデックスx=4～7
+            vrsjdg_name[x].grid(column=4 + 2 * (x - 4), row=2, sticky=tkinter.W)  # row=2 column=4,6,8,10に上記のコンボボックスを配置
+        elif x < 12:  # インデックスx=8～11
+            vrsjdg_name[x].grid(column=4 + 2 * (x - 8), row=3, sticky=tkinter.W)  # row=3 column=4,6,8,10に上記のコンボボックスを配置
+        else:  # インデックスx=12～16
+            vrsjdg_name[x].grid(column=4 + 2 * (x - 12), row=4, sticky=tkinter.W)  # row=4 column=4,6,8,10に上記のコンボボックスを配置
 
     # 結果表示テキスト
-    framevrs2 = tkinter.Frame(vrsWindow, pady=10, padx=10)      # vrsWindowにフレームframevrs2を作成
-    framevrs2.grid(row=2, column=0, columnspan=10, sticky=tkinter.W)    # 上記フレームを配置
+    framevrs2 = tkinter.Frame(vrsWindow, pady=10, padx=10)  # vrsWindowにフレームframevrs2を作成
+    framevrs2.grid(row=2, column=0, columnspan=10, sticky=tkinter.W)  # 上記フレームを配置
     global vrsres_name
     vrsres_name = ['Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分', '判定']  # リストでラベル名を作成
-    for x, row in enumerate(vrsres_name, 0):    # インデクスx=0～3、rowは上記リストの各要素
+    for x, row in enumerate(vrsres_name, 0):  # インデクスx=0～3、rowは上記リストの各要素
         if x == 0 or x == 3 or x == 2:  # 文字数違いでラベルを作成
             labelpi_N = tkinter.Label(framevrs2, text=row, width=10, anchor='w')
         elif x == 1:
             labelpi_N = tkinter.Label(framevrs2, text=row, width=35, anchor='w')
-        else:   # この条件はない
+        else:  # この条件はない
             labelpi_N = tkinter.Label(framevrs2, text=row, width=6, anchor='w')
         if x == 0 or x == 1 or x == 2:  # 'Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分'のみ配置
             labelpi_N.grid(row=0, column=3 * x, columnspan=3, sticky=tkinter.W)
 
-    for x, row in enumerate(vrsres_name, 0):    # インデクスx=0～3、rowはリスト['Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分', '判定']の各要素
+    for x, row in enumerate(vrsres_name,
+                            0):  # インデクスx=0～3、rowはリスト['Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分', '判定']の各要素
         if x == 0:  # 'Total判定'
-            vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=25, height=15)  # 上記リストの各要素をスクロールドテキストに変更
-        elif x == 1:    # '判定| Pattern| Timing[us]'
+            vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=25,
+                                                               height=15)  # 上記リストの各要素をスクロールドテキストに変更
+        elif x == 1:  # '判定| Pattern| Timing[us]'
             vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=35, height=15)
-        elif x == 3:    # '判定' これは作成されるが、配置されない
+        elif x == 3:  # '判定' これは作成されるが、配置されない
             vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=6, height=15)
-        else:   # , 'NG位置| 差分',
+        else:  # , 'NG位置| 差分',
             vrsres_name[x] = tkinter.scrolledtext.ScrolledText(framevrs2, width=10, height=15)
-        if x == 0 or x == 1 or x == 2:      # 'Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分'のみ配置する
+        if x == 0 or x == 1 or x == 2:  # 'Total判定', '判定| Pattern| Timing[us]', 'NG位置| 差分'のみ配置する
             vrsres_name[x].grid(row=1, column=3 * x, columnspan=3, sticky=tkinter.W)
 
-    Buttonvrs_1 = tkinter.Button(framevrs2, text=u'クリア', width=12, command=vrstext_clear)   # フレームframevrs2にボタン'クリア'作成
-    Buttonvrs_1.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)   # 上記ボタンの配置
+    Buttonvrs_1 = tkinter.Button(framevrs2, text=u'クリア', width=12, command=vrstext_clear)  # フレームframevrs2にボタン'クリア'作成
+    Buttonvrs_1.grid(row=6, column=0, columnspan=2, sticky=tkinter.W)  # 上記ボタンの配置
 
-    Buttonvrs_2 = tkinter.Button(framevrs2, text=u'詳細保存', width=10, command=vrstext_save_manu)  # フレームframevrs2にボタン'詳細保存'作成
-    Buttonvrs_2.grid(row=6, column=3, columnspan=1, sticky=tkinter.E)   # 上記ボタンの配置
+    Buttonvrs_2 = tkinter.Button(framevrs2, text=u'詳細保存', width=10,
+                                 command=vrstext_save_manu)  # フレームframevrs2にボタン'詳細保存'作成
+    Buttonvrs_2.grid(row=6, column=3, columnspan=1, sticky=tkinter.E)  # 上記ボタンの配置
 
     global entryvrs_1
-    entryvrs_1 = tkinter.Entry(framevrs2, width=14)     # フレームframevrs2にEntry作成
-    entryvrs_1.insert(tkinter.END, 'file name')     # Entryの最後に'file name'追記
-    entryvrs_1.grid(row=6, column=4, columnspan=3, sticky=tkinter.W)    # Entryの配置
+    entryvrs_1 = tkinter.Entry(framevrs2, width=14)  # フレームframevrs2にEntry作成
+    entryvrs_1.insert(tkinter.END, 'file name')  # Entryの最後に'file name'追記
+    entryvrs_1.grid(row=6, column=4, columnspan=3, sticky=tkinter.W)  # Entryの配置
 
-    Buttonvrs_3 = tkinter.Button(framevrs2, text=u'offset送信', width=8, command=vrsng_phoffset)  # フレームramevrs2にボタン'offset送信'作成
-    Buttonvrs_3.grid(row=6, column=6, columnspan=1, sticky=tkinter.E)   # ボタンの配置
+    Buttonvrs_3 = tkinter.Button(framevrs2, text=u'offset送信', width=8,
+                                 command=vrsng_phoffset)  # フレームramevrs2にボタン'offset送信'作成
+    Buttonvrs_3.grid(row=6, column=6, columnspan=1, sticky=tkinter.E)  # ボタンの配置
 
     global entryvrs_2
     entryvrs_2 = tkinter.Entry(framevrs2, width=4)  # フレームframevrs2にEntry作成
-    entryvrs_2.insert(tkinter.END, '-2')    # Entryの最後に-2を追記
-    entryvrs_2.grid(row=6, column=7, columnspan=1, sticky=tkinter.W)    # 上記Entryの配置
+    entryvrs_2.insert(tkinter.END, '-2')  # Entryの最後に-2を追記
+    entryvrs_2.grid(row=6, column=7, columnspan=1, sticky=tkinter.W)  # 上記Entryの配置
+
 
 # ---------------- ~ 関数定義 ---------------------------------
 #
