@@ -1170,16 +1170,19 @@ def filepath_get(name, setting):  # setting 0:1ファイル、1:複数ファイ�
         filepath = tkinter.filedialog.askopenfilename(filetypes=filetype, initialdir=dirpath)
     return filepath     # ファイルパスをreturn
 
-# 2022.11.29
+
 def pulse_reading(event):
     """
+    mainウインドウの<Pulse幅[us]/本数>欄の設定送信ボタンの横の設定読み込みボタン（表示されていない）をマウスクリックした際にコールされ、
+    エクセルファイルから、パルス幅、本数を読み込み<Pulse幅/本数>のEntryボックスに表示し、内容をNucleoに送信する
+    ただし、ボタンがそもそも表示されていないため、この関数は機能しない
 
     :param event:
     :return:
     """
     # global  filepath
-    filepath = filepath_get('width', 0)
-    width_name.set(os.path.basename(filepath))
+    filepath = filepath_get('width', 0)     # 'ファイルネームに'width'を含むエクセルファイルのパスを取得
+    width_name.set(os.path.basename(filepath))  # mainウインドウの<設定送信>の横にlabel5_21のテキスト表示でファイルパスを表示する仕組みだが機能しない
     global pulse_width_array
     global pulse_num_array
 
@@ -1198,23 +1201,27 @@ def pulse_reading(event):
 ######シーケンス設定読み込み
 def seq_setting():
     """
+    mainウインドウのシーケンス機能ボタン押下で表示されるシーケンス設定ウインドウの設定読込ボタンを押下で実行されるpulse_seqread_bot()
+    の中でスレッド処理設定されるスレッド実行部分
 
     :return:
     """
     global seq_path
-    seq_path = filepath_get('seq', 1)  # ファイル選択ウィンドウ,複数ファイル選択可
+    seq_path = filepath_get('seq', 1)  # ファイル選択ウィンドウで、'seq'を含む複数のファイルのパスを得る
 
     seq_filelist = ['表示設定']
-    for i, row in enumerate(seq_path, 0):
-        seq_filelist.append(os.path.splitext(os.path.basename(row))[0])
-    seq_filelist.append('全て実行')
+    for i, row in enumerate(seq_path, 0):   # row:上記で得たファイルパス
+        # os.path.splitext(file_path)でタプルで（'拡張子以外',’.拡張子')を得る。[0]は拡張子以外、[1]は.拡張子
+        # os.path.basename(file_path)で拡張子付きファイルネームのみ取得
+        seq_filelist.append(os.path.splitext(os.path.basename(row))[0])     # ファイルネームのみ（拡張子無し）を取得
+    seq_filelist.append('全て実行')     # seq_filelist = ['表示設定', file1, file2, file3,・・・, '全て実行']
 
-    Combopi1["values"] = seq_filelist
-    Combopi1.current(0)  # 初期値
+    Combopi1["values"] = seq_filelist   # シーケンス設定ウインドウの<シーケンス設定>欄のコンボBoxのvaluesオプションに上記filelistを渡す
+    Combopi1.current(0)  # 初期値  '表示設定'
     # print(str(Combopi1.current()))
-    seq_update(seq_path[0])
+    seq_update(seq_path[0])     # 上記でファイル選択したファイルパスの1番目の値を引数にseq_update関数をコール
 
-
+# 2022.11.30
 def seq_reading(event):  # 読み込みボタン処理
     """
 
