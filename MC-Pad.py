@@ -1221,18 +1221,18 @@ def seq_setting():
     # print(str(Combopi1.current()))
     seq_update(seq_path[0])     # 上記でファイル選択したファイルパスの1番目の値を引数にseq_update関数をコール
 
-# 2022.11.30
+
 def seq_reading(event):  # 読み込みボタン処理
     """
-
+    シーケンスウインドウの<シーケンス設定>欄にある適用ボタンをマウス左クリックした際にコールされ、適用ボタンの左にあるコンボBoxにシーケンスファイルがある場合にseq_updateを実行
     :param event:
     :return:
     """
     if 'seq_path' in globals():
-        if (Combopi1.current() != 0) and (Combopi1.get() != "全て実行"):
-            seq_update(seq_path[Combopi1.current() - 1])
+        if (Combopi1.current() != 0) and (Combopi1.get() != "全て実行"):    # current()でインデクス、get()で値の取得をする
+            seq_update(seq_path[Combopi1.current() - 1])        # 現在のインデックス-1のファイルを指定してシーケンスupdate実行
 
-
+# 2022.12.2
 def seq_update(filepath):
     """
 
