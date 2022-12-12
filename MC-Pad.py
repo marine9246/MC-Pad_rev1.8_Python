@@ -1232,31 +1232,31 @@ def seq_reading(event):  # 読み込みボタン処理
         if (Combopi1.current() != 0) and (Combopi1.get() != "全て実行"):    # current()でインデクス、get()で値の取得をする
             seq_update(seq_path[Combopi1.current() - 1])        # 現在のインデックス-1のファイルを指定してシーケンスupdate実行
 
-# 2022.12.2
+
 def seq_update(filepath):
     """
-
+    filepathで指定されたシーケンスファイルを実行
     :param filepath:
     :return:
     """
     # filepath = filepath_get('seq',0)#ファイル選択ウィンドウ
 
-    seqWindow.lift()  # シーケンスwindowをtopへ
+    seqWindow.lift()  # シーケンスwindowを最前面に移動させる
     try:  # エラー発生した場合、except実行
-        seq_filename = os.path.splitext(os.path.basename(filepath))[0]
-        seq_filename = seq_filename.replace('_seq', '')
-        seq_name.set(seq_filename)  # 読み込みファイル名表示
+        seq_filename = os.path.splitext(os.path.basename(filepath))[0]      # filepathで渡されたファイル名（拡張子無し）を取得
+        seq_filename = seq_filename.replace('_seq', '')     # 上記で取得したファイル名の_seqを削除
+        seq_name.set(seq_filename)  # 読み込みファイル名表示をlabel5_21のラベル文字としてシーケンスウィンドウの設定読み込みボタンの横に表示
         global sequence_array
-
-        df_seq_all = pd.read_excel(str(filepath), index_col=0, sheet_name=None)
-        df_seq_raw = df_seq_all['seq']  # シート毎のデータに
+        # pandas.DataFrameとして読み込む
+        df_seq_all = pd.read_excel(str(filepath), index_col=0, sheet_name=None)     # filepathで渡されたExcelファイルを先頭列をインデックスに全てのシートを読込む
+        df_seq_raw = df_seq_all['seq']  # シートは、[seq]と[option]シートの2つがあるのでシート毎のデータに分ける
         df_op_raw = df_seq_all['option']
         # シーケンス動作設定
-        df_seq = df_seq_raw.loc[:, 'pulse':'1sec'].astype(str)
-        df_seq['Vm'] = df_seq_raw['Vm']
-        sequence_array = df_seq.values.tolist()  # Dataframeをlistに変換
-        insert_entry(sequence_name, sequence_array)
-        # 電圧、パルス幅、周波数設定
+        df_seq = df_seq_raw.loc[:, 'pulse':'1sec'].astype(str)      # 全部の行と'pulse'～'1sec'までの列で示される2次元データを文字列データとして読込む
+        df_seq['Vm'] = df_seq_raw['Vm']     # 'Vm'列のデータを読み込む
+        sequence_array = df_seq.values.tolist()  # 上記のDataframeデータをlistに変換
+        insert_entry(sequence_name, sequence_array)     # シーケンス設定ウインドウの<動作設定>欄のEntryボックスに書き込む
+        # 2022.12.12 # 電圧、パルス幅、周波数設定
         df_op_vm = df_op_raw.loc['voltage':'freq', 'start':'step'].astype(str)
         piset_value_array = df_op_vm.values.tolist()  # Dataframeをlistに変換
         insert_entry(piset_value_name[:3], piset_value_array)
