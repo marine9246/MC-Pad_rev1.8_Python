@@ -1254,42 +1254,42 @@ def seq_update(filepath):
         # シーケンス動作設定
         df_seq = df_seq_raw.loc[:, 'pulse':'1sec'].astype(str)      # 全部の行と'pulse'～'1sec'までの列で示される2次元データを文字列データとして読込む
         df_seq['Vm'] = df_seq_raw['Vm']     # 'Vm'列のデータを読み込む
-        sequence_array = df_seq.values.tolist()  # 上記のDataframeデータをlistに変換
+        sequence_array = df_seq.values.tolist()  # 上記のDataframeデータをlistに変換 ex:[[0,8,50,...3],[0,1,1000,...3],...[0,1,50...3]]
         insert_entry(sequence_name, sequence_array)     # シーケンス設定ウインドウの<動作設定>欄のEntryボックスに書き込む
-        # 2022.12.12 # 電圧、パルス幅、周波数設定
-        df_op_vm = df_op_raw.loc['voltage':'freq', 'start':'step'].astype(str)
-        piset_value_array = df_op_vm.values.tolist()  # Dataframeをlistに変換
-        insert_entry(piset_value_name[:3], piset_value_array)
+        # 電圧、パルス幅、周波数設定
+        df_op_vm = df_op_raw.loc['voltage':'freq', 'start':'step'].astype(str)  # optionシートの行：（voltage~freq）、列：（start~step）の値をstrにして読み込む
+        piset_value_array = df_op_vm.values.tolist()  # Dataframeをlistに変換 ex:[[3.4,2.6,0.4],[1,1,0.2],[50,200,50]]
+        insert_entry(piset_value_name[:3], piset_value_array)   # シーケンス設定ウインドウの<シーケンス設定>欄のEntryボックスに書き込む
         # 区間のパルス幅変更有無
-        df_op_sec = df_op_raw.loc['pulse', 'A':'F'].astype(int)
-        sec_array = df_op_sec.values.tolist()  # Dataframeをlistに変換
-        set_checkbox(piseq_section, sec_array)
+        df_op_sec = df_op_raw.loc['pulse', 'A':'F'].astype(int)     # 'option'シートのデータの内、行：'pulse'、列：'A~F'のデータをint型に変換する。
+        sec_array = df_op_sec.values.tolist()  # Dataframeをlistに変換　ex：[1,1,1,1,1,1]
+        set_checkbox(piseq_section, sec_array)  # シーケンスウインドウの<シーケンス設定>欄のチェックボタン'A'~'F'を上記のsec_arrayのリストの値を書き込む
         # 判定実施の有無
-        df_op_jdge = df_op_raw.loc['判定', 'start':'C'].fillna(0).astype(int)
-        jdge_array = df_op_jdge.values.tolist()  # Dataframeをlistに変換
+        df_op_jdge = df_op_raw.loc['判定', 'start':'C'].fillna(0).astype(int)     # 'option'シートのデータの内、行:’判定'、列:'start'~'c'のデータをint型に変換する。欠損値は0で置き換え
+        jdge_array = df_op_jdge.values.tolist()  # Dataframeをlistに変換 ex:[1,0,1,1,1,0]
         # jdge_array = jdge_array.fillna(0) #欠損値Nanを0に置換 旧seqfile対応
-        set_checkbox(seq_jdge_array, jdge_array)
+        set_checkbox(seq_jdge_array, jdge_array)    # シーケンスウインドウの<シーケンス設定>欄の判定チェックボタンに値を設定
         # フォトインタラプタ設定
-        df_op_pi = df_op_raw.loc['PI設定', 'start':'C'].astype(int)
-        piset_array = df_op_pi.values.tolist()  # Dataframeをlistに変換
-        print(piset_array[1:5])
-        for i, col in enumerate(piset_name, 0):
-            if i == 0 or i == 4:
-                col.current(int(piset_array[i]))
+        df_op_pi = df_op_raw.loc['PI設定', 'start':'C'].astype(int)   # 'option'シートのデータの内、行:’PI設定'、列:'start'~'c'のデータをint型に変換する。
+        piset_array = df_op_pi.values.tolist()  # Dataframeをlistに変換 ex:[1,360,200,3,2,0]
+        print(piset_array[1:5])     # コンソールに上記piset_arrayのデータの内、インデックス1~4までをprint出力
+        for i, col in enumerate(piset_name, 0):     # i:0~5、col：リストpiset_nameの値（中身はウィジェットでコンボボックス、Entry,Entry,Entry,コンボボックス,Entry）
+            if i == 0 or i == 4:    # piset_arrayの内容は、Pulse,Fullstep,Freq,電圧,mode,offset
+                col.current(int(piset_array[i]))    # i=0:Pulse, i=4:modeの場合は、値をint型でcol(コンボbox）にセット
             else:
-                col.delete(0, tkinter.END)
+                col.delete(0, tkinter.END)      # col(Entry)の内容を削除し、Fullstep,Freq,電圧,offsetのいずれかの値をセットする
                 col.insert(tkinter.END, piset_array[i])
 
-        Button6_2.config(state="normal")  # ボタン有効化
+        Button6_2.config(state="normal")  # ボタン有効化 シーケンスウインドウの設定読み込みボタン
 
         # seqWindow.attributes("-topmost", True) #windowをtopに表示
 
     except(FileNotFoundError, TypeError):
         tkinter.messagebox.showerror('エラー', 'seq.xlsxファイルが見つかりません')
     except:
-        tkinter.messagebox.showerror('エラー', 'seq.xlsxファイル読み込みに失敗しました')
+        tkinter.messagebox.showerror('エラー', 'seq.xlsxファイル読み込みに失敗しました')  # 上記2つのエラー以外の処理
 
-
+# 2022.12.14
 # ----------------- train_sort() --------------------------
 def train_sort(array_name):  # パルス種類数が6以下の場合に配列の行を合わせる
     """
