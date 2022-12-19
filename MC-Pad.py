@@ -1289,19 +1289,19 @@ def seq_update(filepath):
     except:
         tkinter.messagebox.showerror('エラー', 'seq.xlsxファイル読み込みに失敗しました')  # 上記2つのエラー以外の処理
 
-# 2022.12.14
+
 # ----------------- train_sort() --------------------------
 def train_sort(array_name):  # パルス種類数が6以下の場合に配列の行を合わせる
     """
     GUI上はパルス種類が7種類表示できるが、パルス種類が6種類以下の場合にリストデータを0で補い、リストの行を7行に合わせる。
-    その際、返還後の最後の行（7行目）に返還前の最後の行データを設定する。
+    その際、変換後の最後の行（7行目）に変換前の最後の行データを設定する。
     （例） パルス種類がデフォルト7だが、2種類しか指定されない場合
-    返還前
+    変換前
                 A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
     パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12
     パルス2      P21   P22  P23 ..P26      P27 P28 P29  .. P212
 
-    返還後
+    変換後
                 A1   B1  C1  ..  F1       A2  B2  C2  ..  F2
     パルス1      P1    P2   P3 .. P6       P7  P8  P9   .. P12
     パルス2      0     0    0  ..  0       0   0   0    .. 0
@@ -1312,7 +1312,7 @@ def train_sort(array_name):  # パルス種類数が6以下の場合に配列の
     パルス7      P21   P22  P23 ..P26      P27 P28 P29  .. P212
 
     :param: array_name   リスト pulse_train_array,pulse_width_array,pulse_name_array
-    :return:    リスト　返還後のpulse_train_array,pulse_width_array,pulse_name_array
+    :return:    リスト　変換後のpulse_train_array,pulse_width_array,pulse_name_array
     """
     global pulse_disp_num
     pulse_disp_num = len(array_name) - 1
@@ -1395,7 +1395,7 @@ def train_conv():  # パルス列を記号に変換
 # ----------------- train_reading() -----------------------
 def train_reading(readfile):
     """
-    Excel file(initial_train.xlsx)のsenddataシートの値を読み込み、各項目をリスト化する。
+    Excel file('***train')のsenddataシートの値を読み込み、各項目をリスト化する。
     例外処理（ファイル無し、読み込みエラー）有り
 
     :param readfile: initial_train.xlsxファイルのフルパス
@@ -1475,32 +1475,33 @@ def train_reading(readfile):
 # ----------------- ~ train_reading ------------------------
 def train_setting():
     """
-
+    mainウインドウのパルス列設定ボタン押下で表示されるパルス列設定ウインドウの設定読込ボタンを押下で実行されるpulse_train_bot()内で
+    生成されるスレッド処理
     :return:
     """
     # global  filepath
-    filepath = filepath_get('train', 0)
+    filepath = filepath_get('train', 0)     # 'tarin'を含む、1ファイルのパスを取得する
 
-    trainWindow.lift()  # パルス列windowをtopへ
-    train_reading(filepath)
+    trainWindow.lift()  # パルス列設定windowをtopへ
+    train_reading(filepath)     # 上記で取得したfilepathのエクセルファイルを読込む
 
-    for y, row in enumerate(pulse_train_labename, 0):
-        row.set(pulse_train_name[y])
+    for y, row in enumerate(pulse_train_labename, 0):   # pulse_train_lebname:パルス設定ウインドウのラベルウィジェット
+        row.set(pulse_train_name[y])        # ラベルウィジェットにpulse_train_name[y]の値をセットする
 
-    train_conv()
+    train_conv()        # 読込んだtrainデータをパルス設定ウインドウにラベルとして（NP/--,NP/NP,...とか）表示する値に変換する
     # print('check')
-    insert_train()
+    insert_train()      #　パルス列設定ウインドウのラベル表示　NP/--　NP/NP・・・等を動的に変える
     # print('check2')
 
-    insert_entry(pulse_wid_name, pulse_width_array)  # entryに書込み
-    insert_entry(pulse_num_name, pulse_num_array)  # entryに書込み
+    insert_entry(pulse_wid_name, pulse_width_array)  # メインウインドウの<pulse幅[us]/本数>のpulse幅Entryに書き込み
+    insert_entry(pulse_num_name, pulse_num_array)  # メインウインドウの<pulse幅[us]/本数>の本数Entryに書き込み
 
-    pulse_width_set()  # パルス幅設定送信
-    pulse_train_set()  # パルス列設定送信
+    pulse_width_set()  # パルス幅設定送信   Nucleoへ
+    pulse_train_set()  # パルス列設定送信   Nucleoへ
 
     Button8_1.config(state="normal")  # ボタン有効化
 
-
+# 2022.12.19
 # スクリーンショット#############
 def screen_shot(handle1, handle2, fname):
     """
