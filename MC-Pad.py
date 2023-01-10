@@ -1501,11 +1501,11 @@ def train_setting():
 
     Button8_1.config(state="normal")  # ボタン有効化
 
-# 2022.12.19
 # スクリーンショット#############
 def screen_shot(handle1, handle2, fname):
     """
-
+    seqウインドウかmainウインドウのイメージ（スクリーンショット)読み取り処理
+    handle1のみ指定されてコールされるのみ
     :param handle1:
     :param handle2:
     :param fname:
@@ -1518,7 +1518,7 @@ def screen_shot(handle1, handle2, fname):
     im1 = ImageGrab.grab().crop(rect1)
     im2 = ImageGrab.grab().crop(rect2)
 
-
+# 2023.1.10
 def screen_shot(handle):
     """
 
