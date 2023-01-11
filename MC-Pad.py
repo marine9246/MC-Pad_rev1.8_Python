@@ -1504,8 +1504,8 @@ def train_setting():
 # スクリーンショット#############
 def screen_shot(handle1, handle2, fname):
     """
+    パラメータにより、同じ名称の関数を選択
     seqウインドウかmainウインドウのイメージ（スクリーンショット)読み取り処理
-    handle1のみ指定されてコールされるのみ
     :param handle1:
     :param handle2:
     :param fname:
@@ -1518,22 +1518,22 @@ def screen_shot(handle1, handle2, fname):
     im1 = ImageGrab.grab().crop(rect1)
     im2 = ImageGrab.grab().crop(rect2)
 
-# 2023.1.10
+
 def screen_shot(handle):
     """
-
+    seqウインドウかmainウインドウのイメージ（スクリーンショット)読み取り処理
     :param handle:
     :return:
     """
     # handle = win32gui.GetForegroundWindow() # 最前面のウィンドウハンドルを取得
     rect = win32gui.GetWindowRect(handle)  # ウィンドウの位置を取得
-    im = ImageGrab.grab().crop(rect)
+    im = ImageGrab.grab().crop(rect)        # イメージの取得
     return im
 
 
 def concat_img(im1, im2, fname):  # 画像の結合
     """
-
+    イメージファイルの結合を実施し、ファイル名を指定して保存する
     :param im1:
     :param im2:
     :param fname:
@@ -1548,7 +1548,7 @@ def concat_img(im1, im2, fname):  # 画像の結合
 
 def get_handle():
     """
-
+    ウインドウハンドル（識別情報）を取得する
     :return:
     """
     handle = win32gui.GetForegroundWindow()  # 最前面のウィンドウハンドルを取得
@@ -1558,7 +1558,7 @@ def get_handle():
 # カメラ関係サブルーチン##################
 def find_cam():
     """
-    システムに接続されているカメラの検出し、そのデバイスIDを決める
+    システムに接続されているカメラを検出し、そのデバイスIDを決める
     :return:
     """
     global cam_list
@@ -1575,7 +1575,8 @@ def find_cam():
 
 def disp_cam(event):
     """
-
+    カメラウインドウ内のカメラ接続ボタン左クリック操作でコールされるカメラ操作処理
+    撮影、オートフォーカス、フォーカス設定等
     :param event:
     :return:
     """
@@ -1639,7 +1640,7 @@ def disp_cam(event):
 
 def cam_focus_set(focus):
     """
-
+    フォーカス値によるフォーカス設定
     :param focus:
     :return:
     """
@@ -1651,16 +1652,16 @@ def cam_focus_set(focus):
 
 def cam_get_img(pulseno):
     """
-
+    pulseno: 0=正転、1=逆転を指定して撮影開始
     :param pulseno:
     :return:
     """
     if Com_No == 'Nucleo未接続':
         tkinter.messagebox.showerror('エラー', 'Nucleoが接続されていません')
     else:
-        delay = int(Boxcam_4.get()) / 1000
-        rept = int(Boxcam_5.get())
-        name = str(Boxcam_6.get())
+        delay = int(Boxcam_4.get()) / 1000      # 撮影ディレイ
+        rept = int(Boxcam_5.get())              # 撮影ステップ数
+        name = str(Boxcam_6.get())              # ファイル名
 
         now = datetime.datetime.now()
         dirpath = os.getcwd()  # os.path.dirname(__file__)
@@ -1698,7 +1699,7 @@ def cam_get_img(pulseno):
             format(min(delay_result), '.3f')) + 's')
         print('測定時間 Total' + str(format(time_total, '.2f')) + 's')
 
-
+# 2023.1.11
 #################################################
 ####　フォトインタラプタ関係サブルーチン　#######
 
